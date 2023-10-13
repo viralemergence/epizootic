@@ -15,7 +15,9 @@ BugReports: https://github.com/viralemergence/epizootic/issues
 Depends: R (>= 3.3.0)
 Imports:
     purrr (>= 1.0.0),
-    terra (>= 1.7)
+    terra (>= 1.7),
+    dplyr (>= 1.1.3),
+    waldo (>= 0.5.1)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

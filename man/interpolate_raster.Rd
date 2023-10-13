@@ -25,6 +25,8 @@ may be, e.g., \code{c(1940, 1945)}.}
 \item{time_label}{\code{terra::SpatRaster}s do not allow raw numbers as names of raster layers. Therefore
 a string is needed to place before the timestep number, e.g., "BP", "BCE".}
 
+\item{...}{Does nothing. A placeholder for future code improvements.}
+
 \item{method}{Interpolation method passed on to \code{terra::approximate}. Default is "linear";
 alternative is "constant", which implements a step function.}
 }
