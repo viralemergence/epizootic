@@ -7,7 +7,7 @@
 siri_model_year(initial_vector, summer_params, winter_params, ...)
 }
 \arguments{
-\item{initial_vector}{Represents the state of the population at the start of the breeding season.
+\item{initial_vector}{Represents the state of the population at the start of the year.
 A list with named elements, each one a numeric of length 1:
 \describe{
 \item{\code{Sj}}{Susceptible juveniles.}
