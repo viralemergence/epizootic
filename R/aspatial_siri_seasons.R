@@ -9,8 +9,8 @@
 #' difference between this function and the one for simulating an outbreak in the non-breeding season
 #' is that this one includes fecundity.
 #'
-#' @import waldo
-#' @import stats
+#' @importFrom waldo compare
+#' @importFrom stats rbinom rpois
 #' @import dplyr
 #' @import tibble
 #' @param initial_vector Represents the state of the population at the start of the breeding season.
@@ -337,6 +337,11 @@ siri_model_winter <- function(initial_vector, parms, ...) {
 #'
 #' The responsibility is on the user to ensure that the winter and summer season lengths add up in
 #' a reasonable way.
+#'
+#' @importFrom stats complete.cases
+#' @importFrom utils tail
+#' @importFrom tidyr pivot_longer
+#'
 #' @param initial_vector Represents the state of the population at the start of the year.
 #' A list with named elements, each one a numeric of length 1:
 #' \describe{

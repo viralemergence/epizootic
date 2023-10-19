@@ -3,7 +3,7 @@
 #' Interpolates missing time points in a raster stack with layers for different time points. Intended
 #' for `terra::SpatRaster` use only.
 #'
-#' @import terra
+#' @importFrom terra rast approximate xmin xmax ymin ymax crs res values<-
 #' @import purrr
 #' @param raster_stack A `terra::SpatRaster` with at least two layers.
 #' @param source_time A numeric vector indicating the timesteps of the `raster_stack`, whatever those
