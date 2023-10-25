@@ -1,20 +1,22 @@
 #' Simulate a *Mycoplasma gallisepticum* Outbreak in the Breeding Season
 #'
-#' Simulate a *Mycoplasma gallisepticum* outbreak during the breeding season day-by-day in a
-#' population of house finches (*Haemorhous mexicanus*). Uses a SIRI model (Susceptible-Infected 1-
-#' Recovered-Infected 2+) and includes demographic stochasticity in fecundity, mortality, and
-#' infection.
+#' Simulate a *Mycoplasma gallisepticum* outbreak during the breeding season
+#' day-by-day in a population of house finches (*Haemorhous mexicanus*). Uses a
+#' SIRI model (Susceptible-Infected 1- Recovered-Infected 2+) and includes
+#' demographic stochasticity in fecundity, mortality, and infection.
 #'
-#' The function can also handle the case in which there are no infected individuals. The principal
-#' difference between this function and the one for simulating an outbreak in the non-breeding season
-#' is that this one includes fecundity.
+#' The function can also handle the case in which there are no infected
+#' individuals. The principal difference between this function and the one for
+#' simulating an outbreak in the non-breeding season is that this one includes
+#' fecundity.
 #'
 #' @importFrom waldo compare
 #' @importFrom stats rbinom rpois
 #' @import dplyr
 #' @import tibble
-#' @param initial_vector Represents the state of the population at the start of the breeding season.
-#' A list with named elements, each one a numeric of length 1:
+#' @param initial_vector Represents the state of the population at the start of
+#'   the breeding season. A list with named elements, each one a numeric of
+#'   length 1:
 #' \describe{
 #'     \item{\code{Sj}}{Susceptible juveniles.}
 #'     \item{\code{Sa}}{Susceptible adults.}
@@ -28,9 +30,11 @@
 #' @param parms A vector of simulation parameters:
 #' \describe{
 #'     \item{\code{season_length}}{Length of the breeding season in days.}
-#'     \item{\code{carrying_capacity}}{Carrying capacity of finches in the population.}
+#'     \item{\code{carrying_capacity}}{Carrying capacity of finches in the
+#'     population.}
 #'     \item{\code{birth}}{Daily fecundity.}
-#'     \item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in breeding season.}
+#'     \item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in
+#'     breeding season.}
 #'     \item{\code{beta_Sa}}{Daily transmission for susceptible adults in breeding season.}
 #'     \item{\code{beta_Rj}}{Daily transmission for recovered juveniles in breeding season.}
 #'     \item{\code{beta_Ra}}{Daily transmission for recovered adults in breeding season.}
@@ -44,8 +48,8 @@
 #'     \item{\code{recovery_I2}}{Daily recovery rate of birds infected for the second+ time.}
 #' }
 #' @param ... Does nothing. A placeholder for future code improvements.
-#' @return A data frame where each row is a day of the simulation and each column is one of the
-#' population states detailed in `initial_vector`.
+#' @return A data frame where each row is a day of the simulation and each
+#'   column is one of the population states detailed in `initial_vector`.
 #' @export
 
 siri_model_summer <- function(initial_vector, parms, ...) {
@@ -62,11 +66,11 @@ siri_model_summer <- function(initial_vector, parms, ...) {
     stop("Please label parms correctly")
   }
 
-  if (any(is.na(initial_vector))) {
+  if (anyNA(initial_vector)) {
     stop("initial_vector cannot have missing values")
   }
 
-  if (any(is.na(parms))) {
+  if (anyNA(parms)) {
     stop("parms cannot have missing values")
   }
 
@@ -124,17 +128,17 @@ siri_model_summer <- function(initial_vector, parms, ...) {
     }
 
     infection1_juv <- rbinom(1, prob = beta_Sj, Sj*(I1j + I2j + I1a + I2a))
-    infection1_juv <- if_else(infection1_juv > Sj, Sj, infection1_juv)
+    infection1_juv <- pmin(infection1_juv, Sj)
     infection1_adult <- rbinom(1, prob = beta_Sa, Sa*(I1j + I2j + I1a + I2a))
-    infection1_adult <- if_else(infection1_adult > Sa, Sa, infection1_adult)
+    infection1_adult <- pmin(infection1_adult, Sa, Sa)
     recovery1_juv <- rbinom(1, prob = recovery_I1, I1j)
     recovery1_adult <- rbinom(1, prob = recovery_I1, I1a)
     recovery2_juv <- rbinom(1, prob = recovery_I2, I2j)
     recovery2_adult <- rbinom(1, prob = recovery_I2, I2a)
     infection2_juv <- rbinom(1, prob = beta_Rj, Rj*(I1j + I2j + I1a + I2a))
-    infection2_juv <- if_else(infection2_juv > Rj, Rj, infection2_juv)
+    infection2_juv <- pmin(infection2_juv, Rj)
     infection2_adult <- rbinom(1, prob = beta_Ra, Ra*(I1j + I2j + I1a + I2a))
-    infection2_adult <- if_else(infection2_adult > Ra, Ra, infection2_adult)
+    infection2_adult <- pmin(infection2_adult, Ra)
     susceptible_adult_death <- rbinom(1, prob = Sa_mortality, Sa - infection1_adult)
     recovered_juvenile_death <- rbinom(1, prob = Sj_mortality, Rj + recovery1_juv + recovery2_juv - infection2_juv)
     recovered_adult_death <- rbinom(1, prob = Sa_mortality, Ra + recovery1_adult + recovery2_adult - infection2_adult)
@@ -145,7 +149,7 @@ siri_model_summer <- function(initial_vector, parms, ...) {
     infected2_juvenile_death <- rbinom(1, prob = (1+N/K)*mI2j, I2j + infection2_juv - recovery2_juv)
     infected2_adult_death <- rbinom(1, prob = (1+N/K)*mI2a, I2a + infection2_adult - recovery2_adult)
 
-    if ("try-error" %in% class(births)) {
+    if (inherits(births, "try-error")) {
       break
     } else {
 
@@ -226,11 +230,11 @@ siri_model_winter <- function(initial_vector, parms, ...) {
     stop("Please label parms correctly")
   }
 
-  if (any(is.na(initial_vector))) {
+  if (anyNA(initial_vector)) {
     stop("initial_vector cannot have missing values")
   }
 
-  if (any(is.na(parms))) {
+  if (anyNA(parms)) {
     stop("parms cannot have missing values")
   }
 

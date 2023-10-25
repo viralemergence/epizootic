@@ -72,11 +72,11 @@ interpolate_raster <- function(raster_stack, source_time, target_time, time_labe
 #'     \item{\code{I2j}}{Juveniles infected for the second+ time.}
 #'     \item{\code{I2a}}{Adults infected for the second+ time.}
 #' }
-#' @param f A string indicating whether inputs are being prepped for the `siri_model_summer`,
-#' `siri_model_winter`, or `siri_model_year` function.
+#' @param f A string indicating whether inputs are being prepped for the
+#' `siri_model_summer`, `siri_model_winter`, or `siri_model_year` function.
 #' @param ... A placeholder for future code improvements.
-#' @return A named list of all arguments needed for the selected function. Can be passed directly to that
-#' function using `purrr::lift`.
+#' @return A named list of all arguments needed for the selected function.
+#' Can be passed directly to that function using `purrr::lift`.
 #' @export
 
 aspatial_siri_prep <- function(df, init, f = c("siri_model_summer", "siri_model_winter",
@@ -89,7 +89,7 @@ aspatial_siri_prep <- function(df, init, f = c("siri_model_summer", "siri_model_
       beta_Sj = df$beta_Sa_summer * df$Sj_multiplier,
       beta_Sa = df$beta_Sa_summer,
       mortality_Sj = df$mortality_Sj_summer,
-      mortality_Sa = 0,
+      mortality_Sa = df$mortality_Sa_summer,
       mortality_I1j = df$mortality_I1j_summer,
       mortality_I1a = df$mortality_I1a_summer,
       mortality_I2j = (df$mortality_I1j_summer * df$mortality_I2_modifier),
@@ -112,7 +112,7 @@ aspatial_siri_prep <- function(df, init, f = c("siri_model_summer", "siri_model_
       mortality_I1a = df$mortality_I1a_winter,
       mortality_I2j = (df$mortality_I1j_winter * df$mortality_I2_modifier),
       mortality_I2a = (df$mortality_I1a_winter * df$mortality_I2_modifier),
-      carrying_capacity = 5000,
+      carrying_capacity = df$carrying_capacity,
       recovery_I1 = df$recovery_I1,
       recovery_I2 = df$recovery_I2,
       beta_Rj = df$beta_Sa_winter * df$Sj_multiplier * df$beta_I2_modifier,

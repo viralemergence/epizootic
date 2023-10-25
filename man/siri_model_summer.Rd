@@ -7,8 +7,9 @@
 siri_model_summer(initial_vector, parms, ...)
 }
 \arguments{
-\item{initial_vector}{Represents the state of the population at the start of the breeding season.
-A list with named elements, each one a numeric of length 1:
+\item{initial_vector}{Represents the state of the population at the start of
+the breeding season. A list with named elements, each one a numeric of
+length 1:
 \describe{
 \item{\code{Sj}}{Susceptible juveniles.}
 \item{\code{Sa}}{Susceptible adults.}
@@ -23,9 +24,11 @@ A list with named elements, each one a numeric of length 1:
 \item{parms}{A vector of simulation parameters:
 \describe{
 \item{\code{season_length}}{Length of the breeding season in days.}
-\item{\code{carrying_capacity}}{Carrying capacity of finches in the population.}
+\item{\code{carrying_capacity}}{Carrying capacity of finches in the
+population.}
 \item{\code{birth}}{Daily fecundity.}
-\item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in breeding season.}
+\item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in
+breeding season.}
 \item{\code{beta_Sa}}{Daily transmission for susceptible adults in breeding season.}
 \item{\code{beta_Rj}}{Daily transmission for recovered juveniles in breeding season.}
 \item{\code{beta_Ra}}{Daily transmission for recovered adults in breeding season.}
@@ -42,17 +45,18 @@ A list with named elements, each one a numeric of length 1:
 \item{...}{Does nothing. A placeholder for future code improvements.}
 }
 \value{
-A data frame where each row is a day of the simulation and each column is one of the
-population states detailed in \code{initial_vector}.
+A data frame where each row is a day of the simulation and each
+column is one of the population states detailed in \code{initial_vector}.
 }
 \description{
-Simulate a \emph{Mycoplasma gallisepticum} outbreak during the breeding season day-by-day in a
-population of house finches (\emph{Haemorhous mexicanus}). Uses a SIRI model (Susceptible-Infected 1-
-Recovered-Infected 2+) and includes demographic stochasticity in fecundity, mortality, and
-infection.
+Simulate a \emph{Mycoplasma gallisepticum} outbreak during the breeding season
+day-by-day in a population of house finches (\emph{Haemorhous mexicanus}). Uses a
+SIRI model (Susceptible-Infected 1- Recovered-Infected 2+) and includes
+demographic stochasticity in fecundity, mortality, and infection.
 }
 \details{
-The function can also handle the case in which there are no infected individuals. The principal
-difference between this function and the one for simulating an outbreak in the non-breeding season
-is that this one includes fecundity.
+The function can also handle the case in which there are no infected
+individuals. The principal difference between this function and the one for
+simulating an outbreak in the non-breeding season is that this one includes
+fecundity.
 }
