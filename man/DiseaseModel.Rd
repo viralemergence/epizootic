@@ -54,7 +54,8 @@ consistency and completeness of model parameters.
 \if{html}{\out{<a id="method-DiseaseModel-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DiseaseModel-new}{}}}
 \subsection{Method \code{new()}}{
-Initialization method sets default aliases and given attributes individually and/or from a list.
+Initialization method sets default aliases and given attributes
+individually and/or from a list.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$new(attribute_aliases = NULL, ...)}\if{html}{\out{</div>}}
 }
@@ -62,7 +63,9 @@ Initialization method sets default aliases and given attributes individually and
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{attribute_aliases}}{A list of alternative alias names for model attributes (form: \code{alias = "attribute"}) to be used with the set and get attributes methods.}
+\item{\code{attribute_aliases}}{A list of alternative alias names for model
+attributes (form: \code{alias = "attribute"}) to be used with the set and
+get attributes methods.}
 
 \item{\code{...}}{Parameters passed via a \emph{params} list or individually.}
 }
@@ -73,7 +76,8 @@ Initialization method sets default aliases and given attributes individually and
 \if{html}{\out{<a id="method-DiseaseModel-list_consistency"></a>}}
 \if{latex}{\out{\hypertarget{method-DiseaseModel-list_consistency}{}}}
 \subsection{Method \code{list_consistency()}}{
-Returns a boolean to indicate if (optionally selected or all) model attributes (such as dimensions) are consistent.
+Returns a boolean to indicate if (optionally selected or all) model
+attributes (such as dimensions) are consistent.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$list_consistency(params = NULL)}\if{html}{\out{</div>}}
 }
@@ -86,7 +90,8 @@ Returns a boolean to indicate if (optionally selected or all) model attributes (
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-List of booleans (or NAs) to indicate consistency of selected/all attributes.
+List of booleans (or NAs) to indicate consistency of selected/all
+attributes.
 }
 }
 \if{html}{\out{<hr>}}

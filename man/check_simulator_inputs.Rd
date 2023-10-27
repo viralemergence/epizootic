@@ -43,7 +43,7 @@ length values in days at each population cell (\code{populations} rows by
 time.}
 \item{\code{season_lengths}}{Vector of season lengths in days. Length must
 equal \code{seasons}. If neither \code{breeding_season_length} nor
-\code(season_lengths) are provided, season lengths will default to
+\code{season_lengths} are provided, season lengths will default to
 \code{365/seasons}.}
 \item{\code{correlation}}{List containing either an environmental
 correlation matrix (correlation_matrix), a pre-calculated transposed
@@ -64,7 +64,7 @@ combination of stages and compartments for which fecundity applies (see
 \code{fecundity_mask} below). If fecundity varies among seasons, a list of
 fecundity vectors with the same length as \code{seasons} may be provided.
 Required input.}
-\item{\code{fecundity_unit}}{A vector indicating whether mortality rates are
+\item{\code{fecundity_unit}}{A vector indicating whether fecundity rates are
 daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all 0.
 A list of vectors may be provided if this varies by season.}
 \item{\code{fecundity_mask}}{A vector indicating which stages and
@@ -82,8 +82,8 @@ combination of stages and compartment for which transmission applies (see
 \code{transmission_mask} below. If transmission varies by season, a list of
 transmission vectors with the same length as \code{seasons} may be provided
 instead. Required input.}
-\item{\code{transmission_unit}}{A vector indicating whether mortality rates
-are daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all
+\item{\code{transmission_unit}}{A vector indicating whether transmission
+is daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all
 0. A list of vectors may be provided if this varies by season.}
 \item{\code{transmission_mask}}{A vector indicating which stages and
 compartments are subject to transmission (i.e., classes susceptible to
@@ -96,7 +96,7 @@ combination of stages and compartment for which recovery applies (see
 \code{recovery_mask} below.) If recovery varies by season, a list of
 recovery vectors the same length as \code{seasons} may be provided instead.}
 \item{\code{recovery_unit}}{A vector
-indicating whether mortality rates are daily or seasonal. 1 indicates
+indicating whether recovery rates are daily or seasonal. 1 indicates
 seasonal, 0 indicates daily. Default: all 0. A list of vectors may be
 provided if this varies by season.}
 \item{\code{recovery_mask}}{A
@@ -119,7 +119,7 @@ by stages by populations.}
 (in Leslie/Lefkovitch matrix).}
 \item{\code{carrying_capacity}}{Array of carrying capacity values for
 each population.}
-\item{\code{stage_abundance}}{Matrix of abundances for each stage-
+\item{\code{segment_abundance}}{Matrix of abundances for each stage-
 compartment combination (rows) and population (columns).}
 \item{\code{population_abundance}}{Array of summed population
 abundances for all stages.}
@@ -173,7 +173,7 @@ each stage to indicate which stages are affected by density.}
 \item{\code{tm}}{Simulation time step.}
 \item{\code{carrying_capacity}}{Array of carrying capacity values for
 each population at time step.}
-\item{\code{stage_abundance}}{Matrix of (current) abundance for each
+\item{\code{segment_abundance}}{Matrix of current abundance for each
 stage-compartment combination (rows) and population (columns) at time
 step.}
 \item{\code{occupied_indices}}{Array of indices for populations
@@ -277,7 +277,7 @@ Must be the same length as \code{compartments}.}
 time step.}
 \item{\code{carrying_capacity}}{Array of carrying capacity values
 for each population at time step.}
-\item{\code{stage_abundance}}{Matrix of abundance for each
+\item{\code{segment_abundance}}{Matrix of abundance for each
 combination of stage and compartment (rows) and population (columns)
 at time step.}
 \item{\code{occupied_indices}}{Array of indices for populations
@@ -296,7 +296,8 @@ desired order. Processes must be one of "transition", "translocation",
 "harvest", "mortality", "dispersal", "season_functions", or "results."
 "season_functions" will be matched to the appropriate season (i.e., if
 "season_functions" appears in element 1 of the list, season_functions[\link{1}]
-will be called.) Required input.}
+will be called.) If the simulation processes are the same across seasons,
+then a single character vector may be provided. Required input.}
 \item{\code{additional transformation functions}}{Additional user-defined
 abundance transformation functions (optionally nested in lists with
 additional attributes) are utilised when listed in \emph{simulation_order}

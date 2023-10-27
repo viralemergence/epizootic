@@ -31,5 +31,6 @@ Collate:
     'aspatial_siri_seasons.R'
     'check_simulator_inputs.R'
     'disease_simulator.R'
+    'disease_transformation.R'
     'epizootic-package.R'
     'utils.R'

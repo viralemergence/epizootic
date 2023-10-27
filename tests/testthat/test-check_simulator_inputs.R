@@ -54,7 +54,7 @@ test_that("vector and raster input for initial abundance are converted", {
                  simulation_order = c("transition"))
   result <- check_simulator_inputs(inputs)
   expect_contains(class(result[["initial_abundance"]]), "matrix")
-  expect_identical(dim(result[["initial_abundance"]]), c(1, 5))
+  expect_identical(dim(result[["initial_abundance"]]), c(1L, 5L))
 })
 
 test_that_cli("check error handling for breeding season length", {
@@ -124,7 +124,7 @@ test_that("Valid mortality list input", {
   result <- check_simulator_inputs(inputs)
   expect_contains(class(result[["mortality"]]), "list")
   expect_length(result[["mortality"]], 2)
-  expect_identical(lengths(result[["mortality"]]), c(3, 3))
+  expect_identical(lengths(result[["mortality"]]), c(3L, 3L))
 })
 
 test_that("Valid mortality vector input", {
@@ -145,7 +145,7 @@ test_that("Valid mortality vector input", {
   result <- check_simulator_inputs(inputs)
   expect_contains(class(result[["mortality"]]), "list")
   expect_length(result[["mortality"]], 2)
-  expect_identical(lengths(result[["mortality"]]), c(6, 6))
+  expect_identical(lengths(result[["mortality"]]), c(6L, 6L))
 })
 
 test_that("Valid 'mortality_unit' input", {
@@ -188,7 +188,7 @@ test_that("Valid fecundity list input", {
   result <- check_simulator_inputs(inputs)
   expect_contains(class(result[["fecundity"]]), "list")
   expect_length(result[["fecundity"]], 2)
-  expect_identical(lengths(result[["fecundity"]]), c(3, 3))
+  expect_identical(lengths(result[["fecundity"]]), c(3L, 3L))
 })
 
 test_that("Valid fecundity vector input", {
@@ -208,7 +208,7 @@ test_that("Valid fecundity vector input", {
   result <- check_simulator_inputs(inputs)
   expect_contains(class(result[["fecundity"]]), "list")
   expect_length(result[["fecundity"]], 2)
-  expect_identical(lengths(result[["fecundity"]]), c(6, 6))
+  expect_identical(lengths(result[["fecundity"]]), c(6L, 6L))
 })
 
 test_that_cli("check error handling for fecundity", {
@@ -376,4 +376,28 @@ test_that("Default dispersal_source_n_k assignment when NULL", {
   expect_contains(class(result[["dispersal_source_n_k"]]), "list")
   expect_identical(result[["dispersal_source_n_k"]][["cutoff"]], 0.1)
   expect_identical(result[["dispersal_source_n_k"]][["threshold"]], 0.2)
+})
+
+test_that("Replicate simulation_order when a vector", {
+  inputs <- list(
+    replicates = 5,
+    time_steps = 100,
+    populations = 5,
+    initial_abundance = rep(10, 5),
+    carrying_capacity = rep(20, 5),
+    mortality = 0.1,
+    fecundity = 0.11,
+    transmission = 0,
+    simulation_order = c("season1", "season2"),
+    seasons = 2
+  )
+
+  result <- check_simulator_inputs(inputs)
+
+  expect_contains(class(result[["simulation_order"]]), "list")
+  expect_length(result[["simulation_order"]], 2)  # Number of seasons
+  expect_identical(result[["simulation_order"]][[1]],
+                   c("season1", "season2", "results"))
+  expect_identical(result[["simulation_order"]][[2]],
+                   c("season1", "season2", "results"))
 })
