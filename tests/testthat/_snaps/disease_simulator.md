@@ -78,3 +78,43 @@
     [1m[22m`initial_abundance` has 5 columns.
     [31m✖[39m There should be 6 columns (`populations`).
 
+# check validity of breeding season length [plain]
+
+    There are 1 missing values in the breeding_season_length object.
+
+---
+
+    The length of `season_lengths` must equal `seasons`.
+    i `seasons` = 2.
+    x `season_lengths` = 300, 100, and 65.
+
+# check validity of breeding season length [ansi]
+
+    [1m[22mThere are 1 missing values in the breeding_season_length object.
+
+---
+
+    [1m[22mThe length of `season_lengths` must equal `seasons`.
+    [36mi[39m `seasons` = 2.
+    [31mx[39m `season_lengths` = 300, 100, and 65.
+
+# check validity of breeding season length [unicode]
+
+    There are 1 missing values in the breeding_season_length object.
+
+---
+
+    The length of `season_lengths` must equal `seasons`.
+    ℹ `seasons` = 2.
+    ✖ `season_lengths` = 300, 100, and 65.
+
+# check validity of breeding season length [fancy]
+
+    [1m[22mThere are 1 missing values in the breeding_season_length object.
+
+---
+
+    [1m[22mThe length of `season_lengths` must equal `seasons`.
+    [36mℹ[39m `seasons` = 2.
+    [31m✖[39m `season_lengths` = 300, 100, and 65.
+
