@@ -46,8 +46,8 @@
 #' @param recovery_unit A vector
 #'  indicating whether mortality rates are daily or seasonal. 1 indicates
 #'  seasonal, 0 indicates daily.
-#' @param recovery_mask A vector indicating which compartments are subject to recovery
-#'  (i.e., infected classes that can recover.) Must be the same length as
+#' @param recovery_mask A vector indicating which compartments are subject to 
+#' recovery (i.e., infected classes that can recover.) Must be the same length as
 #'  \code{compartments}.
 #' @param transformation A user-defined function (optionally nested in a list
 #' with additional attributes) for performing transformation:
@@ -200,17 +200,17 @@ disease_transformation <- function(replicates,
 
         # Warn if any negative or non-finite
         if (!all(is.finite(transformed[["segment_abundance"]]))) {
-          cli_warn(c("Non-finite segment abundances returned by user-defined
+          cli_warn("Non-finite segment abundances returned by user-defined
                      {name} function at indices
-                     {which(!is.finite(transformed[['segment_abundance']]))}."))
+                     {which(!is.finite(transformed[['segment_abundance']]))}.")
         }
         if ("carrying_capacity" %in% names(transformed) &&
             !all(is.finite(transformed[['carrying_capacity']]))) {
-          cli_warn(c("Non-finite carrying capacities returned by user-defined
+          cli_warn("Non-finite carrying capacities returned by user-defined
                      {name} function at indices
-                     {which(!is.finite(transformed[['carrying_capacity']]))}."))
+                     {which(!is.finite(transformed[['carrying_capacity']]))}.")
         }
-        if (any(transformed[['segment_abundance']][which(
+        if (any(transformed[["segment_abundance"]][which(
           is.finite(transformed[['segment_abundance']])
           )] < 0)) {
           cli_warn(
@@ -222,15 +222,12 @@ disease_transformation <- function(replicates,
           )
         }
         if ("carrying_capacity" %in% names(transformed) &&
-            any(transformed[['carrying_capacity']][which(
+            any(transformed[["carrying_capacity"]][which(
               is.finite(transformed[['carrying_capacity']])
               )] < 0)) {
-          cli_warn(
-            c(
-              "Negative carrying capacities returned by user-defined
+          cli_warn("Negative carrying capacities returned by user-defined
                      {name} function at indices
                      {which(is.finite(transformed[['carrying_capacity']] < 0))}"
-            )
           )
         }
 

@@ -118,7 +118,10 @@ DiseaseModel <- R6Class(
               "season_lengths",
               "initial_abundance",
               "correlation",
+              "coordinates",
+              "region",
               "carrying_capacity",
+              "breeding_season_length",
               "density_dependence",
               "dispersal",
               "dispersal_target_k",
@@ -126,7 +129,8 @@ DiseaseModel <- R6Class(
               "dispersal_target_n_k",
               "dispersal_source_n_k",
               "result_stages",
-              "result_compartments"
+              "result_compartments",
+              "results_selection"
             )
           )]
         consistent_list <-
@@ -152,6 +156,7 @@ DiseaseModel <- R6Class(
                   sum(param_value) == 365,
                 initial_abundance =
                   if (is.numeric(self$populations) &&
+                      is.numeric(self$compartments) &&
                       is.numeric(self$stages)) {
                     if (any(class(param_value) %in% c("RasterLayer",
                                                       "RasterStack",
@@ -162,7 +167,8 @@ DiseaseModel <- R6Class(
                         (
                           self$region$raster_is_consistent(param_value) &&
                             self$region$region_cells == self$populations &&
-                            raster::nlayers(param_value) %in% c(1, self$stages)
+                            raster::nlayers(param_value) %in%
+                            c(1, self$stages*self$compartments)
                         )
                       } else {
                         NA
@@ -172,7 +178,8 @@ DiseaseModel <- R6Class(
                       (
                         is.numeric(param_value) &&
                           nrow(as.matrix(param_value)) == self$populations &&
-                          ncol(as.matrix(param_value)) %in% c(1, self$stages)
+                          ncol(as.matrix(param_value)) %in%
+                          c(1, self$stages*self$compartments)
                       )
                     }
                   } else {
@@ -194,6 +201,9 @@ DiseaseModel <- R6Class(
                   },
                 demographic_stochasticity = is.logical(param_value),
                 correlation = NA,
+                coordinates = ncol(param_value) == 2 &&
+                  nrow(param_value) == self$populations,
+                region = param_value[["region_cells"]] == self$populations,
                 carrying_capacity =
                   if (is.numeric(self$populations) &&
                       is.numeric(self$time_steps)) {
@@ -217,6 +227,34 @@ DiseaseModel <- R6Class(
                        is.numeric(param_value) &&
                        nrow(as.matrix(param_value)) == self$populations &&
                        ncol(as.matrix(param_value)) %in% c(1, self$time_steps)
+                      )
+                    }
+                  } else {
+                    NA
+                  },
+                breeding_season_length =
+                  if (is.numeric(self$populations) &&
+                      is.numeric(self$time_steps)) {
+                    if (any(class(param_value) %in% c("RasterLayer",
+                                                      "RasterStack",
+                                                      "RasterBrick"))) {
+                      if (!is.null(self$region) &&
+                          self$region$use_raster &&
+                          !is.null(self$region$region_raster)) {
+                        (
+                          self$region$raster_is_consistent(param_value) &&
+                            self$region$region_cells == self$populations &&
+                            raster::nlayers(param_value) %in% c(1, self$time_steps)
+                        )
+                      } else {
+                        NA
+                      }
+                    } else {
+                      # assume matrix or array
+                      (
+                        is.numeric(param_value) &&
+                          nrow(as.matrix(param_value)) == self$populations &&
+                          ncol(as.matrix(param_value)) %in% c(1, self$time_steps)
                       )
                     }
                   } else {
@@ -286,20 +324,16 @@ DiseaseModel <- R6Class(
                   } else {
                     NA
                   },
-                translocation = NA,
-                harvest = NA,
-                mortality = NA,
                 dispersal = NA,
+                results_selection = param_value %in% c("abundance", "ema",
+                "extirpation", "extinction_location", "harvested",
+                "occupancy", "summarize", "replicate"),
                 abundance_threshold =
                   if (length(param_value) == 1) {
                     TRUE
-                  } else {
-                    if (is.numeric(self$populations)) {
-                      (is.numeric(param_value) && length(param_value) == self$populations)
                     } else {
                       NA
                     }
-                  }
               )
           }
         }
