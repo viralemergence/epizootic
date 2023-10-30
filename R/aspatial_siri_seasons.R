@@ -14,82 +14,70 @@
 #' @importFrom stats rbinom rpois
 #' @import dplyr
 #' @import tibble
-#' @param initial_vector Represents the state of the population at the start of
-#'   the breeding season. A list with named elements, each one a numeric of
-#'   length 1:
-#' \describe{
-#'     \item{\code{Sj}}{Susceptible juveniles.}
-#'     \item{\code{Sa}}{Susceptible adults.}
-#'     \item{\code{I1j}}{Juveniles infected for the first time.}
-#'     \item{\code{I1a}}{Adults infected for the first time.}
-#'     \item{\code{Rj}}{Recovered juveniles.}
-#'     \item{\code{Ra}}{Recovered adults.}
-#'     \item{\code{I2j}}{Juveniles infected for the second+ time.}
-#'     \item{\code{I2a}}{Adults infected for the second+ time.}
-#' }
-#' @param parms A vector of simulation parameters:
-#' \describe{
-#'     \item{\code{season_length}}{Length of the breeding season in days.}
-#'     \item{\code{carrying_capacity}}{Carrying capacity of finches in the
-#'     population.}
-#'     \item{\code{birth}}{Daily fecundity.}
-#'     \item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in
-#'     breeding season.}
-#'     \item{\code{beta_Sa}}{Daily transmission for susceptible adults in breeding season.}
-#'     \item{\code{beta_Rj}}{Daily transmission for recovered juveniles in breeding season.}
-#'     \item{\code{beta_Ra}}{Daily transmission for recovered adults in breeding season.}
-#'     \item{\code{mortality_Sj}}{Daily mortality of susceptible juveniles in breeding season.}
-#'     \item{\code{mortality_Sa}}{Daily mortality of susceptible adults in breeding season.}
-#'     \item{\code{mortality_I1j}}{Daily mortality of juveniles infected for the first time.}
-#'     \item{\code{mortality_I1a}}{Daily mortality of adults infected for the first time.}
-#'     \item{\code{mortality_I2j}}{Daily mortality of juveniles infected for the second+ time.}
-#'     \item{\code{mortality_I2a}}{Daily mortality of adults infected for the second+ time.}
-#'     \item{\code{recovery_I1}}{Daily recovery rate of birds infected for the first time.}
-#'     \item{\code{recovery_I2}}{Daily recovery rate of birds infected for the second+ time.}
-#' }
-#' @param ... Does nothing. A placeholder for future code improvements.
-#' @return A data frame where each row is a day of the simulation and each
-#'   column is one of the population states detailed in `initial_vector`.
+#' @param inputs A nested list with named elements:
+#'   \describe{
+#'     \item{\code{replicates}}{Number of replicate simulation runs.}
+#'     \item{\code{time_steps}}{Number of simulation time steps.}
+#'     \item{\code{populations}}{Number of populations.}
+#'     \item{\code{stages}}{Number of life cycle stages.}
+#'     \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
+#'     SIR model).}
+#'     \item{\code{demographic_stochasticity}}{Boolean for optionally choosing
+#'     demographic stochasticity for the transformation.}
+#'     \item{\code{density_stages}}{Array of booleans or numeric (0,1) for each
+#'     stage to indicate which stages are affected by density.}
+#'     \item{\code{abundance_threshold}}{A quasi-extinction threshold below
+#'     which a population becomes extinct.}
+#'     \item{\code{mortality}}{A vector of mortality rates, one for each
+#'     combination of stages and compartments.}
+#'     \item{\code{mortality_unit}}{A vector indicating whether mortality rates
+#'     are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+#'     \item{\code{fecundity}}{A vector of fecundity rates, one for each
+#'     combination of stages and compartments for which fecundity applies.}
+#'     \item{\code{fecundity_unit}}{A vector indicating whether fecundity rates
+#'     are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+#'     \item{\code{fecundity_mask}}{A vector indicating which stages and
+#'     compartments reproduce.}
+#'     \item{\code{transmission}}{A vector of transmission rates, one for each
+#'     combination of stages and compartment for which transmission applies (see
+#'     \code{transmission_mask} below.}
+#'     \item{\code{transmission_unit}}{A vector indicating whether mortality
+#'     rates are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+#'     \item{\code{transmission_mask}}{A vector indicating which stages and
+#'     compartments are subject to transmission (i.e., classes susceptible to
+#'     infection.)}
+#'     \item{\code{recovery}}{A vector of recovery rates, one for each
+#'     combination of stages and compartment for which recovery applies (see
+#'     \code{recovery_mask} below.)}
+#'     \item{\code{recovery_unit}}{A vector indicating whether mortality rates
+#'     are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+#'     \item{\code{recovery_mask}}{A vector indicating which compartments are
+#'     subject to recovery (i.e., infected classes that can recover.)}
+#'     \item{\code{r}}{Simulation replicate.}
+#'     \item{\code{tm}}{Simulation time step.}
+#'     \item{\code{carrying_capacity}}{Array of carrying capacity values for
+#'     each population at time step.}
+#'     \item{\code{breeding_season_length}}{Array of breeding season lengths in
+#'     days for each population at time step.}
+#'     \item{\code{segment_abundance}}{Matrix of (current) abundance for each
+#'     stage-compartment combo (rows) and population (columns) at time step.}
+#'     \item{\code{occupied_indices}}{Array of indices for populations occupied
+#'     at (current) time step.}
+#'     \item{\code{simulator}}{\code{\link{SimulatorReference}} object with
+#'     dynamically accessible \emph{attached} and \emph{results} lists.}
+#'     \item{\code{additional attributes}}{Additional attributes when the
+#'     transformation is optionally nested in a list.}
+#'   }
+#' @return An abundance matrix with `populations` columns and
+#' `stages*compartments` rows, updated from the `segment_abundance` input in
+#' `inputs` according to demography and disease dynamics.
 #' @export
 
-siri_model_summer <- function(initial_vector, parms, ...) {
-  if (length(compare(names(initial_vector),
-                     c("Sj", "Sa", "I1j", "I1a", "Rj", "Ra", "I2j", "I2a")))>0) {
-    stop("Please label initial_vector correctly")
-  }
+siri_model_summer <- function(inputs) {
+  inputs <- check_aspatial_siri_inputs(inputs)
+  imap(inputs, assign)
 
-  if (length(compare(names(parms),
-                     c("season_length", "carrying_capacity", "birth", "beta_Sj", "beta_Sa",
-                       "beta_Rj", "beta_Ra", "mortality_Sj", "mortality_Sa",
-                       "mortality_I1j", "mortality_I1a", "mortality_I2j", "mortality_I2a",
-                       "recovery_I1", "recovery_I2")))>0) {
-    stop("Please label parms correctly")
-  }
-
-  if (anyNA(initial_vector)) {
-    stop("initial_vector cannot have missing values")
-  }
-
-  if (anyNA(parms)) {
-    stop("parms cannot have missing values")
-  }
-
-  # Unpack parameters
-  summer_length <- parms["season_length"]
-  daily_egg <- parms["birth"]
-  beta_Sj <- parms["beta_Sj"]
-  mSj <- parms["mortality_Sj"]
-  beta_Sa <- parms["beta_Sa"]
-  mSa <- parms["mortality_Sa"]
-  mI1j <- parms["mortality_I1j"]
-  recovery_I1 <- parms["recovery_I1"]
-  mI1a <- parms["mortality_I1a"]
-  recovery_I2 <- parms["recovery_I2"]
-  beta_Rj <- parms["beta_Rj"]
-  beta_Ra <- parms["beta_Ra"]
-  mI2j <- parms["mortality_I2j"]
-  mI2a <- parms["mortality_I2a"]
-  K <- parms["carrying_capacity"]
+  # Convert the units of anything seasonal to now be daily
 
   state_list <- c(list(initial_vector), replicate(summer_length, c(
     Sa = NA,
@@ -328,96 +316,5 @@ siri_model_winter <- function(initial_vector, parms, ...) {
 
   df <- state_list %>% bind_rows() %>% rowid_to_column("Day")
 
-  return(df)
-}
-
-#' Simulate a *Mycoplasma gallisepticum* Outbreak Over a Year
-#'
-#' Simulate a *Mycoplasma gallisepticum* outbreak day-by-day in a population of house finches
-#' (*Haemorhous mexicanus*) for 365 days, starting at the beginning of the breeding season.
-#' Uses a SIRI model (Susceptible-Infected 1-
-#' Recovered-Infected 2+) and includes demographic stochasticity in fecundity, mortality, and
-#' infection. The function can also handle the case in which there are no infected individuals.
-#'
-#' The responsibility is on the user to ensure that the winter and summer season lengths add up in
-#' a reasonable way.
-#'
-#' @importFrom stats complete.cases
-#' @importFrom utils tail
-#' @importFrom tidyr pivot_longer
-#'
-#' @param initial_vector Represents the state of the population at the start of the year.
-#' A list with named elements, each one a numeric of length 1:
-#' \describe{
-#'     \item{\code{Sj}}{Susceptible juveniles.}
-#'     \item{\code{Sa}}{Susceptible adults.}
-#'     \item{\code{I1j}}{Juveniles infected for the first time.}
-#'     \item{\code{I1a}}{Adults infected for the first time.}
-#'     \item{\code{Rj}}{Recovered juveniles.}
-#'     \item{\code{Ra}}{Recovered adults.}
-#'     \item{\code{I2j}}{Juveniles infected for the second+ time.}
-#'     \item{\code{I2a}}{Adults infected for the second+ time.}
-#' }
-#' @param summer_params A vector of simulation parameters defined for the breeding season:
-#' \describe{
-#'     \item{\code{season_length}}{Length of the breeding season in days.}
-#'     \item{\code{carrying_capacity}}{Carrying capacity of finches in the population.}
-#'     \item{\code{birth}}{Daily fecundity.}
-#'     \item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in breeding season.}
-#'     \item{\code{beta_Sa}}{Daily transmission for susceptible adults in breeding season.}
-#'     \item{\code{beta_Rj}}{Daily transmission for recovered juveniles in breeding season.}
-#'     \item{\code{beta_Ra}}{Daily transmission for recovered adults in breeding season.}
-#'     \item{\code{mortality_Sj}}{Daily mortality of susceptible juveniles in breeding season.}
-#'     \item{\code{mortality_Sa}}{Daily mortality of susceptible adults in breeding season.}
-#'     \item{\code{mortality_I1j}}{Daily mortality of juveniles infected for the first time.}
-#'     \item{\code{mortality_I1a}}{Daily mortality of adults infected for the first time.}
-#'     \item{\code{mortality_I2j}}{Daily mortality of juveniles infected for the second+ time.}
-#'     \item{\code{mortality_I2a}}{Daily mortality of adults infected for the second+ time.}
-#'     \item{\code{recovery_I1}}{Daily recovery rate of birds infected for the first time.}
-#'     \item{\code{recovery_I2}}{Daily recovery rate of birds infected for the second+ time.}
-#' }
-#' @param winter_params A vector of simulation parameters defined for the non-breeding season:
-#' \describe{
-#'     \item{\code{season_length}}{Length of the non-breeding season in days.}
-#'     \item{\code{carrying_capacity}}{Carrying capacity of finches in the population.}
-#'     \item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in non-breeding season.}
-#'     \item{\code{beta_Sa}}{Daily transmission for susceptible adults in non-breeding season.}
-#'     \item{\code{beta_Rj}}{Daily transmission for recovered juveniles in non-breeding season.}
-#'     \item{\code{beta_Ra}}{Daily transmission for recovered adults in non-breeding season.}
-#'     \item{\code{mortality_Sj}}{Daily mortality of susceptible juveniles in non-breeding season.}
-#'     \item{\code{mortality_Sa}}{Daily mortality of susceptible adults in non-breeding season.}
-#'     \item{\code{mortality_I1j}}{Daily mortality of juveniles infected for the first time.}
-#'     \item{\code{mortality_I1a}}{Daily mortality of adults infected for the first time.}
-#'     \item{\code{mortality_I2j}}{Daily mortality of juveniles infected for the second+ time.}
-#'     \item{\code{mortality_I2a}}{Daily mortality of adults infected for the second+ time.}
-#'     \item{\code{recovery_I1}}{Daily recovery rate of birds infected for the first time.}
-#'     \item{\code{recovery_I2}}{Daily recovery rate of birds infected for the second+ time.}
-#' }
-#' @param ... Does nothing. A placeholder for future code improvements.
-#' @return A data frame where each row is a day of the simulation and each column is one of the
-#' population states detailed in `initial_vector`.
-#' @export
-siri_model_year <- function(initial_vector, summer_params, winter_params, ...) {
-  if (is.null(names(init))) {
-    names(init) <- c("Sa",  "Sj",  "I1j", "I1a", "Rj",  "Ra",  "I2j", "I2a")
-  }
-  if (is.null(names(summer_params))) {
-    names(summer_params) <- c("season_length", "carrying_capacity", "birth", "beta_Sj", "beta_Sa",
-                              "beta_Rj", "beta_Ra", "mortality_Sj", "mortality_Sa",
-                              "mortality_I1j", "mortality_I1a", "mortality_I2j", "mortality_I2a",
-                              "recovery_I1", "recovery_I2")
-  }
-  if (is.null(names(winter_params))) {
-    names(winter_params) <- c("season_length", "carrying_capacity", "beta_Sj", "beta_Sa",
-                              "beta_Rj", "beta_Ra", "mortality_Sj", "mortality_Sa",
-                              "mortality_I1j", "mortality_I1a", "mortality_I2j", "mortality_I2a",
-                              "recovery_I1", "recovery_I2")
-  }
-  summer <- siri_model_summer(initial_vector, summer_params)
-  winter_init <- summer %>% filter(complete.cases(.)) %>% tail(1) %>% select(-Day) %>%
-    pivot_longer(everything()) %>% deframe()
-  winter <- siri_model_winter(winter_init, winter_params)
-  df <- winter %>% mutate(Day = Day + summer_params$season_length + 1) %>% bind_rows(summer) %>%
-    arrange(Day) %>% as.data.frame()
   return(df)
 }
