@@ -167,7 +167,7 @@ test_that("Valid 'mortality_unit' input", {
   result <- check_simulator_inputs(inputs)
   expect_contains(class(result[["mortality_unit"]]), "list")
   expect_length(result[["mortality_unit"]], 2)
-  expect_identical(lengths(result[["mortality_unit"]]), c(3, 3))
+  expect_identical(lengths(result[["mortality_unit"]]), c(3L, 3L))
 })
 
 test_that("Valid fecundity list input", {

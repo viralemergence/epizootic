@@ -22,10 +22,6 @@
 #'     \item{\code{stages}}{Number of life cycle stages.}
 #'     \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
 #'     SIR model).}
-#'     \item{\code{demographic_stochasticity}}{Boolean for optionally choosing
-#'     demographic stochasticity for the transformation.}
-#'     \item{\code{density_stages}}{Array of booleans or numeric (0,1) for each
-#'     stage to indicate which stages are affected by density.}
 #'     \item{\code{abundance_threshold}}{A quasi-extinction threshold below
 #'     which a population becomes extinct.}
 #'     \item{\code{mortality}}{A vector of mortality rates, one for each

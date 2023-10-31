@@ -9,8 +9,8 @@
 #' @param time_steps Number of simulation time steps.
 #' @param seasons Number of seasons.
 #' @param populations Number of populations.
-#' @param compartments \item{\code{compartments}}{Number of disease compartments
-#'  (e.g., 3 for a SIR model). Default: 1.}
+#' @param compartments Number of disease compartments (e.g., 3 for a SIR model).
+#'  Default: 1.
 #' @param demographic_stochasticity Boolean for optionally choosing demographic
 #' stochasticity for the transformation.
 #' @param density_stages Array of booleans or numeric (0,1) for each stage to
@@ -46,7 +46,7 @@
 #' @param recovery_unit A vector
 #'  indicating whether mortality rates are daily or seasonal. 1 indicates
 #'  seasonal, 0 indicates daily.
-#' @param recovery_mask A vector indicating which compartments are subject to 
+#' @param recovery_mask A vector indicating which compartments are subject to
 #' recovery (i.e., infected classes that can recover.) Must be the same length as
 #'  \code{compartments}.
 #' @param transformation A user-defined function (optionally nested in a list
@@ -168,7 +168,9 @@ disease_transformation <- function(replicates,
     if (is.function(transformation)) {
 
       user_defined_function <- function(r, tm, carrying_capacity,
-                                        segment_abundance, occupied_indices) {
+                                        segment_abundance,
+                                        breeding_season_length,
+                                        occupied_indices) {
         # Add attributes to be made available to the user-defined function
         params[["r"]] <- r
         params[["tm"]] <- tm

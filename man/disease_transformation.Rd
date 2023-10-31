@@ -86,8 +86,8 @@ recovery vectors the same length as \code{seasons} may be provided instead.}
 indicating whether mortality rates are daily or seasonal. 1 indicates
 seasonal, 0 indicates daily.}
 
-\item{recovery_mask}{A vector indicating which compartments are subject to recovery
-(i.e., infected classes that can recover.) Must be the same length as
+\item{recovery_mask}{A vector indicating which compartments are subject to
+recovery (i.e., infected classes that can recover.) Must be the same length as
 \code{compartments}.}
 
 \item{transformation}{A user-defined function (optionally nested in a list
@@ -157,8 +157,8 @@ accessible \emph{attached} and \emph{results} lists.}
 \item{name}{Optional name for the transformation (default is
 "transformation").}
 
-\item{compartments}{\item{\code{compartments}}{Number of disease compartments
-(e.g., 3 for a SIR model). Default: 1.}}
+\item{compartments}{Number of disease compartments (e.g., 3 for a SIR model).
+Default: 1.}
 }
 \value{
 Abundance (and capacity) transformation function:

@@ -29,6 +29,7 @@ Config/testthat/edition: 3
 Collate: 
     'DiseaseModel.R'
     'aspatial_siri_seasons.R'
+    'check_aspatial_siri_inputs.R'
     'check_simulator_inputs.R'
     'disease_simulator.R'
     'disease_transformation.R'

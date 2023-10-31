@@ -15,10 +15,6 @@
 #'     \item{\code{stages}}{Number of life cycle stages.}
 #'     \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
 #'     SIR model).}
-#'     \item{\code{demographic_stochasticity}}{Boolean for optionally choosing
-#'     demographic stochasticity for the transformation.}
-#'     \item{\code{density_stages}}{Array of booleans or numeric (0,1) for each
-#'     stage to indicate which stages are affected by density.}
 #'     \item{\code{abundance_threshold}}{A quasi-extinction threshold below
 #'     which a population becomes extinct.}
 #'     \item{\code{mortality}}{A vector of mortality rates, one for each
@@ -63,11 +59,13 @@
 #'   }
 #'@return A list identical to the inputs (if there are no errors.)
 
-check_aspatial_siri_inputs(inputs) {
-  imap(inputs, assign)
-  if (tm > time_steps) {
+check_aspatial_siri_inputs <- function(inputs) {
+  list2env(inputs, environment())
+  if (!is.null(inputs[["tm"]]) && !is.null(inputs[["time_steps"]])) {
+    if (tm > time_steps) {
     cli_abort("You have indicated that we are at timestep {tm} even though
               total time steps is set at {time_steps}.")
+    }
   }
   if (stages != 2) {
     cli_abort(c("The seasonal SIRI functions are built for a two-stage system.",
@@ -78,10 +76,31 @@ check_aspatial_siri_inputs(inputs) {
                 compartments.",
                 "x" = "You have entered {compartments} compartment{?s}."))
   }
-  if (!all(c(mortality, fecundity, transmission, recovery) <= 1) &&
-      c(mortality, fecundity, transmission, recovery) >= 0) {
-    cli_abort("Mortality, fecundity, transmission, and recovery rates must all
+
+  if (!all(c(mortality[!as.logical(mortality_unit)],
+             fecundity[!as.logical(fecundity_unit)],
+             transmission[!as.logical(fecundity_unit)],
+             recovery[!as.logical(mortality_unit)]) <= 1) |
+      !all(c(mortality, fecundity, transmission, recovery) >= 0)) {
+    cli_abort("Daily mortality, fecundity, transmission, and recovery rates must
               be between 0 and 1 inclusive.")
+  }
+  if (sum(fecundity_mask) > 4) {
+    cli_abort(c("The seasonal SIRI functions assume that only adults
+                reproduce.",
+              "x" = "Your fecundity mask indicates that juveniles reproduce."))
+  }
+  if (sum(transmission_mask) > 4) {
+    cli_abort(c("The seasonal SIRI functions assume that only susceptibles and
+                recovereds can be infected.",
+                "x" = "Your transmission mask indicates that infecteds can be
+                infected."))
+  }
+  if (sum(recovery_mask) > 4) {
+    cli_abort(c("The seasonal SIRI functions assume that only two compartments
+                (infected 1, infected 2+) can recover.",
+                "x" = "Your recovery mask indicates that more than two
+                compartments can recover."))
   }
 
   return(inputs)

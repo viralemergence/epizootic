@@ -650,19 +650,12 @@ check_simulator_inputs <- function(inputs) {
                                               inputs[["fecundity_mask"]],
                                               simplify = FALSE)
     }
-    if (length(fecundity) != length(inputs[["fecundity_mask"]])) {
+    if (is.list(fecundity) &&
+        length(fecundity) != length(inputs[["fecundity_mask"]])) {
       fecundity_mask <- inputs[["fecundity_mask"]]
       cli_abort(c("`fecundity` and `fecundity_mask` must be the same length.",
                   "*" = "`fecundity` is length {length(fecundity)}.",
                   "*" = "`fecundity_mask` is length {length(fecundity_mask)}."))
-    }
-    if (any(lengths(fecundity) != lengths(inputs[["fecundity_mask"]]))) {
-      fecundity_mask <- inputs[["fecundity_mask"]]
-      cli_abort(c("vectors inside `fecundity` and `fecundity_mask` must be the
-                  same length.",
-                  "*" = "`fecundity` vectors are lengths {lengths(fecundity)}.",
-                  "*" = "`fecundity_mask` vectors are lengths
-                  {lengths(fecundity_mask)}."))
     }
   }
 
@@ -770,25 +763,14 @@ check_simulator_inputs <- function(inputs) {
                                               inputs[["transmission_mask"]],
                                               simplify = FALSE)
     }
-    if (length(transmission) != length(inputs[["transmission_mask"]])) {
+    if (is.list(transmission) &&
+        length(transmission) != length(inputs[["transmission_mask"]])) {
       transmission_mask <- inputs[["transmission_mask"]]
       cli_abort(
         c(
           "`transmission` and `transmission_mask` must be the same length.",
           "*" = "`transmission` is length {length(transmission)}.",
           "*" = "`transmission_mask` is length {length(transmission_mask)}."
-        )
-      )
-    }
-    if (any(lengths(transmission) != lengths(inputs[["transmission_mask"]]))) {
-      transmission_mask <- inputs[["transmission_mask"]]
-      cli_abort(
-        c(
-          "vectors inside `transmission` and `transmission_mask` must be the
-                  same length.",
-          "*" = "`transmission` vectors are lengths {lengths(transmission)}.",
-          "*" = "`transmission_mask` vectors are lengths
-                  {lengths(transmission_mask)}."
         )
       )
     }
@@ -893,19 +875,12 @@ check_simulator_inputs <- function(inputs) {
                                               inputs[["recovery_mask"]],
                                               simplify = FALSE)
     }
-    if (length(recovery) != length(inputs[["recovery_mask"]])) {
+    if (is.list(recovery) &&
+        length(recovery) != length(inputs[["recovery_mask"]])) {
       recovery_mask <- inputs[["recovery_mask"]]
       cli_abort(c("`recovery` and `recovery_mask` must be the same length.",
                   "*" = "`recovery` is length {length(recovery)}.",
                   "*" = "`recovery_mask` is length {length(recovery_mask)}."))
-    }
-    if (any(lengths(recovery) != lengths(inputs[["recovery_mask"]]))) {
-      recovery_mask <- inputs[["recovery_mask"]]
-      cli_abort(c("vectors inside `recovery` and `recovery_mask` must be the
-                  same length.",
-                  "*" = "`recovery` vectors are lengths {lengths(recovery)}.",
-                  "*" = "`recovery_mask` vectors are lengths
-                  {lengths(recovery_mask)}."))
     }
   }
 

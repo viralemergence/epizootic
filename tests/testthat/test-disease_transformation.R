@@ -67,7 +67,7 @@ test_that_cli("Warnings for negative or non-finite values in transformed data",
                   density_stages = 1
                 )
 
-                expect_snapshot_warning(
+                expect_snapshot(
                   new_function(
                     carrying_capacity = rep(100, 4),
                     segment_abundance = matrix(1:12, nrow = 3),
@@ -84,7 +84,7 @@ test_that_cli("Warnings for negative or non-finite values in transformed data",
                   return(params)
                 }
 
-                expect_snapshot_warning(
+                expect_snapshot(
                   new_function(
                     carrying_capacity = rep(100, 4),
                     segment_abundance = matrix(1:12, nrow = 3),
