@@ -4,45 +4,64 @@
 \alias{siri_model_winter}
 \title{Simulate a \emph{Mycoplasma gallisepticum} Outbreak in the Non-Breeding Season}
 \usage{
-siri_model_winter(initial_vector, parms, ...)
+siri_model_winter(inputs)
 }
 \arguments{
-\item{initial_vector}{Represents the state of the population at the start of the winter season.
-A list with named elements, each one a numeric of length 1:
+\item{inputs}{A nested list with named elements:
 \describe{
-\item{\code{Sj}}{Susceptible juveniles.}
-\item{\code{Sa}}{Susceptible adults.}
-\item{\code{I1j}}{Juveniles infected for the first time.}
-\item{\code{I1a}}{Adults infected for the first time.}
-\item{\code{Rj}}{Recovered juveniles.}
-\item{\code{Ra}}{Recovered adults.}
-\item{\code{I2j}}{Juveniles infected for the second+ time.}
-\item{\code{I2a}}{Adults infected for the second+ time.}
+\item{\code{replicates}}{Number of replicate simulation runs.}
+\item{\code{time_steps}}{Number of simulation time steps.}
+\item{\code{populations}}{Number of populations.}
+\item{\code{stages}}{Number of life cycle stages.}
+\item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
+SIR model).}
+\item{\code{abundance_threshold}}{A quasi-extinction threshold below
+which a population becomes extinct.}
+\item{\code{mortality}}{A vector of mortality rates, one for each
+combination of stages and compartments.}
+\item{\code{mortality_unit}}{A vector indicating whether mortality rates
+are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+\item{\code{fecundity}}{A vector of fecundity rates, one for each
+combination of stages and compartments for which fecundity applies.}
+\item{\code{fecundity_unit}}{A vector indicating whether fecundity rates
+are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+\item{\code{fecundity_mask}}{A vector indicating which stages and
+compartments reproduce.}
+\item{\code{transmission}}{A vector of transmission rates, one for each
+combination of stages and compartment for which transmission applies (see
+\code{transmission_mask} below.}
+\item{\code{transmission_unit}}{A vector indicating whether mortality
+rates are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+\item{\code{transmission_mask}}{A vector indicating which stages and
+compartments are subject to transmission (i.e., classes susceptible to
+infection.)}
+\item{\code{recovery}}{A vector of recovery rates, one for each
+combination of stages and compartment for which recovery applies (see
+\code{recovery_mask} below.)}
+\item{\code{recovery_unit}}{A vector indicating whether mortality rates
+are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
+\item{\code{recovery_mask}}{A vector indicating which compartments are
+subject to recovery (i.e., infected classes that can recover.)}
+\item{\code{r}}{Simulation replicate.}
+\item{\code{tm}}{Simulation time step.}
+\item{\code{carrying_capacity}}{Array of carrying capacity values for
+each population at time step.}
+\item{\code{breeding_season_length}}{Array of breeding season lengths in
+days for each population at time step.}
+\item{\code{segment_abundance}}{Matrix of (current) abundance for each
+stage-compartment combo (rows) and population (columns) at time step.}
+\item{\code{occupied_indices}}{Array of indices for populations occupied
+at (current) time step.}
+\item{\code{simulator}}{\code{\link{SimulatorReference}} object with
+dynamically accessible \emph{attached} and \emph{results} lists.}
+\item{\code{additional attributes}}{Additional attributes when the
+transformation is optionally nested in a list.}
 }}
-
-\item{parms}{A vector of simulation parameters:
-\describe{
-\item{\code{season_length}}{Length of the non-breeding season in days.}
-\item{\code{carrying_capacity}}{Carrying capacity of finches in the population.}
-\item{\code{beta_Sj}}{Daily transmission for susceptible juveniles in non-breeding season.}
-\item{\code{beta_Sa}}{Daily transmission for susceptible adults in non-breeding season.}
-\item{\code{beta_Rj}}{Daily transmission for recovered juveniles in non-breeding season.}
-\item{\code{beta_Ra}}{Daily transmission for recovered adults in non-breeding season.}
-\item{\code{mortality_Sj}}{Daily mortality of susceptible juveniles in non-breeding season.}
-\item{\code{mortality_Sa}}{Daily mortality of susceptible adults in non-breeding season.}
-\item{\code{mortality_I1j}}{Daily mortality of juveniles infected for the first time.}
-\item{\code{mortality_I1a}}{Daily mortality of adults infected for the first time.}
-\item{\code{mortality_I2j}}{Daily mortality of juveniles infected for the second+ time.}
-\item{\code{mortality_I2a}}{Daily mortality of adults infected for the second+ time.}
-\item{\code{recovery_I1}}{Daily recovery rate of birds infected for the first time.}
-\item{\code{recovery_I2}}{Daily recovery rate of birds infected for the second+ time.}
-}}
-
-\item{...}{Does nothing. A placeholder for future code improvements.}
 }
 \value{
-A data frame where each row is a day of the simulation and each column is one of the
-population states detailed in \code{initial_vector}.
+An abundance matrix with \code{populations} columns and
+\code{stages*compartments} rows, updated from the \code{segment_abundance} input in
+\code{inputs} according to demography and disease dynamics.
 }
 \description{
 Simulate a \emph{Mycoplasma gallisepticum} outbreak during the non-breeding season day-by-day in a
