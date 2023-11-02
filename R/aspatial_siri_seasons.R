@@ -98,15 +98,16 @@ siri_model_summer <- function(inputs) {
 
   # Set up initial vectors
   population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  season <- replicate(active_pops, list("breeding"))
 
-  population_new <- pmap(list(population_list, breeding_season_length,
+  population_new <- mapply(FUN = aspatial_siri, population_list, breeding_season_length,
                               mortality, transmission, recovery, fecundity,
                               abundance_threshold, carrying_capacity,
-                              season = "breeding"), aspatial_siri)
+                              season)
 
   # Assign populations to occupied indices in segment_abundance
-  for(i in occupied_indices) {
-    segment_abundance[, i] <- population_new[[i]]
+  for(i in 1:length(occupied_indices)) {
+    segment_abundance[, occupied_indices[i]] <- population_new[[i]]
   }
 
   return(population_new)
@@ -292,125 +293,4 @@ siri_model_winter <- function(inputs) {
   df <- state_list %>% bind_rows() %>% rowid_to_column("Day")
 
   return(df)
-}
-
-#' Helper Function for Seasonal SIRI Simulation
-#'
-#' This function is an internal one that does the aspatial simulations within
-#' one population for one timestep, for any given season.
-#'
-#' @param initial_pop A vector of length 8 showing the initial abundance for
-#' each combination of stage and compartment.
-#' @param season_length The length of the season in days.
-#' @param mortality A vector of length 8 with the mortality rates for each
-#' stage and compartment in the season in question.
-#' @param transmission A vector of length 4 with the transmission rates for each
-#' susceptible/recovered stage in the season in question.
-#' @param recovery A vector of length 4 with the transmission rates for each
-#' susceptible/recovered stage in the season in question.
-#' @param fecundity Only necessary when `season = "breeding"` (see below).
-#' Default NULL. A single numeric with the daily fecundity of adults.
-#' @param abundance_threshold A quasi-extinction threshold below which a
-#' population becomes extinct.
-#' @param carrying_capacity A single numeric that indicates the carrying
-#' capacity of the population in this season.
-#' @param season Either "breeding" or "non-breeding."
-#' @return A vector of length 8 showing the abundance for each combination of
-#' stage and compartment at the end of the season.
-
-aspatial_siri <- function(initial_pop, season_length, mortality, transmission,
-                          recovery, fecundity = NULL, abundance_threshold,
-                          carrying_capacity,
-                          season = c("breeding", "non-breeding")) {
-
-  state <- matrix(0, nrow = 8, ncol = season_length + 1)
-  state[,1] <- initial_pop
-
-  for (t in 1:season_length) {
-    # Unpack states
-    Sa <- state[2, t]
-    Sj <- state[1, t]
-    I1j <- state[3, t]
-    I1a <- state[4, t]
-    Rj <- state[5, t]
-    Ra <- state[6, t]
-    I2j <- state[7, t]
-    I2a <- state[8, t]
-
-    N <- pmin(sum(state[, t]), carrying_capacity)
-
-    if (N < abundance_threshold) {
-      # Fill the rest of the population's state vectors with 0 and skip to the
-      # end of the loop
-      state[, t:(ncol(state))] <- 0
-      break
-    }
-
-    dd_mortality <- (1+N/carrying_capacity) |> (`*`)(mortality) |>
-      map_dbl(\(x) pmin(x, 1))
-
-    # Simulate with demographic stochasticity
-    if (season == "breeding") {
-      births <- rpois(sum(Sa + I1a + Ra + I2a),
-                      fecundity * (1 - N / carrying_capacity))
-    }
-    infection1_juv <- rbinom(1, prob = transmission[1],
-                             Sj*(I1j + I2j + I1a + I2a))
-    infection1_juv <- pmin(infection1_juv, Sj)
-    infection1_adult <- rbinom(1, prob = transmission[2],
-                               Sa*(I1j + I2j + I1a + I2a))
-    infection1_adult <- pmin(infection1_adult, Sa)
-    recovery1_juv <- rbinom(1, prob = recovery[1],
-                            I1j)
-    recovery1_adult <- rbinom(1, prob = recovery[2],
-                              I1a)
-    recovery2_juv <- rbinom(1, prob = recovery[3],
-                            I2j)
-    recovery2_adult <- rbinom(1, prob = recovery[4],
-                              I2a)
-    infection2_juv <- rbinom(1, prob = transmission[3],
-                             Rj*(I1j + I2j + I1a + I2a))
-    infection2_juv <- pmin(infection2_juv, Rj)
-    infection2_adult <- rbinom(1, prob = transmission[4],
-                               Ra*(I1j + I2j + I1a + I2a))
-    infection2_adult <- pmin(infection2_adult, Ra)
-    susceptible_adult_death <- rbinom(1, prob = dd_mortality[2],
-                                      Sa - infection1_adult)
-    recovered_juvenile_death <- rbinom(1, prob = dd_mortality[5],
-                                       Rj + recovery1_juv + recovery2_juv -
-                                         infection2_juv)
-    recovered_adult_death <- rbinom(1, prob = dd_mortality[6],
-                                    Ra + recovery1_adult + recovery2_adult -
-                                      infection2_adult)
-    susceptible_juvenile_death <- rbinom(1, prob = dd_mortality[1],
-                                         Sj + sum(births) - infection1_juv)
-    infected1_juvenile_death <- rbinom(1, prob = dd_mortality[3],
-                                       I1j + infection1_juv - recovery1_juv)
-    infected1_adult_death <- rbinom(1, prob = dd_mortality[4],
-                                    I1a + infection1_adult  - recovery1_adult)
-    infected2_juvenile_death <- rbinom(1, prob = dd_mortality[7],
-                                       I2j + infection2_juv - recovery2_juv)
-    infected2_adult_death <- rbinom(1, prob = dd_mortality[8],
-                                    I2a + infection2_adult - recovery2_adult)
-
-    # Record new states
-    state[1, t + 1] <- if_else(season == "breeding",
-                               Sj + sum(births) - infection1_juv -
-                                 susceptible_juvenile_death,
-                               Sj - infection1_juv - susceptible_juvenile_death)
-    state[2, t + 1] <- Sa - infection1_adult - susceptible_adult_death
-    state[3, t + 1] <- I1j + infection1_juv - recovery1_juv -
-      infected1_juvenile_death
-    state[4, t + 1] <- I1a + infection1_adult  - recovery1_adult -
-      infected1_adult_death
-    state[5, t + 1] <- Rj + recovery1_juv + recovery2_juv - infection2_juv -
-      recovered_juvenile_death
-    state[6, t + 1] <- Ra + recovery1_adult + recovery2_adult -
-      infection2_adult - recovered_adult_death
-    state[7, t + 1] <- I2j + infection2_juv - recovery2_juv -
-      infected2_juvenile_death
-    state[8, t + 1] <- I2a + infection2_adult - recovery2_adult -
-      infected2_adult_death
-  }
-  return(state[, season_length + 1])
 }
