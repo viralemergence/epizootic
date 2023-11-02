@@ -1,3 +1,0 @@
-linters: all_linters(packages = "lintr") # see vignette("lintr")
-encoding: "UTF-8"
-exclusions: list("renv", "packrat") # see ?lintr::exclude

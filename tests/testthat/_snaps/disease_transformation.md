@@ -1,32 +1,80 @@
 # Warnings for negative or non-finite values in transformed data [plain]
 
-    Non-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      Warning:
+      Non-finite segment abundances returned by user-defined test function at indices 1.
+      Warning:
+      Negative carrying capacities returned by user-defined test function at indices 2
 
 ---
 
-    Non-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      Warning:
+      Negative carrying capacities returned by user-defined test function at indices 2
 
 # Warnings for negative or non-finite values in transformed data [ansi]
 
-    [1m[22mNon-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      [1m[33mWarning[39m:[22m
+      [1m[22mNon-finite segment abundances returned by user-defined test function at indices 1.
+      [1m[33mWarning[39m:[22m
+      [1m[22mNegative carrying capacities returned by user-defined test function at indices 2
 
 ---
 
-    [1m[22mNon-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      [1m[33mWarning[39m:[22m
+      [1m[22mNegative carrying capacities returned by user-defined test function at indices 2
 
 # Warnings for negative or non-finite values in transformed data [unicode]
 
-    Non-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      Warning:
+      Non-finite segment abundances returned by user-defined test function at indices 1.
+      Warning:
+      Negative carrying capacities returned by user-defined test function at indices 2
 
 ---
 
-    Non-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      Warning:
+      Negative carrying capacities returned by user-defined test function at indices 2
 
 # Warnings for negative or non-finite values in transformed data [fancy]
 
-    [1m[22mNon-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      [1m[33mWarning[39m:[22m
+      [1m[22mNon-finite segment abundances returned by user-defined test function at indices 1.
+      [1m[33mWarning[39m:[22m
+      [1m[22mNegative carrying capacities returned by user-defined test function at indices 2
 
 ---
 
-    [1m[22mNon-finite segment abundances returned by user-defined test function at indices 1.
+    Code
+      invisible(new_function(carrying_capacity = rep(100, 4), segment_abundance = matrix(
+        1:12, nrow = 3), occupied_indices = c(1, 2), r = 1, tm = 1))
+    Condition
+      [1m[33mWarning[39m:[22m
+      [1m[22mNegative carrying capacities returned by user-defined test function at indices 2
 

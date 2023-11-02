@@ -133,6 +133,7 @@
 disease_transformation <- function(replicates,
                                    time_steps,
                                    seasons,
+                                   compartments,
                                    populations,
                                    demographic_stochasticity,
                                    density_stages,
@@ -229,7 +230,7 @@ disease_transformation <- function(replicates,
               )] < 0)) {
           cli_warn("Negative carrying capacities returned by user-defined
                      {name} function at indices
-                     {which(is.finite(transformed[['carrying_capacity']] < 0))}"
+                     {which(transformed[['carrying_capacity']] < 0)}"
           )
         }
 

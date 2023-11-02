@@ -9,6 +9,7 @@ disease_transformation(
   replicates,
   time_steps,
   seasons,
+  compartments,
   populations,
   demographic_stochasticity,
   density_stages,
@@ -35,6 +36,9 @@ disease_transformation(
 \item{time_steps}{Number of simulation time steps.}
 
 \item{seasons}{Number of seasons.}
+
+\item{compartments}{Number of disease compartments (e.g., 3 for a SIR model).
+Default: 1.}
 
 \item{populations}{Number of populations.}
 
@@ -156,9 +160,6 @@ accessible \emph{attached} and \emph{results} lists.}
 
 \item{name}{Optional name for the transformation (default is
 "transformation").}
-
-\item{compartments}{Number of disease compartments (e.g., 3 for a SIR model).
-Default: 1.}
 }
 \value{
 Abundance (and capacity) transformation function:

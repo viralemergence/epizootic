@@ -294,7 +294,7 @@
 #'  desired order. Processes must be one of "transition", "translocation",
 #'  "harvest", "mortality", "dispersal", "season_functions", or "results."
 #'  "season_functions" will be matched to the appropriate season (i.e., if
-#'  "season_functions" appears in element 1 of the list, season_functions[[1]]
+#'  "season_functions" appears in element 1 of the list, `season_functions[[1]]`
 #'  will be called.) If the simulation processes are the same across seasons,
 #'  then a single character vector may be provided. Required input.}
 #'  \item{\code{additional transformation functions}}{Additional user-defined
