@@ -508,14 +508,36 @@ disease_simulator <- function(inputs) {
     }
   }
 
+  # !!! REVISIT THIS: I NEED TO MAKE A CUSTOM RESULTS FUNCTION !!!
   result_functions <- population_results(
       replicates,
       time_steps,
       inputs$coordinates,
       initial_abundance,
       results_selection = results_selection,
-      result_stages = inputs$result_stages,
+      result_stages = inputs[["result_stages"]],
       result_compartments = inputs[["result_compartments"]]
     )
   results_list <- result_functions$initialize_attributes()
+
+  ### Replicates ###
+  for (r in 1:replicates) {
+
+    # Initialize populations
+    stage_abundance <- initial_abundance
+    population_abundance <- .colSums(initial_abundance,
+                                     m = stages*compartments, n = populations)
+    occupied_indices <- which(as.logical(population_abundance))
+    occupied_populations <- length(occupied_indices)
+
+    # Initialize harvested
+    if ("harvested" %in% results_selection) {
+      harvested <- array(0 , c(stages, populations))
+    } else {
+      harvested <- NULL
+    }
+
+    # (Re-)Initialize result collection variables
+    results_list <- result_functions$initialize_replicate(results_list)
+  }
 }

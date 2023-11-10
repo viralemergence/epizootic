@@ -101,11 +101,16 @@ siri_model_summer <- function(inputs) {
 
   # Set up initial vectors
   population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  carrying_capacity <- carrying_capacity[occupied_indices]
 
-  population_new <- aspatial_siri(population_list,
-                                  mortality, transmission, recovery, fecundity,
-                                  abundance_threshold, carrying_capacity,
-                                  season = "breeding")
+  population_new <- pmap(list(initial_pop = population_list,
+                              mortality = mortality,
+                              transmission = transmission,
+                              recovery = recovery,
+                              fecundity = fecundity,
+                              abundance_threshold = abundance_threshold,
+                              carrying_capacity = carrying_capacity,
+                              season = "breeding"), aspatial_siri)
 
   # Assign populations to occupied indices in segment_abundance
   for(i in 1:length(occupied_indices)) {
@@ -216,10 +221,14 @@ siri_model_winter <- function(inputs) {
   # Set up initial vectors
   population_list <- array_branch(segment_abundance[, occupied_indices], 2)
 
-  population_new <- aspatial_siri(population_list,
-                                  mortality, transmission, recovery, fecundity,
-                                  abundance_threshold, carrying_capacity,
-                                  season = "non-breeding")
+  population_new <- pmap(list(initial_pop = population_list,
+                                  mortality = mortality,
+                                  transmission = transmission,
+                                  recovery = recovery,
+                                  fecundity = fecundity,
+                                  abundance_threshold = abundance_threshold,
+                                  carrying_capacity = carrying_capacity,
+                                  season = "non-breeding"), aspatial_siri)
 
   # Assign populations to occupied indices in segment_abundance
   for(i in 1:length(occupied_indices)) {
@@ -227,4 +236,133 @@ siri_model_winter <- function(inputs) {
   }
 
   return(segment_abundance)
+}
+
+#' Helper function: SIRI seasonal simulator
+#'
+#' @param initial_pop A vector of length 8 showing the initial abundance for
+#' each combination of stage and compartment.
+#' @param mortality A vector of length 8 with the mortality rates for each
+#' stage and compartment in the season in question.
+#' @param transmission A vector of length 4 with the transmission rates for each
+#' susceptible/recovered stage in the season in question.
+#' @param recovery A vector of length 4 with the transmission rates for each
+#' susceptible/recovered stage in the season in question.
+#' @param fecundity Only necessary when `season = "breeding"` (see below).
+#' Default NULL. A single numeric with the daily fecundity of adults.
+#' @param abundance_threshold A quasi-extinction threshold below which a
+#' population becomes extinct.
+#' @param carrying_capacity A single numeric that indicates the carrying
+#' capacity of the population in this season.
+#' @param season Either "breeding" or "non-breeding."
+#' @return A vector of length 8 showing the abundance for each combination of
+#' stage and compartment at the end of the season.
+#' @export
+
+aspatial_siri <- function(initial_pop,
+                            carrying_capacity,
+                            abundance_threshold,
+                            mortality,
+                            transmission,
+                            recovery,
+                            fecundity,
+                            season) {
+  # Unpack initial_pops
+  Sa <- initial_pop[2]
+  Sj <- initial_pop[1]
+  I1j <- initial_pop[3]
+  I1a <- initial_pop[4]
+  Rj <- initial_pop[5]
+  Ra <- initial_pop[6]
+  I2j <- initial_pop[7]
+  I2a <- initial_pop[8]
+
+  total_pop <- sum(initial_pop)
+
+  N <- pmin(total_pop, carrying_capacity)
+
+  if (N < abundance_threshold) {
+    # Fill everything with 0
+    final_state <- rep(0, 8)
+  } else {
+
+  dd_multiplier <- 1.0 + N / carrying_capacity
+
+  dd_mortality <- mortality * pmin(dd_multiplier, 1.0)
+
+  new_juv <- 0.0
+
+  if (season == "breeding") {
+    adults <- Sa + I1a + Ra + I2a
+    births <- rpois(adults, fecundity * (1.0 - N / carrying_capacity))
+    new_juv <- sum(births)
+  }
+
+  infection1_juv_raw <- rbinom(1, Sj * (I1j + I2j + I1a + I2a), transmission[1])
+  infection1_juv <- pmin(infection1_juv_raw, Sj)
+
+  infection1_adult_raw <- rbinom(1, Sa * (I1j + I2j + I1a + I2a), transmission[2])
+  infection1_adult <- pmin(infection1_adult_raw, Sa)
+
+  susceptible_adult_death <- rbinom(1, Sa - infection1_adult, dd_mortality[2])
+
+  if (season == "breeding") {
+    susceptible_juvenile_death <- rbinom(1, Sj + new_juv - infection1_juv, dd_mortality[1])
+  } else {
+    susceptible_juvenile_death <- rbinom(1, Sj - infection1_juv, dd_mortality[1])
+  }
+
+  infected1_juvenile_death <- rbinom(1, I1j + infection1_juv, dd_mortality[3])
+
+  infected1_adult_death <- rbinom(1, I1a + infection1_adult, dd_mortality[4])
+
+  recovery1_juv_raw <- rbinom(1, I1j + infection1_juv - infected1_juvenile_death, recovery[3])
+  recovery1_juv <- pmin(recovery1_juv_raw, I1j + infection1_juv - infected1_juvenile_death)
+
+  recovery1_adult_raw <- rbinom(1, I1a + infection1_adult - infected1_adult_death, recovery[4])
+  recovery1_adult <- pmin(recovery1_adult_raw, I1a + infection1_adult - infected1_adult_death)
+
+  infection2_juv_raw <- rbinom(1, (Rj + recovery1_juv) * (I1j + I2j + I1a + I2a), transmission[3])
+  infection2_juv <- pmin(infection2_juv_raw, Rj + infection1_juv)
+
+  infection2_adult_raw <- rbinom(1, (Ra + recovery1_adult) * (I1j + I2j + I1a + I2a), transmission[4])
+  infection2_adult <- pmin(infection2_adult_raw, Ra + recovery1_adult)
+
+  infected2_juvenile_death <- rbinom(1, I2j + infection2_juv, dd_mortality[7])
+
+  infected2_adult_death <- rbinom(1, I2a + infection2_adult, dd_mortality[8])
+
+  recovery2_juv_raw <- rbinom(1, I2j + infection2_juv - infected2_juvenile_death, recovery[3])
+  recovery2_juv <- pmin(recovery2_juv_raw, I2j + infection2_juv - infected2_juvenile_death)
+
+  recovery2_adult_raw <- rbinom(1, I2a + infection2_adult - infected2_adult_death, recovery[4])
+  recovery2_adult <- pmin(recovery2_adult_raw, I2a + infection2_adult - infected2_adult_death)
+
+  recovered_juvenile_death <- rbinom(1, Rj + recovery1_juv + recovery2_juv - infection2_juv, dd_mortality[5])
+
+  recovered_adult_death <- rbinom(1, Ra + recovery1_adult + recovery2_adult - infection2_adult, dd_mortality[6])
+
+  # Update state for the next time step
+  if (season == "breeding") {
+    final_state <- c(Sj + new_juv - infection1_juv - susceptible_juvenile_death,
+                     Sa - infection1_adult - susceptible_adult_death,
+                     I1j + infection1_juv - recovery1_juv - infected1_juvenile_death,
+                     I1a + infection1_adult - recovery1_adult - infected1_adult_death,
+                     Rj + recovery1_juv + recovery2_juv - infection2_juv - recovered_juvenile_death,
+                     Ra + recovery1_adult + recovery2_adult - infection2_adult - recovered_adult_death,
+                     I2j + infection2_juv - recovery2_juv - infected2_juvenile_death,
+                     I2a + infection2_adult - recovery2_adult - infected2_adult_death)
+  } else {
+    final_state <- c(Sj - infection1_juv - susceptible_juvenile_death,
+                     Sa - infection1_adult - susceptible_adult_death,
+                     I1j + infection1_juv - recovery1_juv - infected1_juvenile_death,
+                     I1a + infection1_adult - recovery1_adult - infected1_adult_death,
+                     Rj + recovery1_juv + recovery2_juv - infection2_juv - recovered_juvenile_death,
+                     Ra + recovery1_adult + recovery2_adult - infection2_adult - recovered_adult_death,
+                     I2j + infection2_juv - recovery2_juv - infected2_juvenile_death,
+                     I2a + infection2_adult - recovery2_adult - infected2_adult_death)
+  }
+  }
+
+  return(final_state)
 }

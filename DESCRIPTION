@@ -20,14 +20,12 @@ Imports:
     dplyr (>= 1.1.3),
     tibble (>= 3.2.1),
     R6 (>= 2.5.1),
-    cli (>= 3.6.1),
-    Rcpp
+    cli (>= 3.6.1)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Collate: 
     'DiseaseModel.R'
-    'RcppExports.R'
     'aspatial_siri_seasons.R'
     'check_aspatial_siri_inputs.R'
     'check_simulator_inputs.R'
@@ -36,6 +34,3 @@ Collate:
     'disease_transitions.R'
     'epizootic-package.R'
     'utils.R'
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
