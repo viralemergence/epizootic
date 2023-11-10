@@ -3,31 +3,8 @@
 
 #' Helper Function for Seasonal SIRI Simulation
 #'
-#' This function is an internal one that does the aspatial simulations within
-#' one population for one timestep, for any given season.
-#'
-#' @name aspatial_siri
-#'
-#' @param initial_pop A vector of length 8 showing the initial abundance for
-#' each combination of stage and compartment.
-#' @param season_length The length of the season in days.
-#' @param mortality A vector of length 8 with the mortality rates for each
-#' stage and compartment in the season in question.
-#' @param transmission A vector of length 4 with the transmission rates for each
-#' susceptible/recovered stage in the season in question.
-#' @param recovery A vector of length 4 with the transmission rates for each
-#' susceptible/recovered stage in the season in question.
-#' @param fecundity Only necessary when `season = "breeding"` (see below).
-#' Default NULL. A single numeric with the daily fecundity of adults.
-#' @param abundance_threshold A quasi-extinction threshold below which a
-#' population becomes extinct.
-#' @param carrying_capacity A single numeric that indicates the carrying
-#' capacity of the population in this season.
-#' @param season Either "breeding" or "non-breeding."
-#' @return A vector of length 8 showing the abundance for each combination of
-#' stage and compartment at the end of the season.
-#' @export
-aspatial_siri <- function(initial_pop, season_length, mortality, transmission, recovery, fecundity, abundance_threshold, carrying_capacity, season) {
-    .Call(`_epizootic_aspatial_siri`, initial_pop, season_length, mortality, transmission, recovery, fecundity, abundance_threshold, carrying_capacity, season)
+#' Testing out a seasonal version instead of a daily timestep version.
+aspatial_siri <- function(pop_list, mortality_list, transmission_list, recovery_list, fecundity_list, abundance_threshold, carrying_capacity_list, season) {
+    .Call(`_epizootic_aspatial_siri`, pop_list, mortality_list, transmission_list, recovery_list, fecundity_list, abundance_threshold, carrying_capacity_list, season)
 }
 

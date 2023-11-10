@@ -12,27 +12,26 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // aspatial_siri
-Rcpp::NumericVector aspatial_siri(arma::vec initial_pop, int season_length, Rcpp::NumericVector mortality, Rcpp::NumericVector transmission, Rcpp::NumericVector recovery, double fecundity, double abundance_threshold, double carrying_capacity, const char * season);
-RcppExport SEXP _epizootic_aspatial_siri(SEXP initial_popSEXP, SEXP season_lengthSEXP, SEXP mortalitySEXP, SEXP transmissionSEXP, SEXP recoverySEXP, SEXP fecunditySEXP, SEXP abundance_thresholdSEXP, SEXP carrying_capacitySEXP, SEXP seasonSEXP) {
+Rcpp::List aspatial_siri(Rcpp::List pop_list, Rcpp::List mortality_list, Rcpp::List transmission_list, Rcpp::List recovery_list, Rcpp::List fecundity_list, double abundance_threshold, Rcpp::NumericVector carrying_capacity_list, const char * season);
+RcppExport SEXP _epizootic_aspatial_siri(SEXP pop_listSEXP, SEXP mortality_listSEXP, SEXP transmission_listSEXP, SEXP recovery_listSEXP, SEXP fecundity_listSEXP, SEXP abundance_thresholdSEXP, SEXP carrying_capacity_listSEXP, SEXP seasonSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type initial_pop(initial_popSEXP);
-    Rcpp::traits::input_parameter< int >::type season_length(season_lengthSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mortality(mortalitySEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type transmission(transmissionSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type recovery(recoverySEXP);
-    Rcpp::traits::input_parameter< double >::type fecundity(fecunditySEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type pop_list(pop_listSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type mortality_list(mortality_listSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type transmission_list(transmission_listSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type recovery_list(recovery_listSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type fecundity_list(fecundity_listSEXP);
     Rcpp::traits::input_parameter< double >::type abundance_threshold(abundance_thresholdSEXP);
-    Rcpp::traits::input_parameter< double >::type carrying_capacity(carrying_capacitySEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type carrying_capacity_list(carrying_capacity_listSEXP);
     Rcpp::traits::input_parameter< const char * >::type season(seasonSEXP);
-    rcpp_result_gen = Rcpp::wrap(aspatial_siri(initial_pop, season_length, mortality, transmission, recovery, fecundity, abundance_threshold, carrying_capacity, season));
+    rcpp_result_gen = Rcpp::wrap(aspatial_siri(pop_list, mortality_list, transmission_list, recovery_list, fecundity_list, abundance_threshold, carrying_capacity_list, season));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_epizootic_aspatial_siri", (DL_FUNC) &_epizootic_aspatial_siri, 9},
+    {"_epizootic_aspatial_siri", (DL_FUNC) &_epizootic_aspatial_siri, 8},
     {NULL, NULL, 0}
 };
 

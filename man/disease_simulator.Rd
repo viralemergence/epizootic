@@ -106,10 +106,10 @@ A list of vectors may be provided if this varies by season. If no recovery
 mask is provided, then it is assumed that all stages in the second
 compartment can recover.}
 \item{\code{density_dependence}}{Selects a density dependence function, if
-desired. Choices are "ceiling", "logistic" (Ricker), or a user-defined
-function (optionally nested in a list with additional attributes) for
-adjusting transition rates: \code{function(params)}, where \code{params} is
-a list passed to the function containing:
+desired. Choices are "none" (the default), "ceiling", "logistic" (Ricker),
+or a user-defined function (optionally nested in a list with additional
+attributes) for adjusting transition rates: \code{function(params)},
+where \code{params} is a list passed to the function containing:
 \describe{
 \item{\code{transition_array}}{3D array of transition rates: stages
 by stages by populations.}

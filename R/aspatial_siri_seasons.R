@@ -73,43 +73,46 @@ siri_model_summer <- function(inputs) {
   list2env(inputs, environment())
   active_pops <- length(occupied_indices)
 
-  # Convert the units of anything seasonal to now be daily
+  # Convert the units of anything daily to now be seasonal
   fecundity <- replicate(active_pops, list(fecundity)) |>
     map2(breeding_season_length[occupied_indices], \(x, y) {
-      x[as.logical(fecundity_unit)] <- x[as.logical(fecundity_unit)] |> (`/`)(y)
+      x[!as.logical(fecundity_unit)] <- x[!as.logical(fecundity_unit)] |>
+        (`*`)(y)
       return(x)
     })
   mortality <- replicate(active_pops, list(mortality)) |>
     map2(breeding_season_length[occupied_indices], \(x, y) {
-      x[as.logical(mortality_unit)] <- x[as.logical(mortality_unit)] |> (`/`)(y)
+      x[!as.logical(mortality_unit)] <- x[!as.logical(mortality_unit)] |>
+        (`*`)(y) |> pmin(1)
       return(x)
     })
   transmission <- replicate(active_pops, list(transmission)) |>
     map2(breeding_season_length[occupied_indices], \(x, y) {
-      x[as.logical(transmission_unit)] <- x[as.logical(transmission_unit)] |>
-        (`/`)(y)
+      x[!as.logical(transmission_unit)] <- x[!as.logical(transmission_unit)] |>
+        (`*`)(y) |> pmin(1)
       return(x)
     })
   recovery <- replicate(active_pops, list(recovery)) |>
     map2(breeding_season_length[occupied_indices], \(x, y) {
-      x[as.logical(recovery_unit)] <- x[as.logical(recovery_unit)] |> (`/`)(y)
+      x[!as.logical(recovery_unit)] <- x[!as.logical(recovery_unit)] |>
+        (`*`)(y) |> pmin(1)
       return(x)
     })
 
   # Set up initial vectors
   population_list <- array_branch(segment_abundance[, occupied_indices], 2)
 
-  population_new <- pmap(list(population_list, breeding_season_length,
-                              mortality, transmission, recovery, fecundity,
-                              abundance_threshold, carrying_capacity,
-                              season = "breeding"), aspatial_siri)
+  population_new <- aspatial_siri(population_list,
+                                  mortality, transmission, recovery, fecundity,
+                                  abundance_threshold, carrying_capacity,
+                                  season = "breeding")
 
   # Assign populations to occupied indices in segment_abundance
   for(i in 1:length(occupied_indices)) {
     segment_abundance[, occupied_indices[i]] <- population_new[[i]]
   }
 
-  return(population_new)
+  return(segment_abundance)
 }
 
 #' Simulate a *Mycoplasma gallisepticum* Outbreak in the Non-Breeding Season
@@ -179,5 +182,49 @@ siri_model_summer <- function(inputs) {
 #' @export
 
 siri_model_winter <- function(inputs) {
+  inputs <- check_aspatial_siri_inputs(inputs)
+  list2env(inputs, environment())
+  active_pops <- length(occupied_indices)
+  season_length <- 365 - breeding_season_length
 
+  # Convert the units of anything daily to now be seasonal
+  fecundity <- replicate(active_pops, list(fecundity)) |>
+    map2(season_length[occupied_indices], \(x, y) {
+      x[!as.logical(fecundity_unit)] <- x[!as.logical(fecundity_unit)] |>
+        (`*`)(y)
+      return(x)
+    })
+  mortality <- replicate(active_pops, list(mortality)) |>
+    map2(season_length[occupied_indices], \(x, y) {
+      x[!as.logical(mortality_unit)] <- x[!as.logical(mortality_unit)] |>
+        (`*`)(y) |> pmin(1)
+      return(x)
+    })
+  transmission <- replicate(active_pops, list(transmission)) |>
+    map2(season_length[occupied_indices], \(x, y) {
+      x[!as.logical(transmission_unit)] <- x[!as.logical(transmission_unit)] |>
+        (`*`)(y) |> pmin(1)
+      return(x)
+    })
+  recovery <- replicate(active_pops, list(recovery)) |>
+    map2(season_length[occupied_indices], \(x, y) {
+      x[!as.logical(recovery_unit)] <- x[!as.logical(recovery_unit)] |>
+        (`*`)(y) |> pmin(1)
+      return(x)
+    })
+
+  # Set up initial vectors
+  population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+
+  population_new <- aspatial_siri(population_list,
+                                  mortality, transmission, recovery, fecundity,
+                                  abundance_threshold, carrying_capacity,
+                                  season = "non-breeding")
+
+  # Assign populations to occupied indices in segment_abundance
+  for(i in 1:length(occupied_indices)) {
+    segment_abundance[, occupied_indices[i]] <- population_new[[i]]
+  }
+
+  return(segment_abundance)
 }

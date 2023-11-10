@@ -76,11 +76,19 @@ check_aspatial_siri_inputs <- function(inputs) {
                 compartments.",
                 "x" = "You have entered {compartments} compartment{?s}."))
   }
-
+  if (is.null(fecundity)) {
+    inputs[["fecundity"]] <- 0
+  }
+  if (is.null(fecundity_unit)) {
+    inputs[["fecundity_unit"]] <- 0
+  }
+  if (is.null(fecundity_mask)) {
+    inputs[["fecundity_mask"]] <- rep(0, 8)
+  }
   if (!all(c(mortality[!as.logical(mortality_unit)],
              fecundity[!as.logical(fecundity_unit)],
-             transmission[!as.logical(fecundity_unit)],
-             recovery[!as.logical(mortality_unit)]) <= 1) |
+             transmission[!as.logical(transmission_unit)],
+             recovery[!as.logical(recovery_unit)]) <= 1) |
       !all(c(mortality, fecundity, transmission, recovery) >= 0)) {
     cli_abort("Daily mortality, fecundity, transmission, and recovery rates must
               be between 0 and 1 inclusive.")

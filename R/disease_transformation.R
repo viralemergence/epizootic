@@ -13,8 +13,7 @@
 #'  Default: 1.
 #' @param demographic_stochasticity Boolean for optionally choosing demographic
 #' stochasticity for the transformation.
-#' @param density_stages Array of booleans or numeric (0,1) for each stage to
-#' indicate which stages are affected by density.
+#' @param stages Number of life cycle stages.
 #' @param abundance_threshold A quasi-extinction threshold below which a
 #'  population becomes extinct.
 #' @param mortality A vector of mortality rates, one for each
@@ -136,7 +135,7 @@ disease_transformation <- function(replicates,
                                    compartments,
                                    populations,
                                    demographic_stochasticity,
-                                   density_stages,
+                                   stages,
                                    abundance_threshold,
                                    mortality,
                                    mortality_unit,
@@ -153,8 +152,6 @@ disease_transformation <- function(replicates,
                                    simulator,
                                    name = "transformation") {
   if (!is.null(transformation)) {
-    # Derive stages
-    stages <- length(density_stages)
 
     # Unpack transformation function and additional attributes from a list
     additional_attributes <- list()
@@ -178,6 +175,7 @@ disease_transformation <- function(replicates,
         params[["carrying_capacity"]] <- carrying_capacity
         params[["segment_abundance"]] <- segment_abundance
         params[["occupied_indices"]] <- occupied_indices
+        params[["breeding_season_length"]] <- breeding_season_length
 
         # Run user-defined transformation function
         tryCatch({

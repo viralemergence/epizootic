@@ -33,6 +33,7 @@ Collate:
     'check_simulator_inputs.R'
     'disease_simulator.R'
     'disease_transformation.R'
+    'disease_transitions.R'
     'epizootic-package.R'
     'utils.R'
 LinkingTo: 

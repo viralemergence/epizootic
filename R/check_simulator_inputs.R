@@ -105,10 +105,10 @@
 #'  mask is provided, then it is assumed that all stages in the second
 #'  compartment can recover.}
 #'  \item{\code{density_dependence}}{Selects a density dependence function, if
-#'  desired. Choices are "ceiling", "logistic" (Ricker), or a user-defined
-#'  function (optionally nested in a list with additional attributes) for
-#'  adjusting transition rates: \code{function(params)}, where \code{params} is
-#'  a list passed to the function containing:
+#'  desired. Choices are "none" (the default), "ceiling", "logistic" (Ricker),
+#'  or a user-defined function (optionally nested in a list with additional
+#'  attributes) for adjusting transition rates: \code{function(params)},
+#'  where \code{params} is a list passed to the function containing:
 #'       \describe{
 #'         \item{\code{transition_array}}{3D array of transition rates: stages
 #'         by stages by populations.}
@@ -376,6 +376,10 @@ check_simulator_inputs <- function(inputs) {
   inputs[["compartments"]] <- ifelse(
     is.null(inputs[["compartments"]]), 1, inputs[["compartments"]]
   )
+  inputs[["density_dependence"]] <- ifelse(
+    is.null(inputs[["density_dependence"]]), "none",
+            inputs[["density_dependence"]]
+    )
   inputs[["demographic_stochasticity"]] <- ifelse(
       is.null(inputs[["demographic_stochasticity"]]),
       TRUE,

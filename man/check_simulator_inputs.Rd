@@ -106,10 +106,10 @@ A list of vectors may be provided if this varies by season. If no recovery
 mask is provided, then it is assumed that all stages in the second
 compartment can recover.}
 \item{\code{density_dependence}}{Selects a density dependence function, if
-desired. Choices are "ceiling", "logistic" (Ricker), or a user-defined
-function (optionally nested in a list with additional attributes) for
-adjusting transition rates: \code{function(params)}, where \code{params} is
-a list passed to the function containing:
+desired. Choices are "none" (the default), "ceiling", "logistic" (Ricker),
+or a user-defined function (optionally nested in a list with additional
+attributes) for adjusting transition rates: \code{function(params)},
+where \code{params} is a list passed to the function containing:
 \describe{
 \item{\code{transition_array}}{3D array of transition rates: stages
 by stages by populations.}
@@ -295,7 +295,7 @@ Each element in the list is a vector of named simulation processes in the
 desired order. Processes must be one of "transition", "translocation",
 "harvest", "mortality", "dispersal", "season_functions", or "results."
 "season_functions" will be matched to the appropriate season (i.e., if
-"season_functions" appears in element 1 of the list, season_functions[\link{1}]
+"season_functions" appears in element 1 of the list, \code{season_functions[[1]]}
 will be called.) If the simulation processes are the same across seasons,
 then a single character vector may be provided. Required input.}
 \item{\code{additional transformation functions}}{Additional user-defined

@@ -12,7 +12,7 @@ disease_transformation(
   compartments,
   populations,
   demographic_stochasticity,
-  density_stages,
+  stages,
   abundance_threshold,
   mortality,
   mortality_unit,
@@ -45,8 +45,7 @@ Default: 1.}
 \item{demographic_stochasticity}{Boolean for optionally choosing demographic
 stochasticity for the transformation.}
 
-\item{density_stages}{Array of booleans or numeric (0,1) for each stage to
-indicate which stages are affected by density.}
+\item{stages}{Number of life cycle stages.}
 
 \item{abundance_threshold}{A quasi-extinction threshold below which a
 population becomes extinct.}

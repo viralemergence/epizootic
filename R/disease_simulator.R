@@ -115,10 +115,10 @@
 #'  mask is provided, then it is assumed that all stages in the second
 #'  compartment can recover.}
 #'  \item{\code{density_dependence}}{Selects a density dependence function, if
-#'  desired. Choices are "ceiling", "logistic" (Ricker), or a user-defined
-#'  function (optionally nested in a list with additional attributes) for
-#'  adjusting transition rates: \code{function(params)}, where \code{params} is
-#'  a list passed to the function containing:
+#'  desired. Choices are "none" (the default), "ceiling", "logistic" (Ricker),
+#'  or a user-defined function (optionally nested in a list with additional
+#'  attributes) for adjusting transition rates: \code{function(params)},
+#'  where \code{params} is a list passed to the function containing:
 #'       \describe{
 #'         \item{\code{transition_array}}{3D array of transition rates: stages
 #'         by stages by populations.}
@@ -374,9 +374,148 @@
 
 disease_simulator <- function(inputs) {
 
+  # Check that all inputs are valid
   inputs <- check_simulator_inputs(inputs)
-  # population_abundance <- .colSums(initial_abundance, m = segments,
-  #                                  n = populations)
   imap(inputs, assign)
 
+  population_abundance <- .colSums(initial_abundance, m = segments,
+                                   n = populations)
+
+  # Simulator reference object for dynamic attachments and results
+  # (accessed via user-defined functions)
+  simulator <- SimulatorReference$new()
+
+  # Generate simulation functions
+  transition_function <- disease_transitions(stages, compartments)
+
+  if (density_dependence != "none") {
+    density_function <- population_density(
+      populations,
+      stage_matrix,
+      fecundity_mask,
+      fecundity_max,
+      density_dependence,
+      inputs$growth_rate_max,
+      inputs$density_affects,
+      density_stages,
+      density_precision = inputs$density_precision,
+      simulator
+    )
+    if ((is.function(density_dependence) ||
+         is.list(density_dependence))) {
+      density_dependence <- "adjusts_transitions"
+    }
+  }
+
+  translocation_function <- population_transformation(
+    replicates,
+    time_steps,
+    years_per_step,
+    populations,
+    demographic_stochasticity,
+    density_stages,
+    inputs[["translocation"]],
+    simulator,
+    name = "translocation"
+  )
+  harvest_function <- population_transformation(
+    replicates,
+    time_steps,
+    years_per_step,
+    populations,
+    demographic_stochasticity,
+    density_stages,
+    inputs[["harvest"]],
+    simulator,
+    name = "harvest"
+  )
+  mortality_function <- population_transformation(
+    replicates,
+    time_steps,
+    years_per_step,
+    populations,
+    demographic_stochasticity,
+    density_stages,
+    inputs[["mortality"]],
+    simulator,
+    name = "mortality"
+  )
+
+  if (length(inputs[["dispersal"]]) == 1) {
+    dispersal_function <- population_dispersal(
+      replicates,
+      time_steps,
+      years_per_step,
+      populations,
+      demographic_stochasticity,
+      density_stages,
+      flatten(inputs[["dispersal"]]),
+      dispersal_stages,
+      dispersal_source_n_k,
+      dispersal_target_k,
+      dispersal_target_n,
+      dispersal_target_n_k,
+      simulator
+    )
+  } else {
+    dispersal_functions = list()
+    for (d in length(inputs[["dispersal"]])) {
+      dispersal_functions[[d]] <- population_dispersal(
+        replicates,
+        time_steps,
+        years_per_step,
+        populations,
+        demographic_stochasticity,
+        density_stages,
+        inputs[["dispersal"]][[d]],
+        dispersal_stages,
+        dispersal_source_n_k,
+        dispersal_target_k,
+        dispersal_target_n,
+        dispersal_target_n_k,
+        simulator
+      )
+    }
+  }
+
+  if (length(season_functions)) {
+    season_function_list <- list()
+    for (s in season_functions) {
+      season_function_list[[s]] <- disease_transformation(
+        replicates,
+        time_steps,
+        seasons,
+        compartments,
+        populations,
+        demographic_stochasticity,
+        stages,
+        abundance_threshold,
+        mortality,
+        mortality_unit,
+        fecundity,
+        fecundity_unit,
+        fecundity_mask,
+        transmission,
+        transmission_unit,
+        transmission_mask,
+        recovery,
+        recovery_unit,
+        recovery_mask,
+        transformation,
+        simulator,
+        name = paste0("season", s, collapse = "_")
+      )
+    }
+  }
+
+  result_functions <- population_results(
+      replicates,
+      time_steps,
+      inputs$coordinates,
+      initial_abundance,
+      results_selection = results_selection,
+      result_stages = inputs$result_stages,
+      result_compartments = inputs[["result_compartments"]]
+    )
+  results_list <- result_functions$initialize_attributes()
 }

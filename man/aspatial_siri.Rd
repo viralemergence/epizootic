@@ -5,48 +5,16 @@
 \title{Helper Function for Seasonal SIRI Simulation}
 \usage{
 aspatial_siri(
-  initial_pop,
-  season_length,
-  mortality,
-  transmission,
-  recovery,
-  fecundity,
+  pop_list,
+  mortality_list,
+  transmission_list,
+  recovery_list,
+  fecundity_list,
   abundance_threshold,
-  carrying_capacity,
+  carrying_capacity_list,
   season
 )
 }
-\arguments{
-\item{initial_pop}{A vector of length 8 showing the initial abundance for
-each combination of stage and compartment.}
-
-\item{season_length}{The length of the season in days.}
-
-\item{mortality}{A vector of length 8 with the mortality rates for each
-stage and compartment in the season in question.}
-
-\item{transmission}{A vector of length 4 with the transmission rates for each
-susceptible/recovered stage in the season in question.}
-
-\item{recovery}{A vector of length 4 with the transmission rates for each
-susceptible/recovered stage in the season in question.}
-
-\item{fecundity}{Only necessary when \code{season = "breeding"} (see below).
-Default NULL. A single numeric with the daily fecundity of adults.}
-
-\item{abundance_threshold}{A quasi-extinction threshold below which a
-population becomes extinct.}
-
-\item{carrying_capacity}{A single numeric that indicates the carrying
-capacity of the population in this season.}
-
-\item{season}{Either "breeding" or "non-breeding."}
-}
-\value{
-A vector of length 8 showing the abundance for each combination of
-stage and compartment at the end of the season.
-}
 \description{
-This function is an internal one that does the aspatial simulations within
-one population for one timestep, for any given season.
+Testing out a seasonal version instead of a daily timestep version.
 }
