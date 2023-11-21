@@ -6,10 +6,9 @@
 #'time-step include:
 #' \enumerate{
 #'   \item Density dependence calculations (ceiling, logistic, or user-defined)
-#'   \item Environmental stochasticity calculations
 #'   \item Stage transition (stochastic) calculations
 #'   \item Population growth/decline calculations
-#'   \item Disease outbreak according to a SIRI model
+#'   \item Disease outbreak according to a compartmental model
 #'   \item Dispersal calculations (default or user-defined)
 #'   \item Results collection
 #' }
@@ -376,10 +375,9 @@ disease_simulator <- function(inputs) {
 
   # Check that all inputs are valid
   inputs <- check_simulator_inputs(inputs)
-  imap(inputs, assign)
+  list2env(inputs, envir = environment())
 
-  population_abundance <- .colSums(initial_abundance, m = segments,
-                                   n = populations)
+  population_abundance <- colSums(initial_abundance)
 
   # Simulator reference object for dynamic attachments and results
   # (accessed via user-defined functions)
@@ -410,7 +408,6 @@ disease_simulator <- function(inputs) {
   translocation_function <- population_transformation(
     replicates,
     time_steps,
-    years_per_step,
     populations,
     demographic_stochasticity,
     density_stages,
@@ -421,7 +418,6 @@ disease_simulator <- function(inputs) {
   harvest_function <- population_transformation(
     replicates,
     time_steps,
-    years_per_step,
     populations,
     demographic_stochasticity,
     density_stages,
@@ -429,23 +425,24 @@ disease_simulator <- function(inputs) {
     simulator,
     name = "harvest"
   )
-  mortality_function <- population_transformation(
-    replicates,
-    time_steps,
-    years_per_step,
-    populations,
-    demographic_stochasticity,
-    density_stages,
-    inputs[["mortality"]],
-    simulator,
-    name = "mortality"
-  )
+
+  if ("mortality" %in% simulation_order) {
+    mortality_function <- population_transformation(
+      replicates,
+      time_steps,
+      populations,
+      demographic_stochasticity,
+      density_stages,
+      inputs[["mortality"]],
+      simulator,
+      name = "mortality"
+    )
+  }
 
   if (length(inputs[["dispersal"]]) == 1) {
     dispersal_function <- population_dispersal(
       replicates,
       time_steps,
-      years_per_step,
       populations,
       demographic_stochasticity,
       density_stages,
@@ -457,13 +454,12 @@ disease_simulator <- function(inputs) {
       dispersal_target_n_k,
       simulator
     )
-  } else {
+  } else if (length(inputs[["dispersal"]]) > 1) {
     dispersal_functions = list()
-    for (d in length(inputs[["dispersal"]])) {
+    for (d in 1:length(inputs[["dispersal"]])) {
       dispersal_functions[[d]] <- population_dispersal(
         replicates,
         time_steps,
-        years_per_step,
         populations,
         demographic_stochasticity,
         density_stages,
@@ -480,8 +476,8 @@ disease_simulator <- function(inputs) {
 
   if (length(season_functions)) {
     season_function_list <- list()
-    for (s in season_functions) {
-      season_function_list[[s]] <- disease_transformation(
+    for (i in 1:length(season_functions)) {
+      season_function_list[[i]] <- disease_transformation(
         replicates,
         time_steps,
         seasons,
@@ -490,54 +486,192 @@ disease_simulator <- function(inputs) {
         demographic_stochasticity,
         stages,
         abundance_threshold,
-        mortality,
-        mortality_unit,
-        fecundity,
-        fecundity_unit,
-        fecundity_mask,
-        transmission,
-        transmission_unit,
-        transmission_mask,
-        recovery,
-        recovery_unit,
-        recovery_mask,
-        transformation,
+        mortality[[i]],
+        mortality_unit[[i]],
+        fecundity[[i]],
+        fecundity_unit[[i]],
+        fecundity_mask[[i]],
+        transmission[[i]],
+        transmission_unit[[i]],
+        transmission_mask[[i]],
+        recovery[[i]],
+        recovery_unit[[i]],
+        recovery_mask[[i]],
+        transformation = season_functions[[i]],
         simulator,
-        name = paste0("season", s, collapse = "_")
+        name = paste0("season", i, collapse = "_")
       )
     }
   }
 
   # !!! REVISIT THIS: I NEED TO MAKE A CUSTOM RESULTS FUNCTION !!!
   result_functions <- population_results(
-      replicates,
-      time_steps,
-      inputs$coordinates,
-      initial_abundance,
-      results_selection = results_selection,
-      result_stages = inputs[["result_stages"]],
-      result_compartments = inputs[["result_compartments"]]
-    )
+    replicates,
+    time_steps,
+    inputs$coordinates,
+    initial_abundance,
+    results_selection = results_selection,
+    result_stages = inputs[["result_stages"]],
+    result_compartments = inputs[["result_compartments"]]
+  )
   results_list <- result_functions$initialize_attributes()
 
   ### Replicates ###
   for (r in 1:replicates) {
 
     # Initialize populations
-    stage_abundance <- initial_abundance
+    segment_abundance <- initial_abundance
     population_abundance <- .colSums(initial_abundance,
-                                     m = stages*compartments, n = populations)
+                                     m = segments, n = populations)
     occupied_indices <- which(as.logical(population_abundance))
     occupied_populations <- length(occupied_indices)
 
     # Initialize harvested
     if ("harvested" %in% results_selection) {
-      harvested <- array(0 , c(stages, populations))
+      harvested <- array(0 , c(segments, populations))
     } else {
       harvested <- NULL
     }
 
     # (Re-)Initialize result collection variables
     results_list <- result_functions$initialize_replicate(results_list)
-  }
+
+    ### Simulation time steps ###
+    for (tm in 1:time_steps) {
+
+      # Load carrying capacity for each population for time if there is a
+      # temporal trend in K
+      if (carrying_capacity_t_max > 1) {
+        carrying_capacity <-
+          carrying_capacity_matrix[, min(tm, carrying_capacity_t_max)]
+      }
+
+      ## Run simulation processes in configured order ##
+      for (season in 1:seasons) {
+        simulation_order <- simulation_order[[season]]
+
+        for (process in simulation_order) {
+
+          if (process == "transition") {
+
+            if (occupied_populations) {
+              # Perform stage-based transitions
+              segment_abundance <- transition_function(segment_abundance,
+                                                       occupied_indices)
+
+              # Limit abundances to carrying capacity when "ceiling" density
+              # dependence
+              if (density_dependence == "ceiling") {
+                segment_abundance <- density_function(carrying_capacity,
+                                                      segment_abundance)
+              }
+            }
+          }
+
+          ## Translocation calculations ##
+          if (process == "translocation" &&
+              is.function(translocation_function)) {
+            transformed <- translocation_function(r, tm, carrying_capacity,
+                                                  segment_abundance,
+                                                  occupied_indices)
+            segment_abundance <- transformed[["segment_abundance"]]
+            if ("carrying_capacity" %in% names(transformed)) {
+              carrying_capacity <- transformed[["carrying_capacity"]]
+            }
+          }
+
+          ## Harvest calculations ##
+          if (process == "harvest") {
+            if (occupied_populations && is.function(harvest_function)) {
+              preharvest_abundance <- segment_abundance
+              transformed <- harvest_function(r, tm, carrying_capacity,
+                                              segment_abundance,
+                                              occupied_indices)
+              segment_abundance <- transformed$segment_abundance
+              if ("carrying_capacity" %in% names(transformed)) {
+                carrying_capacity <- transformed$carrying_capacity
+              }
+              harvested <- preharvest_abundance - segment_abundance
+            } else {
+              harvested <- 0*segment_abundance
+            }
+            if ("harvested" %in% results_selection) {
+              results_list <- result_functions$calculate_at_timestep(r, tm,
+                                                                     NULL,
+                                                                     harvested,
+                                                                     results_list)
+            }
+          }
+
+          ## Mortality calculations ##
+          if (occupied_populations && process == "mortality" &&
+              is.function(mortality_function)) {
+            transformed <- mortality_function(r, tm, carrying_capacity,
+                                              segment_abundance,
+                                              occupied_indices)
+            segment_abundance <- transformed$segment_abundance
+            if ("carrying_capacity" %in% names(transformed)) {
+              carrying_capacity <- transformed$carrying_capacity
+            }
+          }
+
+          ## Dispersal calculations ##
+          if (occupied_populations && process == "dispersal" &&
+              !is.null(dispersal)) {
+            if (!is.null(dispersal_function)) {
+              segment_abundance <- dispersal_function(r, tm, carrying_capacity,
+                                                      segment_abundance,
+                                                      occupied_indices)
+            } else if (!is.null(dispersal_functions)) {
+              indices <- map(1:stages, \(s) seq(s, segments, stages))
+              stage_dispersal <- map(1:stages, \(s) {
+                abundance <- dispersal_function(r, tm, carrying_capacity,
+                                                segment_abundance[indices[[s]],],
+                                                occupied_indices)
+                return(abundance)
+              })
+              for (i in 1:stages) {
+                segment_abundance[indices[[i]],] <- stage_dispersal[[i]]
+              }
+            }
+          }
+
+          if (process == "season_functions" && is.list(season_function_list)) {
+            transformed <- season_function_list[[season]](r, tm,
+                                                          carrying_capacity,
+                                                          segment_abundance,
+                                                          breeding_season_length,
+                                                          occupied_indices)
+            segment_abundance <- transformed$segment_abundance
+            if ("carrying_capacity" %in% names(transformed)) {
+              carrying_capacity <- transformed$carrying_capacity
+            }
+          }
+
+          if (process == "results") {
+            results_list <- result_functions$calculate_at_season(r, tm, i,
+                                                                 segment_abundance,
+                                                                 NULL,
+                                                                 results_list)
+          }
+        } # End simulation order loop
+      } # End season loop
+
+      results_list <- result_functions$calculate_at_timestep(r, tm,
+                                                             segment_abundance,
+                                                             NULL,
+                                                             results_list)
+    } # End time step loop
+
+    results_list <- result_functions$calculate_at_replicate(r,
+                                                            segment_abundance,
+                                                            results_list)
+
+  } # End replicate loop
+
+  ## Finalize results calculation and collation ##
+  results_list <- result_functions$finalize_attributes(results_list)
+
+  return(c(results_list, simulator$results))
+
 }

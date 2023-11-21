@@ -366,10 +366,9 @@ results across multiple replicate runs. Processes run at each simulation
 time-step include:
 \enumerate{
 \item Density dependence calculations (ceiling, logistic, or user-defined)
-\item Environmental stochasticity calculations
 \item Stage transition (stochastic) calculations
 \item Population growth/decline calculations
-\item Disease outbreak according to a SIRI model
+\item Disease outbreak according to a compartmental model
 \item Dispersal calculations (default or user-defined)
 \item Results collection
 }

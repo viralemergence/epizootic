@@ -378,13 +378,13 @@ check_simulator_inputs <- function(inputs) {
   )
   inputs[["density_dependence"]] <- ifelse(
     is.null(inputs[["density_dependence"]]), "none",
-            inputs[["density_dependence"]]
-    )
+    inputs[["density_dependence"]]
+  )
   inputs[["demographic_stochasticity"]] <- ifelse(
-      is.null(inputs[["demographic_stochasticity"]]),
-      TRUE,
-      inputs[["demographic_stochasticity"]]
-    )
+    is.null(inputs[["demographic_stochasticity"]]),
+    TRUE,
+    inputs[["demographic_stochasticity"]]
+  )
 
   # Initial abundance for each stage and population
   if (inherits(inputs, "DiseaseModel") &&
@@ -412,7 +412,8 @@ check_simulator_inputs <- function(inputs) {
     )
   }
 
-  segments <- inputs[["stages"]]*inputs[["compartments"]]
+  segments <- inputs[["segments"]] <-
+    inputs[["stages"]]*inputs[["compartments"]]
 
   if (nrow(inputs[["initial_abundance"]]) != segments) {
     cli_abort(c(
@@ -446,8 +447,10 @@ check_simulator_inputs <- function(inputs) {
       is.na(inputs[["carrying_capacity_matrix"]])
     )] <- 0
   }
-  carrying_capacity_t_max <- ncol(inputs[["carrying_capacity_matrix"]])
-  if (carrying_capacity_t_max == 1) { # no temporal trend in K
+  carrying_capacity_t_max <- inputs[["carrying_capacity_t_max"]] <-
+    ncol(inputs[["carrying_capacity_matrix"]])
+  if (carrying_capacity_t_max == 1) {
+    # no temporal trend in K
     inputs[["carrying_capacity"]] <- inputs[["carrying_capacity_matrix"]][, 1]
   }
 
@@ -544,13 +547,18 @@ check_simulator_inputs <- function(inputs) {
       inputs[["mortality_unit"]] <- rep(0, segments)
     }
   } else {
+    if (is.list(mortality) && !is.list(inputs[["mortality_unit"]])) {
+      inputs[["mortality_unit"]] <- replicate(length(mortality),
+                                              inputs[["mortality_unit"]],
+                                              simplify = FALSE)
+    }
     unit_values <- inputs[["mortality_unit"]] |> flatten_dbl() |> unique()
     if (!all(unit_values %in% c(0, 1))) {
       cli_abort(c("mortality_unit values must be 0 or 1"))
     }
-    if (is.list(mortality) && !is.list(inputs[["mortality_unit"]])) {
+    if (length(unit_values)==1) {
       inputs[["mortality_unit"]] <- replicate(length(mortality),
-                                              inputs[["mortality_unit"]],
+                                              rep(unit_values, 8),
                                               simplify = FALSE)
     }
     if (length(mortality) != length(inputs[["mortality_unit"]])) {
@@ -572,20 +580,45 @@ check_simulator_inputs <- function(inputs) {
         "*" = "{.var seasons} is {seasons}."
       ))
     }
+    if (any(lengths(fecundity) != segments)) {
+      odd_indices <- which(lengths(fecundity) != segments)
+      if (is.vector(inputs[["fecundity_mask"]])) {
+        fecundity_mask <- inputs[["fecundity_mask"]]
+        suppressWarnings(
+          fecundity <- inputs[["fecundity"]] <- map2(fecundity[odd_indices],
+                                                     fecundity_mask[odd_indices],
+                                                     \(x, y) {
+                                                       z <- rep(0, segments);
+                                                       z[as.logical(y)] <- x})
+        )
+      }
+    }
     if (any(map(fecundity, length) != segments)) {
       cli_abort(
         c("Each vector inside the {.var fecundity} list must have
           {inputs[['stages']]*inputs[['compartments']]} elements, one for each
-          combination of stage and compartment.")
+          combination of stage and compartment. Or, provide a fecundity mask so
+          that fecundity values may be assigned to the appropriate stages and
+          compartments.")
       )
     }
   } else if (is.vector(fecundity)) {
     if (length(fecundity) != segments) {
-      cli_abort(
-        c("The {.var fecundity} vector must have
+      if (is.vector(inputs[["fecundity_mask"]])) {
+        fecundity_mask <- inputs[["fecundity_mask"]]
+        z <- rep(0, segments)
+        multiplier <- sum(fecundity_mask)/length(fecundity)
+        z[as.logical(fecundity_mask)] <- rep(fecundity, multiplier)
+        fecundity <- inputs[["fecundity"]] <- z
+      } else {
+        cli_abort(
+          c("The {.var fecundity} vector must have
           {inputs[['stages']]*inputs[['compartments']]} elements, one for each
-          combination of stage and compartment.")
-      )
+          combination of stage and compartment. Or, provide a fecundity mask so
+          that fecundity values may be assigned to the appropriate stages and
+          compartments.")
+        )
+      }
     }
   } else {
     cli_abort(
@@ -609,21 +642,27 @@ check_simulator_inputs <- function(inputs) {
       inputs[["fecundity_unit"]] <- rep(0, segments)
     }
   } else {
-    unit_values <- inputs[["fecundity_unit"]] |> flatten_dbl() |> unique()
-    if (!all(unit_values %in% c(0, 1))) {
-      cli_abort(c("fecundity_unit values must be 0 or 1. Unit values are
-                  {unit_values}."))
-    }
     if (is.list(fecundity) && !is.list(inputs[["fecundity_unit"]])) {
       inputs[["fecundity_unit"]] <- replicate(length(fecundity),
                                               inputs[["fecundity_unit"]],
                                               simplify = FALSE)
+    }
+    unit_values <- inputs[["fecundity_unit"]] |> flatten_dbl() |> unique()
+    if (!all(unit_values %in% c(0, 1))) {
+      cli_abort(c("fecundity_unit values must be 0 or 1. Unit values are
+                  {unit_values}."))
     }
     if (length(fecundity) != length(inputs[["fecundity_unit"]])) {
       fecundity_unit <- inputs[["fecundity_unit"]]
       cli_abort(c("`fecundity` and `fecundity_unit` must be the same length.",
                   "*" = "`fecundity` is length {length(fecundity)}.",
                   "*" = "`fecundity_unit` is length {length(fecundity_unit)}."))
+    }
+    if (any(lengths(inputs[["fecundity_unit"]])==1)) {
+      single_indices <- which(lengths(inputs[["fecundity_unit"]])==1)
+      inputs[["fecundity_unit"]][single_indices] <- map(single_indices, \(x) {
+        rep(inputs[["fecundity_unit"]][[x]], segments)
+      })
     }
     if (any(lengths(fecundity) != lengths(inputs[["fecundity_unit"]]))) {
       fecundity_unit <- inputs[["fecundity_unit"]]
@@ -645,14 +684,14 @@ check_simulator_inputs <- function(inputs) {
       inputs[["fecundity_mask"]] <- rep(1, segments)
     }
   } else {
-    unit_values <- inputs[["fecundity_mask"]] |> flatten_dbl() |> unique()
-    if (!all(unit_values %in% c(0, 1))) {
-      cli_abort(c("fecundity_mask values must be 0 or 1"))
-    }
     if (is.list(fecundity) && !is.list(inputs[["fecundity_mask"]])) {
       inputs[["fecundity_mask"]] <- replicate(length(fecundity),
                                               inputs[["fecundity_mask"]],
                                               simplify = FALSE)
+    }
+    unit_values <- inputs[["fecundity_mask"]] |> flatten_dbl() |> unique()
+    if (!all(unit_values %in% c(0, 1))) {
+      cli_abort(c("fecundity_mask values must be 0 or 1"))
     }
     if (is.list(fecundity) &&
         length(fecundity) != length(inputs[["fecundity_mask"]])) {
@@ -662,6 +701,8 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`fecundity_mask` is length {length(fecundity_mask)}."))
     }
   }
+  fecundity <- map2(fecundity, inputs[["fecundity_mask"]],
+                    \(x, y) x[as.logical(y)])
 
   # Check transmission and recovery
   transmission <- inputs[["transmission"]]
@@ -675,20 +716,45 @@ check_simulator_inputs <- function(inputs) {
         "*" = "{.var seasons} is {seasons}."
       ))
     }
+    if (any(lengths(transmission) != segments)) {
+      odd_indices <- which(lengths(transmission) != segments)
+      if (is.vector(inputs[["transmission_mask"]])) {
+        transmission_mask <- inputs[["transmission_mask"]]
+        suppressWarnings(
+          transmission <- inputs[["transmission"]] <- map2(transmission[odd_indices],
+                                                     transmission_mask[odd_indices],
+                                                     \(x, y) {
+                                                       z <- rep(0, segments);
+                                                       z[as.logical(y)] <- x})
+        )
+      }
+    }
     if (any(map(transmission, length) != segments)) {
       cli_abort(
         c("Each vector inside the {.var transmission} list must have
           {inputs[['stages']]*inputs[['compartments']]} elements, one for each
-          combination of stage and compartment.")
+          combination of stage and compartment. Or, provide a transmission mask so
+          that transmission values may be assigned to the appropriate stages and
+          compartments.")
       )
     }
   } else if (is.vector(transmission)) {
     if (length(transmission) != segments) {
-      cli_abort(
-        c("The {.var transmission} vector must have
+      if (is.vector(inputs[["transmission_mask"]])) {
+        transmission_mask <- inputs[["transmission_mask"]]
+        z <- rep(0, segments)
+        multiplier <- sum(transmission_mask)/length(transmission)
+        z[as.logical(transmission_mask)] <- rep(transmission, multiplier)
+        transmission <- inputs[["transmission"]] <- z
+      } else {
+        cli_abort(
+          c("The {.var transmission} vector must have
           {inputs[['stages']]*inputs[['compartments']]} elements, one for each
-          combination of stage and compartment.")
-      )
+          combination of stage and compartment. Or, provide a transmission mask so
+          that transmission values may be assigned to the appropriate stages and
+          compartments.")
+        )
+      }
     }
   } else {
     cli_abort(
@@ -696,8 +762,7 @@ check_simulator_inputs <- function(inputs) {
         {.obj_type_friendly {transmission}}.")
     )
   }
-  if (is.vector(transmission) && inputs[['seasons']] > 1 &&
-      !is.list(transmission)) {
+  if (is.vector(transmission) && inputs[['seasons']] > 1 && !is.list(transmission)) {
     transmission <- inputs[["transmission"]] <- replicate(
       inputs[['seasons']], transmission, simplify = FALSE
     )
@@ -713,79 +778,69 @@ check_simulator_inputs <- function(inputs) {
       inputs[["transmission_unit"]] <- rep(0, segments)
     }
   } else {
+    if (is.list(transmission) && !is.list(inputs[["transmission_unit"]])) {
+      inputs[["transmission_unit"]] <- replicate(length(transmission),
+                                                 inputs[["transmission_unit"]],
+                                                 simplify = FALSE)
+    }
     unit_values <- inputs[["transmission_unit"]] |> flatten_dbl() |> unique()
     if (!all(unit_values %in% c(0, 1))) {
       cli_abort(c("transmission_unit values must be 0 or 1. Unit values are
                   {unit_values}."))
     }
-    if (is.list(transmission) && !is.list(inputs[["transmission_unit"]])) {
-      inputs[["transmission_unit"]] <- replicate(length(transmission),
-                                              inputs[["transmission_unit"]],
-                                              simplify = FALSE)
-    }
     if (length(transmission) != length(inputs[["transmission_unit"]])) {
       transmission_unit <- inputs[["transmission_unit"]]
-      cli_abort(
-        c(
-          "`transmission` and `transmission_unit` must be the same length.",
-          "*" = "`transmission` is length {length(transmission)}.",
-          "*" = "`transmission_unit` is length {length(transmission_unit)}."
-        )
-      )
+      cli_abort(c("`transmission` and `transmission_unit` must be the same length.",
+                  "*" = "`transmission` is length {length(transmission)}.",
+                  "*" = "`transmission_unit` is length {length(transmission_unit)}."))
+    }
+    if (any(lengths(inputs[["transmission_unit"]])==1)) {
+      single_indices <- which(lengths(inputs[["transmission_unit"]])==1)
+      inputs[["transmission_unit"]][single_indices] <- map(single_indices, \(x) {
+        rep(inputs[["transmission_unit"]][[x]], segments)
+      })
     }
     if (any(lengths(transmission) != lengths(inputs[["transmission_unit"]]))) {
       transmission_unit <- inputs[["transmission_unit"]]
-      cli_abort(
-        c(
-          "vectors inside `transmission` and `transmission_unit` must be the
+      cli_abort(c("vectors inside `transmission` and `transmission_unit` must be the
                   same length.",
-          "*" = "`transmission` vectors are lengths {lengths(transmission)}.",
-          "*" = "`transmission_unit` vectors are lengths
-                  {lengths(transmission_unit)}."
-        )
-      )
+                  "*" = "`transmission` vectors are lengths {lengths(transmission)}.",
+                  "*" = "`transmission_unit` vectors are lengths
+                  {lengths(transmission_unit)}."))
     }
   }
   if (is.null(inputs[["transmission_mask"]])) {
-    if(is.list(inputs[["transmission"]])) {
+    if(is.list(transmission)) {
       inputs[["transmission_mask"]] <- replicate(
         length(transmission),
-        c(rep(1, inputs[['stages']]),
-          rep(0, inputs[['stages']]*(inputs[['compartments']]-1))),
+        rep(1, length(transmission[[1]])),
         simplify = FALSE
       )
     } else {
       inputs[["transmission_mask"]] <- rep(1, segments)
     }
   } else {
+    if (is.list(transmission) && !is.list(inputs[["transmission_mask"]])) {
+      inputs[["transmission_mask"]] <- replicate(length(transmission),
+                                                 inputs[["transmission_mask"]],
+                                                 simplify = FALSE)
+    }
     unit_values <- inputs[["transmission_mask"]] |> flatten_dbl() |> unique()
     if (!all(unit_values %in% c(0, 1))) {
       cli_abort(c("transmission_mask values must be 0 or 1"))
     }
-    if (is.list(transmission) && !is.list(inputs[["transmission_mask"]])) {
-      inputs[["transmission_mask"]] <- replicate(length(transmission),
-                                              inputs[["transmission_mask"]],
-                                              simplify = FALSE)
-    }
     if (is.list(transmission) &&
         length(transmission) != length(inputs[["transmission_mask"]])) {
       transmission_mask <- inputs[["transmission_mask"]]
-      cli_abort(
-        c(
-          "`transmission` and `transmission_mask` must be the same length.",
-          "*" = "`transmission` is length {length(transmission)}.",
-          "*" = "`transmission_mask` is length {length(transmission_mask)}."
-        )
-      )
+      cli_abort(c("`transmission` and `transmission_mask` must be the same length.",
+                  "*" = "`transmission` is length {length(transmission)}.",
+                  "*" = "`transmission_mask` is length {length(transmission_mask)}."))
     }
   }
+  transmission <- map2(transmission, inputs[["transmission_mask"]],
+                       \(x, y) x[as.logical(y)])
 
   recovery <- inputs[["recovery"]]
-  if(!is.null(recovery) && inputs[['compartments']] < 3) {
-    cli_abort(c("There must be at least 3 compartments in the disease model for
-              recovery to be relevant.",
-              "x" = "There are {inputs[['compartments']]} compartments."))
-  }
   if (is.list(recovery)) {
     if (length(recovery) != inputs[['seasons']]) {
       seasons <- inputs[['seasons']]
@@ -796,22 +851,47 @@ check_simulator_inputs <- function(inputs) {
         "*" = "{.var seasons} is {seasons}."
       ))
     }
+    if (any(lengths(recovery) != segments)) {
+      odd_indices <- which(lengths(recovery) != segments)
+      if (is.vector(inputs[["recovery_mask"]])) {
+        recovery_mask <- inputs[["recovery_mask"]]
+        suppressWarnings(
+          recovery <- inputs[["recovery"]] <- map2(recovery[odd_indices],
+                                                     recovery_mask[odd_indices],
+                                                     \(x, y) {
+                                                       z <- rep(0, segments);
+                                                       z[as.logical(y)] <- x})
+        )
+      }
+    }
     if (any(map(recovery, length) != segments)) {
       cli_abort(
         c("Each vector inside the {.var recovery} list must have
           {inputs[['stages']]*inputs[['compartments']]} elements, one for each
-          combination of stage and compartment.")
+          combination of stage and compartment. Or, provide a recovery mask so
+          that recovery values may be assigned to the appropriate stages and
+          compartments.")
       )
     }
   } else if (is.vector(recovery)) {
     if (length(recovery) != segments) {
-      cli_abort(
-        c("The {.var recovery} vector must have
+      if (is.vector(inputs[["recovery_mask"]])) {
+        recovery_mask <- inputs[["recovery_mask"]]
+        z <- rep(0, segments)
+        multiplier <- sum(recovery_mask)/length(recovery)
+        z[as.logical(recovery_mask)] <- rep(recovery, multiplier)
+        recovery <- inputs[["recovery"]] <- z
+      } else {
+        cli_abort(
+          c("The {.var recovery} vector must have
           {inputs[['stages']]*inputs[['compartments']]} elements, one for each
-          combination of stage and compartment.")
-      )
+          combination of stage and compartment. Or, provide a recovery mask so
+          that recovery values may be assigned to the appropriate stages and
+          compartments.")
+        )
+      }
     }
-  } else if (!is.null(recovery)) {
+  } else {
     cli_abort(
       c("{.var recovery} must be a vector or list, not
         {.obj_type_friendly {recovery}}.")
@@ -833,21 +913,27 @@ check_simulator_inputs <- function(inputs) {
       inputs[["recovery_unit"]] <- rep(0, segments)
     }
   } else {
+    if (is.list(recovery) && !is.list(inputs[["recovery_unit"]])) {
+      inputs[["recovery_unit"]] <- replicate(length(recovery),
+                                             inputs[["recovery_unit"]],
+                                             simplify = FALSE)
+    }
     unit_values <- inputs[["recovery_unit"]] |> flatten_dbl() |> unique()
     if (!all(unit_values %in% c(0, 1))) {
       cli_abort(c("recovery_unit values must be 0 or 1. Unit values are
                   {unit_values}."))
-    }
-    if (is.list(recovery) && !is.list(inputs[["recovery_unit"]])) {
-      inputs[["recovery_unit"]] <- replicate(length(recovery),
-                                              inputs[["recovery_unit"]],
-                                              simplify = FALSE)
     }
     if (length(recovery) != length(inputs[["recovery_unit"]])) {
       recovery_unit <- inputs[["recovery_unit"]]
       cli_abort(c("`recovery` and `recovery_unit` must be the same length.",
                   "*" = "`recovery` is length {length(recovery)}.",
                   "*" = "`recovery_unit` is length {length(recovery_unit)}."))
+    }
+    if (any(lengths(inputs[["recovery_unit"]])==1)) {
+      single_indices <- which(lengths(inputs[["recovery_unit"]])==1)
+      inputs[["recovery_unit"]][single_indices] <- map(single_indices, \(x) {
+        rep(inputs[["recovery_unit"]][[x]], segments)
+      })
     }
     if (any(lengths(recovery) != lengths(inputs[["recovery_unit"]]))) {
       recovery_unit <- inputs[["recovery_unit"]]
@@ -862,22 +948,21 @@ check_simulator_inputs <- function(inputs) {
     if(is.list(recovery)) {
       inputs[["recovery_mask"]] <- replicate(
         length(recovery),
-        c(rep(0, inputs[['stages']]), rep(1, inputs[['stages']]),
-        rep(0, inputs[['stages']]*(inputs[['compartments']]-2))),
+        rep(1, length(recovery[[1]])),
         simplify = FALSE
       )
     } else {
       inputs[["recovery_mask"]] <- rep(1, segments)
     }
   } else {
+    if (is.list(recovery) && !is.list(inputs[["recovery_mask"]])) {
+      inputs[["recovery_mask"]] <- replicate(length(recovery),
+                                             inputs[["recovery_mask"]],
+                                             simplify = FALSE)
+    }
     unit_values <- inputs[["recovery_mask"]] |> flatten_dbl() |> unique()
     if (!all(unit_values %in% c(0, 1))) {
       cli_abort(c("recovery_mask values must be 0 or 1"))
-    }
-    if (is.list(recovery) && !is.list(inputs[["recovery_mask"]])) {
-      inputs[["recovery_mask"]] <- replicate(length(recovery),
-                                              inputs[["recovery_mask"]],
-                                              simplify = FALSE)
     }
     if (is.list(recovery) &&
         length(recovery) != length(inputs[["recovery_mask"]])) {
@@ -887,6 +972,8 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`recovery_mask` is length {length(recovery_mask)}."))
     }
   }
+  recovery <- map2(recovery, inputs[["recovery_mask"]],
+                   \(x, y) x[as.logical(y)])
 
   # standard_deviation <- ifelse(is.null(inputs$standard_deviation), 0, inputs$standard_deviation)
   # if (stages > 1 && length(standard_deviation) == 1) { # calculate via dominant eigen value
@@ -912,9 +999,9 @@ check_simulator_inputs <- function(inputs) {
   if (is.null(dispersal_source_n_k)) {
     # try aliases
     inputs[["dispersal_source_n_k"]] <- list(
-        cutoff = inputs[["dispersal_source_n_k_cutoff"]],
-        threshold = inputs[["dispersal_source_n_k_threshold"]]
-      )
+      cutoff = inputs[["dispersal_source_n_k_cutoff"]],
+      threshold = inputs[["dispersal_source_n_k_threshold"]]
+    )
   }
   dispersal_target_k <- inputs[["dispersal_target_k"]]
   if (is.null(dispersal_target_k)) { # try alias
@@ -932,9 +1019,15 @@ check_simulator_inputs <- function(inputs) {
   if (is.null(dispersal_target_n_k)) {
     # try aliases
     inputs[["dispersal_target_n_k"]] <- list(
-        threshold = inputs[["dispersal_target_n_k_threshold"]],
-        cutoff = inputs[["dispersal_target_n_k_cutoff"]]
-      )
+      threshold = inputs[["dispersal_target_n_k_threshold"]],
+      cutoff = inputs[["dispersal_target_n_k_cutoff"]]
+    )
+  }
+  if (!is.null(inputs[["dispersal"]]) &&
+      !length(inputs[["dispersal"]]) %in% c(1, stages)) {
+    cli_abort(c("{.var dispersal} must be a list of length 1 or
+                length {stages}.",
+                "x" = "{.var dispersal} is length {length(dispersal)}."))
   }
 
   # Abundance threshold

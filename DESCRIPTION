@@ -29,6 +29,7 @@ Collate:
     'aspatial_siri_seasons.R'
     'check_aspatial_siri_inputs.R'
     'check_simulator_inputs.R'
+    'disease_results.R'
     'disease_simulator.R'
     'disease_transformation.R'
     'disease_transitions.R'
