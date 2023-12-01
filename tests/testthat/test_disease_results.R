@@ -22,7 +22,7 @@ test_that("disease_results handles NULL inputs correctly", {
     coordinates = NULL,
     initial_abundance = matrix(c(1, 2, 3, 4, 5, 6), nrow = 4, ncol = 3),
     results_selection = NULL,
-    result_stages = NULL, 
+    result_stages = NULL,
     result_compartments = NULL
   )
   expect_is(result, "list")
@@ -45,3 +45,12 @@ test_that("disease_results handles non-NULL inputs correctly", {
 test_that("disease_results handles invalid inputs correctly", {
   expect_error(disease_results("invalid", "invalid", "invalid", "invalid"))
 })
+
+# test_that("calculate_at_season handles ema, extirpation, and
+#           extinction_location properly", {
+#
+# })
+#
+# test_that("calculate_at_season handles replicate properly", {
+#
+# })

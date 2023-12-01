@@ -508,7 +508,7 @@ disease_simulator <- function(inputs) {
   result_functions <- population_results(
     replicates,
     time_steps,
-    inputs$coordinates,
+    inputs[["coordinates"]],
     initial_abundance,
     results_selection = results_selection,
     result_stages = inputs[["result_stages"]],
@@ -656,11 +656,6 @@ disease_simulator <- function(inputs) {
           }
         } # End simulation order loop
       } # End season loop
-
-      results_list <- result_functions$calculate_at_timestep(r, tm,
-                                                             segment_abundance,
-                                                             NULL,
-                                                             results_list)
     } # End time step loop
 
     results_list <- result_functions$calculate_at_replicate(r,
