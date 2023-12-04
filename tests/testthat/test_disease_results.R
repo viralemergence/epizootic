@@ -22,7 +22,7 @@ test_that("disease_results handles NULL inputs correctly", {
     coordinates = NULL,
     initial_abundance = matrix(c(1, 2, 3, 4, 5, 6), nrow = 4, ncol = 3),
     results_selection = NULL,
-    result_stages = NULL, 
+    result_stages = NULL,
     result_compartments = NULL
   )
   expect_type(result, "list")
@@ -148,3 +148,12 @@ test_that("calculate_at_season appends and calculates results correctly", {
   expect_equal(result$abundance$min, array(c(1, 1, 1, rep(0, 117)), dim = c(3, 10, 4)))
   expect_equal(result$abundance$max, array(c(1, 1, 1, rep(0, 117)), dim = c(3, 10, 4)))
 })
+
+# test_that("calculate_at_season handles ema, extirpation, and
+#           extinction_location properly", {
+#
+# })
+#
+# test_that("calculate_at_season handles replicate properly", {
+#
+# })
