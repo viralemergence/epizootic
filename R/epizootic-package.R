@@ -3,7 +3,6 @@
 
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
-#' @useDynLib epizootic, .registration = TRUE
 ## usethis namespace: end
 . <- Day <- abundance_threshold <- breeding_season_length <- NULL
 compare <- carrying_capacity <- compartments <- fecundity <- NULL
