@@ -304,13 +304,12 @@
 #'  \item{\code{results_selection}}{List of results selection from: "abundance"
 #'  (default), "ema", "extirpation", "extinction_location", "harvested",
 #'  "occupancy"; "summarize" (default) or "replicate".}
-#'  \item{\code{result_stages}}{Array of booleans or numeric (0, 1, 2, ...) for
-#'  each stage to indicate which stages are included/combined (each unique
-#'  digit \> 0; optionally named) in the results (default is 1 for all stages).}
-#'  \item{\code{result_compartments}}{Array of booleans or numeric for each
-#'  compartment to indicate which stages are included/combined (each unique
-#'  digit \> 0; optionally named) in the results (default is 1 for all
-#'  compartments).}
+#'  \item{\code{results_breakdown}}{A string with one of these values:
+#' "segments" (default),
+#' "compartments", "stages" or "pooled." "segments" returns results for each
+#' segment (stage x compartment combination.) "compartments" returns results for
+#' each disease compartment. "stages" returns results for each life cycle stage.
+#' "pooled" returns results that are not broken down by stage or compartment.}
 #'}
 #'@return A list identical to the inputs, except with default values supplied
 #' to fill in any crucial missing values, as explained in the documentation
@@ -975,16 +974,6 @@ check_simulator_inputs <- function(inputs) {
   recovery <- map2(recovery, inputs[["recovery_mask"]],
                    \(x, y) x[as.logical(y)])
 
-  # standard_deviation <- ifelse(is.null(inputs$standard_deviation), 0, inputs$standard_deviation)
-  # if (stages > 1 && length(standard_deviation) == 1) { # calculate via dominant eigen value
-  #   standard_deviation <- stage_matrix*standard_deviation/Re((eigen(stage_matrix, only.values = TRUE)$values)[1])
-  # }
-  # environmental_stochasticity <- any(standard_deviation*stage_matrix > 0)
-  # if (environmental_stochasticity) {
-  #   env_stoch_function <- population_env_stoch(populations, fecundity_matrix, fecundity_max, survival_matrix,
-  #                                              standard_deviation, inputs$correlation)
-  # }
-
 
   if (is.null(inputs[["density_stages"]])) { # default is all
     inputs[["density_stages"]] <- rep(1, inputs[["stages"]])
@@ -1054,6 +1043,34 @@ check_simulator_inputs <- function(inputs) {
     no_result_index <- simulation_order |> map("results") |> map_lgl(is_null)
     inputs[['simulation_order']][no_result_index] <-
       inputs[['simulation_order']][no_result_index] |> map(append, "results")
+  }
+
+  # Results selection and breakdown
+  results_selection <- inputs[["results_selection"]]
+  if (!length(intersect(results_selection, c("abundance", "ema", "extirpation",
+                                             "extinction_location", "harvested",
+                                             "occupancy", "summarize",
+                                             "replicate")))) {
+    cli_abort(
+      c('{.var results_selection} must contain at least one of the following:
+        {c("abundance", "ema", "extirpation", "extinction_location",
+        "harvested", "occupancy", "summarize", "replicate")}')
+    )
+  }
+  results_breakdown <- inputs[["results_breakdown"]]
+  if (length(results_breakdown) > 1) {
+    cli_abort(
+      c("{.var results_breakdown} must be a character vector of length 1.",
+        "x" = "{.var results_breakdown} is length {length(results_breakdown}.")
+    )
+  }
+
+  if (!results_breakdown %in% c("pooled", "stages", "compartments", "segments")) {
+    cli_abort(
+      c("{.var results_breakdown} must be 'pooled', 'stages', 'compartments' or
+        'segments.'",
+        "x" = "{.var results_breakdown} is {results_breakdown}.")
+    )
   }
 
   return(inputs)

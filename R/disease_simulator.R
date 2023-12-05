@@ -313,13 +313,12 @@
 #'  \item{\code{results_selection}}{List of results selection from: "abundance"
 #'  (default), "ema", "extirpation", "extinction_location", "harvested",
 #'  "occupancy"; "summarize" (default) or "replicate".}
-#'  \item{\code{result_stages}}{Array of booleans or numeric (0, 1, 2, ...) for
-#'  each stage to indicate which stages are included/combined (each unique
-#'  digit \> 0; optionally named) in the results (default is 1 for all stages).}
-#'  \item{\code{result_compartments}}{Array of booleans or numeric for each
-#'  compartment to indicate which stages are included/combined (each unique
-#'  digit \> 0; optionally named) in the results (default is 1 for all
-#'  compartments).}
+#'  \item{\code{results_breakdown}}{A string with one of these values: 
+#' "segments" (default),
+#' "compartments", "stages" or "pooled." "segments" returns results for each
+#' segment (stage x compartment combination.) "compartments" returns results for
+#' each disease compartment. "stages" returns results for each life cycle stage.
+#' "pooled" returns results that are not broken down by stage or compartment.}
 #'}
 #'@return Selected simulation results as a nested list summarized (mean, sd,
 #'  min, max) across multiple replicates (default), or 2-3D arrays including

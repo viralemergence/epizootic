@@ -128,8 +128,7 @@ DiseaseModel <- R6Class(
               "dispersal_target_n",
               "dispersal_target_n_k",
               "dispersal_source_n_k",
-              "result_stages",
-              "result_compartments",
+              "results_breakdown",
               "results_selection"
             )
           )]
@@ -185,17 +184,9 @@ DiseaseModel <- R6Class(
                   } else {
                     NA
                   },
-                result_stages =
-                  if (is.numeric(param_value) &&
-                      is.numeric(self$stages)) {
-                    (length(param_value) == self$stages)
-                  } else {
-                    NA
-                  },
-                result_compartments =
-                  if (is.numeric(param_value) &&
-                      is.numeric(self$compartments)) {
-                    (length(param_value) == self$compartments)
+                results_breakdown =
+                  if (is.character(param_value)) {
+                    param_value %in% c("segments", "pooled", "stages", "compartments")
                   } else {
                     NA
                   },
