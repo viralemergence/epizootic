@@ -694,15 +694,15 @@ disease_results <- function(replicates,
         if (results_breakdown == "segments") {
           harvested_segments_count <-
             lapply(1:stages * compartments, function(s) {
-              as.array(.colSums(segment_harvested[s,], m = length(s), n = populations))
+              as.array(.colSums(harvested[s,], m = length(s), n = populations))
             })
           all_harvested_segments_count <-
             lapply(harvested_segments_count, sum)
         } else if (results_breakdown == "stages") {
           harvested_stages_count <- lapply(1:stages, function(s) {
-            stage_indices <- seq(s, nrow(segment_harvested), by = stages)
+            stage_indices <- seq(s, nrow(harvested), by = stages)
             as.array(.colSums(
-              segment_harvested[stage_indices,],
+              harvested[stage_indices,],
               m = length(stage_indices),
               n = populations
             ))
@@ -713,7 +713,7 @@ disease_results <- function(replicates,
           harvested_compartments_count <- lapply(1:compartments, function(s) {
             compartment_indices <- seq(stages * s - (stages - 1), stages * s, 1)
             as.array(.colSums(
-              segment_harvested[compartment_indices,],
+              harvested[compartment_indices,],
               m = length(compartment_indices),
               n = populations
             ))
