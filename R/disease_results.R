@@ -108,6 +108,11 @@ disease_results <- function(replicates,
         results$all$abundance_segments <- lapply(1:stages * compartments,
                                                  function(s)
                                                    results$all$abundance)
+        names(results$abundance_segments) <- expand.grid(1:stages, 1:compartments) |>
+          map2_chr(function(s, c) {
+            paste("stage", s, "compartment", c, sep = "_")
+          })
+        names(results$all$abundance_segments) <- names(results$abundance_segments)
       } else if (results_breakdown == "stages") {
         results$abundance_stages <- lapply(1:stages,
                                            function(s)
@@ -115,6 +120,10 @@ disease_results <- function(replicates,
         results$all$abundance_stages <- lapply(1:stages,
                                                function(s)
                                                  results$all$abundance)
+        names(results$abundance_stages) <- map_chr(1:stages, function(s) {
+          paste("stage", s, sep = "_")
+        })
+        names(results$all$abundance_stages) <- names(results$abundance_stages)
       } else if (results_breakdown == "compartments") {
         results$abundance_compartments <- lapply(1:compartments,
                                                  function(s)
@@ -122,6 +131,10 @@ disease_results <- function(replicates,
         results$all$abundance_compartments <- lapply(1:compartments,
                                                      function(s)
                                                        results$all$abundance)
+        names(results$abundance_compartments) <- map_chr(1:compartments, function(s) {
+          paste("compartment", s, sep = "_")
+        })
+        names(results$all$abundance_compartments) <- names(results$abundance_compartments)
       }
     }
 
@@ -370,8 +383,6 @@ disease_results <- function(replicates,
                     abundance_segments_count[[i]]
                   results$all$abundance_segments[[i]][tm, season, r] <-
                     all_abundance_segments_count[[i]]
-                  names(results$all$abundance_segments) <- segment_names
-                  names(results$abundance_segments) <- segment_names
                 } else {
                   # Update mean and standard deviation for each segment
                   previous_abundance_segments_mean <-
@@ -385,7 +396,6 @@ disease_results <- function(replicates,
                     previous_abundance_segments_var_by_r +
                     (abundance_segments_count[[i]] - previous_abundance_segments_mean) *
                     (abundance_segments_count[[i]] - results$abundance_segments[[i]]$mean[, tm, season])
-                  names(results$abundance_segments) <- segment_names
                   # Update min and max for each segment
                   if (r == 1) {
                     results$abundance_segments[[i]]$min[, tm, season] <-
@@ -436,7 +446,6 @@ disease_results <- function(replicates,
                       ),
                       all_abundance_segments_count[[i]]
                     )
-                  names(results$all$abundance_segments) <- segment_names
                 }
               } else {
                 # single replicate
@@ -444,10 +453,10 @@ disease_results <- function(replicates,
                   abundance_segments_count[[i]]
                 results$all$abundance_segments[[i]][tm, season] <-
                   all_abundance_segments_count[[i]]
-                names(results$all$abundance_segments) <- segment_names
-                names(results$abundance_segments) <- segment_names
               }
             }
+            names(results$all$abundance_segments) <- segment_names
+            names(results$abundance_segments) <- segment_names
           }
 
           # Update abundance and all abundance for each stage
@@ -458,8 +467,6 @@ disease_results <- function(replicates,
                 if ("replicate" %in% results_selection) {
                   results$abundance_stages[[i]][, tm, season, r] <- abundance_stages_count[[i]]
                   results$all$abundance_stages[[i]][tm, season, r] <- all_abundance_stages_count[[i]]
-                  names(results$all$abundance_stages) <- stage_names
-                  names(results$abundance_stages) <- stage_names
                 } else {
                   # Update mean and standard deviation for each stage
                   previous_abundance_stages_mean <- results$abundance_stages[[i]]$mean[, tm, season]
@@ -469,7 +476,6 @@ disease_results <- function(replicates,
                   results$abundance_stages[[i]]$sd[, tm, season] <- previous_abundance_stages_var_by_r +
                     (abundance_stages_count[[i]] - previous_abundance_stages_mean) *
                     (abundance_stages_count[[i]] - results$abundance_stages[[i]]$mean[, tm, season])
-                  names(results$abundance_stages) <- stage_names
                   # Update min and max for each stage
                   if (r == 1) {
                     results$abundance_stages[[i]]$min[, tm, season] <- abundance_stages_count[[i]]
@@ -501,16 +507,15 @@ disease_results <- function(replicates,
                       max(results$all$abundance_stages[[i]]$max[tm, season], all_abundance_stages_count[[i]]),
                       all_abundance_stages_count[[i]]
                     )
-                  names(results$all$abundance_stages) <- stage_names
                 }
               } else {
                 # single replicate
                 results$abundance_stages[[i]][, tm, season] <- abundance_stages_count[[i]]
                 results$all$abundance_stages[[i]][tm, season] <- all_abundance_stages_count[[i]]
-                names(results$all$abundance_stages) <- stage_names
-                names(results$abundance_stages) <- stage_names
               }
             }
+            names(results$all$abundance_stages) <- stage_names
+            names(results$abundance_stages) <- stage_names
           }
 
           # Update abundance and all abundance for each compartment
@@ -523,8 +528,6 @@ disease_results <- function(replicates,
                     abundance_compartments_count[[i]]
                   results$all$abundance_compartments[[i]][tm, season, r] <-
                     all_abundance_compartments_count[[i]]
-                  names(results$all$abundance_compartments) <- compartment_names
-                  names(results$abundance_compartments) <- compartment_names
                 } else {
                   # Update mean and standard deviation for each compartment
                   previous_abundance_compartments_mean <-
@@ -538,7 +541,6 @@ disease_results <- function(replicates,
                     previous_abundance_compartments_var_by_r +
                     (abundance_compartments_count[[i]] - previous_abundance_compartments_mean) *
                     (abundance_compartments_count[[i]] - results$abundance_compartments[[i]]$mean[, tm, season])
-                  names(results$abundance_compartments) <- compartment_names
                   # Update min and max for each compartment
                   if (r == 1) {
                     results$abundance_compartments[[i]]$min[, tm, season] <-
@@ -587,7 +589,6 @@ disease_results <- function(replicates,
                       ),
                       all_abundance_compartments_count[[i]]
                     )
-                  names(results$all$abundance_compartments) <- compartment_names
                 }
               } else {
                 # single replicate
@@ -595,10 +596,10 @@ disease_results <- function(replicates,
                   abundance_compartments_count[[i]]
                 results$all$abundance_compartments[[i]][tm, season] <-
                   all_abundance_compartments_count[[i]]
-                names(results$all$abundance_compartments) <- compartment_names
-                names(results$abundance_compartments) <- compartment_names
               }
             }
+            names(results$all$abundance_compartments) <- compartment_names
+            names(results$abundance_compartments) <- compartment_names
           }
         } # abundance results
 

@@ -1,7 +1,7 @@
 library(testthat)
 
-test_that("disease_results returns a list", {
-  result <- disease_results(
+test_that("disease_results returns a correct list", {
+  result_functions <- disease_results(
     replicates = 10,
     time_steps = 10,
     seasons = 4,
@@ -9,10 +9,27 @@ test_that("disease_results returns a list", {
     compartments = 2,
     coordinates = data.frame(x = c(1, 2, 3), y = c(1, 2, 3)),
     initial_abundance = matrix(c(1, 2, 3, 4, 5, 6), nrow = 4, ncol = 3),
-    results_selection = NULL,
-    results_breakdown = "pooled"
-  )
-  expect_type(result, "list")
+    results_selection = c("abundance", "ema", "extirpation", 
+                          "extinction_location", "harvested", "occupancy"),
+    results_breakdown = "pooled")
+  expect_named(result_functions, c("initialize_attributes", 
+                                   "initialize_replicate", 
+                                   "calculate_at_season",
+                                   "calculate_at_replicate", 
+                                   "finalize_attributes"))
+  expect_type(result_functions$initialize_attributes, "closure")
+  expect_null(formals(result_functions$initialize_attributes))
+  expect_type(result_functions$initialize_replicate, "closure")
+  expect_named(formals(result_functions$initialize_replicate), c("results"))
+  expect_type(result_functions$calculate_at_season, "closure")
+  expect_named(formals(result_functions$calculate_at_season), 
+               c("r", "tm", "season", "segment_abundance", "harvested",
+                 "results"))
+  expect_type(result_functions$calculate_at_replicate, "closure")
+  expect_named(formals(result_functions$calculate_at_replicate), 
+               c("r", "segment_abundance", "results"))
+  expect_type(result_functions$finalize_attributes, "closure")
+  expect_named(formals(result_functions$finalize_attributes), c("results"))
 })
 
 test_that("disease_results handles NULL inputs correctly", {
@@ -203,7 +220,7 @@ test_that("calculate_at_season appends and calculates results correctly", {
   expect_equal(result$all$occupancy$max, array(c(3, rep(0, 39)), dim = c(10, 4)))
 })
 
-test_that("calculate_at_season combines stages and compartments properly", {
+test_that("calculate_at_season combines stages properly", {
   # Set up test data
   replicates <- 10
   time_steps <- 10
@@ -266,4 +283,39 @@ test_that("calculate_at_season combines stages and compartments properly", {
   # All harvested
   harvested_comp1 <- matrix(c(132, rep(0, 39)), nrow = 10)
   harvested_comp2 <- matrix(rep(0, 40), nrow = 10)
+  harvested_comp3 <- matrix(c(60, rep(0, 39)), nrow = 10)
+  harvested_comp4 <- matrix(c(72, rep(0, 39)), nrow = 10)
+  expect_equal(result$all$harvested$mean, harvested_comp1)
+  expect_equal(result$all$harvested$sd, harvested_comp2)
+  expect_equal(result$all$harvested$min, harvested_comp1)
+  expect_equal(result$all$harvested$max, harvested_comp1)
+  expect_equal(result$all$harvested_stages[[1]],
+               list(mean = harvested_comp3, sd = harvested_comp2,
+                    min = harvested_comp3, max = harvested_comp3))
+  expect_equal(result$all$harvested_stages[[2]],
+                list(mean = harvested_comp4, sd = harvested_comp2,
+                      min = harvested_comp4, max = harvested_comp4))
+  expect_equal(names(result$all$harvested_stages), c("stage_1", "stage_2"))
+  # All occupancy
+  occupancy_comp1 <- matrix(c(3, rep(0, 39)), nrow = 10)
+  occupancy_comp2 <- matrix(rep(0, 40), nrow = 10)
+  expect_equal(result$all$occupancy$mean, occupancy_comp1)
+  expect_equal(result$all$occupancy$sd, occupancy_comp2)
+  expect_equal(result$all$occupancy$min, occupancy_comp1)
+  expect_equal(result$all$occupancy$max, occupancy_comp1)
+  # Abundance
+  abundance_comp5 <- matrix(c(36, 36, 36, rep(0, 27)), nrow = 3)
+  abundance_comp6 <- matrix(rep(0, 30), nrow = 3)
+  abundance_comp7 <- matrix(c(16, 16, 16, rep(0, 27)), nrow = 3)
+  abundance_comp8 <- matrix(c(20, 20, 20, rep(0, 27)), nrow = 3)
+  expect_equal(result$abundance$mean[,,1], abundance_comp5)
+  expect_equal(result$abundance$sd[,,1], abundance_comp6)
+  expect_equal(result$abundance$min[,,1], abundance_comp5)
+  expect_equal(result$abundance$max[,,1], abundance_comp5)
+  expect_equal(result$abundance_stages[[1]] |> map(\(x) x[,,1]),
+               list(mean = abundance_comp7, sd = abundance_comp6,
+                    min = abundance_comp7, max = abundance_comp7))
+  expect_equal(result$abundance_stages[[2]] |> map(\(x) x[,,1]),
+                list(mean = abundance_comp8, sd = abundance_comp6,
+                      min = abundance_comp8, max = abundance_comp8))
 })
