@@ -81,7 +81,7 @@
 #'  varies by season. If no fecundity mask is provided, then it is assumed that
 #'  all stages and compartments reproduce.}
 #'  \item{\code{abundance_threshold}}{A quasi-extinction threshold below which a
-#'  population becomes extinct.}
+#'  population becomes extinct. Default: 0.}
 #'  \item{\code{demographic_stochasticity}}{Boolean for choosing demographic
 #'  stochasticity for transition, dispersal, and/or other processes (default is
 #'  TRUE).}
@@ -262,7 +262,7 @@
 #'          compartments reproduce. Must be the same length as
 #'          \code{stages * compartments}.}
 #'          \item{\code{abundance_threshold}}{A quasi-extinction threshold below
-#'          which a population becomes extinct.}
+#'          which a population becomes extinct. Default: 0.}
 #'          \item{\code{demographic_stochasticity}}{Boolean for choosing
 #'          demographic stochasticity for transition, dispersal, and/or other
 #'          processes (default is TRUE).}
@@ -313,7 +313,7 @@
 #'  \item{\code{results_selection}}{List of results selection from: "abundance"
 #'  (default), "ema", "extirpation", "extinction_location", "harvested",
 #'  "occupancy"; "summarize" (default) or "replicate".}
-#'  \item{\code{results_breakdown}}{A string with one of these values: 
+#'  \item{\code{results_breakdown}}{A string with one of these values:
 #' "segments" (default),
 #' "compartments", "stages" or "pooled." "segments" returns results for each
 #' segment (stage x compartment combination.) "compartments" returns results for
@@ -405,35 +405,35 @@ disease_simulator <- function(inputs) {
   }
 
   translocation_function <- population_transformation(
-    replicates,
-    time_steps,
-    populations,
-    demographic_stochasticity,
-    density_stages,
-    inputs[["translocation"]],
-    simulator,
+    replicates = replicates,
+    time_steps = time_steps,
+    populations = populations,
+    demographic_stochasticity = demographic_stochasticity,
+    density_stages = density_stages,
+    transformation = inputs[["translocation"]],
+    simulator = simulator,
     name = "translocation"
   )
   harvest_function <- population_transformation(
-    replicates,
-    time_steps,
-    populations,
-    demographic_stochasticity,
-    density_stages,
-    inputs[["harvest"]],
-    simulator,
+    replicates = replicates,
+    time_steps = time_steps,
+    populations = populations,
+    demographic_stochasticity = demographic_stochasticity,
+    density_stages = density_stages,
+    transformation = inputs[["harvest"]],
+    simulator = simulator,
     name = "harvest"
   )
 
   if ("mortality" %in% simulation_order) {
     mortality_function <- population_transformation(
-      replicates,
-      time_steps,
-      populations,
-      demographic_stochasticity,
-      density_stages,
-      inputs[["mortality"]],
-      simulator,
+      replicates = replicates,
+      time_steps = time_steps,
+      populations = populations,
+      demographic_stochasticity = demographic_stochasticity,
+      density_stages = density_stages,
+      transformation = inputs[["mortality"]],
+      simulator = simulator,
       name = "mortality"
     )
   }
@@ -473,7 +473,7 @@ disease_simulator <- function(inputs) {
     }
   }
 
-  if (length(season_functions)) {
+  if (exists("season_functions")) {
     season_function_list <- list()
     for (i in 1:length(season_functions)) {
       season_function_list[[i]] <- disease_transformation(
@@ -503,15 +503,16 @@ disease_simulator <- function(inputs) {
     }
   }
 
-  # !!! REVISIT THIS: I NEED TO MAKE A CUSTOM RESULTS FUNCTION !!!
-  result_functions <- population_results(
-    replicates,
-    time_steps,
-    inputs[["coordinates"]],
-    initial_abundance,
+  result_functions <- disease_results(
+    replicates = replicates,
+    time_steps = time_steps,
+    seasons = seasons,
+    stages = stages,
+    compartments = compartments,
+    coordinates = inputs[["coordinates"]],
+    initial_abundance = initial_abundance,
     results_selection = results_selection,
-    result_stages = inputs[["result_stages"]],
-    result_compartments = inputs[["result_compartments"]]
+    results_breakdown = results_breakdown
   )
   results_list <- result_functions$initialize_attributes()
 
@@ -547,9 +548,9 @@ disease_simulator <- function(inputs) {
 
       ## Run simulation processes in configured order ##
       for (season in 1:seasons) {
-        simulation_order <- simulation_order[[season]]
+        sim_order <- simulation_order[[season]]
 
-        for (process in simulation_order) {
+        for (process in sim_order) {
 
           if (process == "transition") {
 
@@ -623,6 +624,7 @@ disease_simulator <- function(inputs) {
                                                       occupied_indices)
             } else if (!is.null(dispersal_functions)) {
               indices <- map(1:stages, \(s) seq(s, segments, stages))
+              dispersal_function <- dispersal_functions[[s]]
               stage_dispersal <- map(1:stages, \(s) {
                 abundance <- dispersal_function(r, tm, carrying_capacity,
                                                 segment_abundance[indices[[s]],],
@@ -648,7 +650,7 @@ disease_simulator <- function(inputs) {
           }
 
           if (process == "results") {
-            results_list <- result_functions$calculate_at_season(r, tm, i,
+            results_list <- result_functions$calculate_at_season(r, tm, season,
                                                                  segment_abundance,
                                                                  NULL,
                                                                  results_list)

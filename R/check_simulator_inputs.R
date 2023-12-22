@@ -72,7 +72,7 @@
 #'  varies by season. If no fecundity mask is provided, then it is assumed that
 #'  all stages and compartments reproduce.}
 #'  \item{\code{abundance_threshold}}{A quasi-extinction threshold below which a
-#'  population becomes extinct.}
+#'  population becomes extinct. Default: 0.}
 #'  \item{\code{demographic_stochasticity}}{Boolean for choosing demographic
 #'  stochasticity for transition, dispersal, and/or other processes (default is
 #'  TRUE).}
@@ -253,7 +253,7 @@
 #'          compartments reproduce. Must be the same length as
 #'          \code{stages * compartments}.}
 #'          \item{\code{abundance_threshold}}{A quasi-extinction threshold below
-#'          which a population becomes extinct.}
+#'          which a population becomes extinct. Default: 0.}
 #'          \item{\code{demographic_stochasticity}}{Boolean for choosing
 #'          demographic stochasticity for transition, dispersal, and/or other
 #'          processes (default is TRUE).}
@@ -840,6 +840,9 @@ check_simulator_inputs <- function(inputs) {
                        \(x, y) x[as.logical(y)])
 
   recovery <- inputs[["recovery"]]
+  if (is.null(recovery)) {
+    recovery <- inputs[["recovery"]] <- rep(0, segments)
+  }
   if (is.list(recovery)) {
     if (length(recovery) != inputs[['seasons']]) {
       seasons <- inputs[['seasons']]
@@ -1021,6 +1024,9 @@ check_simulator_inputs <- function(inputs) {
 
   # Abundance threshold
   abundance_threshold <- inputs[["abundance_threshold"]]
+  if (is.null(abundance_threshold)) {
+    inputs[["abundance_threshold"]] <- abundance_threshold <- 0
+  }
   if (length(abundance_threshold) > 1) {
     cli_abort(
       c("{.var abundance_threshold} must be a single value.",
@@ -1046,6 +1052,9 @@ check_simulator_inputs <- function(inputs) {
   }
 
   # Results selection and breakdown
+  if (is.null(inputs[["results_selection"]])) {
+    inputs[['results_selection']] <- c("abundance", "summarize")
+  }
   results_selection <- inputs[["results_selection"]]
   if (!length(intersect(results_selection, c("abundance", "ema", "extirpation",
                                              "extinction_location", "harvested",
@@ -1056,6 +1065,10 @@ check_simulator_inputs <- function(inputs) {
         {c("abundance", "ema", "extirpation", "extinction_location",
         "harvested", "occupancy", "summarize", "replicate")}')
     )
+  }
+
+  if (is.null(inputs[["results_breakdown"]])) {
+    inputs[["results_breakdown"]] <- "segments"
   }
   results_breakdown <- inputs[["results_breakdown"]]
   if (length(results_breakdown) > 1) {

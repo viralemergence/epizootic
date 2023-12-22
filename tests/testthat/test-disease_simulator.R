@@ -7,8 +7,8 @@ test_that('disease_simulator works with valid inputs', {
     compartments = 4,
     coordinates = data.frame(x = rep(seq(177.01, 177.05, 0.01), 5),
                              y = rep(seq(-18.01, -18.05, -0.01), each = 5)),
-    initial_abundance = c(c(50000, 50000, 0, 1, 0, 0, 0, 0),
-                          rep(c(50000, 50000, 0, 0, 0, 0, 0, 0), 24)) |>
+    initial_abundance = c(c(5000, 5000, 0, 1, 0, 0, 0, 0),
+                          rep(c(5000, 5000, 0, 0, 0, 0, 0, 0), 24)) |>
       matrix(nrow = 8),
     carrying_capacity = matrix(100000, nrow = 25, ncol = 10),
     breeding_season_length = rep(100, 25),
@@ -25,6 +25,23 @@ test_that('disease_simulator works with valid inputs', {
     recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
     season_functions = list(siri_model_summer, siri_model_winter),
     simulation_order = c("transition", "season_functions", "results")
+  )
+  expect_silent(disease_simulator(inputs))
+})
+
+test_that("disease_simulator works with minimal inputs", {
+  expect_error(
+    disease_simulator(list())
+  )
+  inputs <- list(
+    time_steps = 10,
+    populations = 1,
+    initial_abundance = 10,
+    carrying_capacity = 40,
+    mortality = 0.1,
+    fecundity = 0.1,
+    transmission = 0.1,
+    simulation_order = c("transition", "results")
   )
   expect_silent(disease_simulator(inputs))
 })
