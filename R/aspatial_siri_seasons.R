@@ -222,13 +222,13 @@ siri_model_winter <- function(inputs) {
   population_list <- array_branch(segment_abundance[, occupied_indices], 2)
 
   population_new <- pmap(list(initial_pop = population_list,
-                                  mortality = mortality,
-                                  transmission = transmission,
-                                  recovery = recovery,
-                                  fecundity = fecundity,
-                                  abundance_threshold = abundance_threshold,
-                                  carrying_capacity = carrying_capacity,
-                                  season = "non-breeding"), aspatial_siri)
+                              mortality = mortality,
+                              transmission = transmission,
+                              recovery = recovery,
+                              fecundity = fecundity,
+                              abundance_threshold = abundance_threshold,
+                              carrying_capacity = carrying_capacity,
+                              season = "non-breeding"), aspatial_siri)
 
   # Assign populations to occupied indices in segment_abundance
   for(i in 1:length(occupied_indices)) {
@@ -260,13 +260,13 @@ siri_model_winter <- function(inputs) {
 #' @export
 
 aspatial_siri <- function(initial_pop,
-                            carrying_capacity,
-                            abundance_threshold,
-                            mortality,
-                            transmission,
-                            recovery,
-                            fecundity,
-                            season) {
+                          carrying_capacity,
+                          abundance_threshold,
+                          mortality,
+                          transmission,
+                          recovery,
+                          fecundity,
+                          season) {
   # Unpack initial_pops
   Sa <- initial_pop[2]
   Sj <- initial_pop[1]

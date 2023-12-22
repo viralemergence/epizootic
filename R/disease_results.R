@@ -102,15 +102,15 @@ disease_results <- function(replicates,
         }
       }
       if (results_breakdown == "segments") {
-        results$abundance_segments <- lapply(1:stages * compartments,
+        results$abundance_segments <- lapply(1:(stages * compartments),
                                              function(s)
                                                results$abundance)
-        results$all$abundance_segments <- lapply(1:stages * compartments,
+        results$all$abundance_segments <- lapply(1:(stages * compartments),
                                                  function(s)
                                                    results$all$abundance)
         names(results$abundance_segments) <- expand.grid(1:stages, 1:compartments) |>
-          map2_chr(function(s, c) {
-            paste("stage", s, "compartment", c, sep = "_")
+          pmap_chr(function(Var1, Var2) {
+            paste("stage", Var1, "compartment", Var2, sep = "_")
           })
         names(results$all$abundance_segments) <- names(results$abundance_segments)
       } else if (results_breakdown == "stages") {
@@ -192,15 +192,15 @@ disease_results <- function(replicates,
         }
       }
       if (results_breakdown == "segments") {
-        results$harvested_segments <- lapply(1:stages * compartments,
+        results$harvested_segments <- lapply(1:(stages * compartments),
                                              function(s)
                                                results$harvested)
         names(results$harvested_segments) <-
           expand.grid(1:stages, 1:compartments) |>
-          map2_chr(function(s, c) {
-            paste("stage", s, "compartment", c, sep = "_")
+          pmap_chr(function(Var1, Var2) {
+            paste("stage", Var1, "compartment", Var2, sep = "_")
           })
-        results$all$harvested_segments <- lapply(1:stages * compartments,
+        results$all$harvested_segments <- lapply(1:(stages * compartments),
                                                  function(s)
                                                    results$all$harvested)
         names(results$all$harvested_segments) <-
@@ -279,7 +279,7 @@ disease_results <- function(replicates,
 
         # Select abundance counts for included stages
         abundance_count <- as.array(.colSums(
-          initial_abundance,
+          segment_abundance,
           m = stages * compartments,
           n = populations
         ))
@@ -287,7 +287,7 @@ disease_results <- function(replicates,
 
         if (results_breakdown == "segments") {
           abundance_segments_count <-
-            lapply(1:stages * compartments, function(s) {
+            lapply(1:(stages * compartments), function(s) {
               as.array(.colSums(segment_abundance[s,], m = length(s), n = populations))
             })
           all_abundance_segments_count <-
@@ -619,7 +619,8 @@ disease_results <- function(replicates,
         if ("extirpation" %in% results_selection) {
           if (replicates > 1) {
             results$extirpation[, r] <- pmin(results$extirpation[, r],
-                                             rep(tm + season / seasons, populations),
+                                             rep(tm - 1 + season / seasons,
+                                                 populations),
                                              na.rm = TRUE)
             results$extirpation[which(as.logical(abundance_count)), r] <- NA
           } else {
@@ -629,8 +630,8 @@ disease_results <- function(replicates,
                                         na.rm = TRUE)
             results$extirpation[which(as.logical(abundance_count))] <- NA
           }
-          results$all$extirpation[r] <- min(results$extirpation[, r],
-                                            tm + season / seasons,
+          results$all$extirpation[r] <- min(results$extirpation[r],
+                                            tm - 1 + season / seasons,
                                             na.rm = TRUE)
           results$all$extirpation[r][as.logical(all_abundance_count)] <- NA
         }
@@ -694,7 +695,7 @@ disease_results <- function(replicates,
 
         if (results_breakdown == "segments") {
           harvested_segments_count <-
-            lapply(1:stages * compartments, function(s) {
+            lapply(1:(stages * compartments), function(s) {
               as.array(.colSums(harvested[s,], m = length(s), n = populations))
             })
           all_harvested_segments_count <-
@@ -786,7 +787,7 @@ disease_results <- function(replicates,
 
           if (results_breakdown == "segments") {
             segment_names <- names(results$harvested_segments)
-            for (i in 1:stages * compartments) {
+            for (i in 1:(stages * compartments)) {
               if (replicates > 1) {
                 if ("replicate" %in% results_selection) {
                   results$harvested_segments[[i]][, tm, season, r] <-

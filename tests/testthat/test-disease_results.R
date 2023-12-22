@@ -9,24 +9,24 @@ test_that("disease_results returns a correct list", {
     compartments = 2,
     coordinates = data.frame(x = c(1, 2, 3), y = c(1, 2, 3)),
     initial_abundance = matrix(c(1, 2, 3, 4, 5, 6), nrow = 4, ncol = 3),
-    results_selection = c("abundance", "ema", "extirpation", 
+    results_selection = c("abundance", "ema", "extirpation",
                           "extinction_location", "harvested", "occupancy"),
     results_breakdown = "pooled")
-  expect_named(result_functions, c("initialize_attributes", 
-                                   "initialize_replicate", 
+  expect_named(result_functions, c("initialize_attributes",
+                                   "initialize_replicate",
                                    "calculate_at_season",
-                                   "calculate_at_replicate", 
+                                   "calculate_at_replicate",
                                    "finalize_attributes"))
   expect_type(result_functions$initialize_attributes, "closure")
   expect_null(formals(result_functions$initialize_attributes))
   expect_type(result_functions$initialize_replicate, "closure")
   expect_named(formals(result_functions$initialize_replicate), c("results"))
   expect_type(result_functions$calculate_at_season, "closure")
-  expect_named(formals(result_functions$calculate_at_season), 
+  expect_named(formals(result_functions$calculate_at_season),
                c("r", "tm", "season", "segment_abundance", "harvested",
                  "results"))
   expect_type(result_functions$calculate_at_replicate, "closure")
-  expect_named(formals(result_functions$calculate_at_replicate), 
+  expect_named(formals(result_functions$calculate_at_replicate),
                c("r", "segment_abundance", "results"))
   expect_type(result_functions$finalize_attributes, "closure")
   expect_named(formals(result_functions$finalize_attributes), c("results"))
@@ -107,6 +107,26 @@ test_that("initialize_attributes initializes result attributes correctly", {
   expect_true("all" %in% names(result))
   expect_true("occupancy" %in% names(result$all))
   expect_true("abundance" %in% names(result$all))
+
+  results_breakdown <- "segments"
+
+  # Call the disease_results function to generate the initialize_attributes
+  # function
+  disease_results_functions <- disease_results(
+      replicates,
+      time_steps,
+      seasons,
+      stages,
+      compartments,
+      coordinates,
+      initial_abundance,
+      results_selection,
+      results_breakdown
+    )
+  result <- disease_results_functions$initialize_attributes()
+  expect_equal(result$abundance_segments |> names(),
+               c("stage_1_compartment_1", "stage_2_compartment_1",
+                 "stage_1_compartment_2", "stage_2_compartment_2"))
 })
 
 test_that("initialize_replicate initializes replicate result attributes
@@ -318,4 +338,248 @@ test_that("calculate_at_season combines stages properly", {
   expect_equal(result$abundance_stages[[2]] |> map(\(x) x[,,1]),
                 list(mean = abundance_comp8, sd = abundance_comp6,
                       min = abundance_comp8, max = abundance_comp8))
+})
+
+test_that("calculate at season (replicate)", {
+  coordinates <- array(c(1:4, 4:1), c(7, 2))
+  initial_abundance <- matrix(c(7, 13, 0, 26, 0, 39, 47,
+                                2,  0, 6,  8, 0, 12, 13,
+                                0,  3, 4,  6, 0,  9, 10),
+                              nrow = 3, ncol = 7, byrow = TRUE)
+  harvested <- round(initial_abundance*0.3)
+  results_selection <- c("abundance", "ema", "extirpation",
+                         "extinction_location", "harvested", "occupancy")
+  # Single replicate and included stages combined
+  result_functions <- disease_results(replicates = 1, time_steps = 10,
+                                      seasons = 2, stages = 1, compartments = 3,
+                                      coordinates = coordinates,
+                                      initial_abundance = initial_abundance,
+                                      results_selection = results_selection,
+                                      results_breakdown = "pooled")
+  results <- result_functions$initialize_replicate(result_functions$initialize_attributes())
+  expected_results <- results
+  expected_results$all$abundance[2, 1] <- sum(initial_abundance)
+  expected_results$all$ema[2, 1] <- sum(initial_abundance)
+  expected_results$all$harvested[2, 1] <- sum(harvested)
+  expected_results$all$occupancy[2, 1] <- sum(+(colSums(initial_abundance) > 0))
+  expected_results$abundance[, 2, 1] <- colSums(initial_abundance)
+  expected_results$harvested[, 2, 1] <- colSums(harvested)
+  expect_equal(result_functions$calculate_at_season(r = 1, tm = 2, season = 1,
+                                                    segment_abundance = initial_abundance,
+                                                    harvested, results),
+               expected_results)
+  # Calculate abundance and harvested separately
+  expected_results_abundance <- expected_results
+  expected_results_abundance$all$harvested <- results$all$harvested
+  expected_results_abundance$harvested <- results$harvested
+  expect_equal(result_functions$calculate_at_season(r = 1, tm = 2, season = 1,
+                                                    segment_abundance = initial_abundance,
+                                                    harvested = NULL, results),
+               expected_results_abundance)
+  expected_results_harvested <- results
+  expected_results_harvested$all$harvested <- expected_results$all$harvested
+  expected_results_harvested$harvested <- expected_results$harvested
+  expect_equal(result_functions$calculate_at_season(r = 1, tm = 2, season = 1,
+                                                      segment_abundance = NULL,
+                                                      harvested, results),
+               expected_results_harvested)
+  # Multiple replicates and separated stage combinations
+  results_selection <- c("abundance", "ema", "extirpation",
+                         "extinction_location", "harvested", "occupancy",
+                         "replicate") # "summarize" (default) or "replicate"
+  result_functions <- disease_results(replicates = 2, time_steps = 10,
+                                         seasons = 2, stages = 1,
+                                         compartments = 3,
+                                         coordinates = coordinates,
+                                         initial_abundance = initial_abundance,
+                                         results_selection = results_selection,
+                                         results_breakdown = "compartments")
+  results <- result_functions$initialize_replicate(result_functions$initialize_attributes())
+  results <- result_functions$calculate_at_season(r = 1, tm = 2, season = 2,
+                                                  segment_abundance = initial_abundance,
+                                                  harvested, results)
+  results <- result_functions$initialize_replicate(results)
+  expected_results <- results
+  abundance_r2 <- initial_abundance
+  abundance_r2[, 1:6] <- 0
+  expected_results$all$abundance[3, 2, 2] <- sum(abundance_r2)
+  expected_results$all$abundance_compartments$compartment_1[3, 2, 2] <- sum(abundance_r2[1,])
+  expected_results$all$abundance_compartments$compartment_2[3, 2, 2] <- sum(abundance_r2[2,])
+  expected_results$all$abundance_compartments$compartment_3[3, 2, 2] <- sum(abundance_r2[3,])
+  expected_results$all$ema[3, 2] <- mean(c(0, sum(abundance_r2)))
+  expected_results$all$harvested[3, 2, 2] <- sum(harvested)
+  expected_results$all$harvested_compartments$compartment_1[3, 2, 2] <- sum(harvested[1,])
+  expected_results$all$harvested_compartments$compartment_2[3, 2, 2] <- sum(harvested[2,])
+  expected_results$all$harvested_compartments$compartment_3[3, 2, 2] <- sum(harvested[3,])
+  expected_results$all$occupancy[3, 2, 2] <- sum(+(colSums(abundance_r2) > 0))
+  expected_results$abundance[, 3, 2, 2] <- colSums(abundance_r2)
+  expected_results$abundance_compartments$compartment_1[, 3, 2, 2] <- abundance_r2[1,]
+  expected_results$abundance_compartments$compartment_2[, 3, 2, 2] <- abundance_r2[2,]
+  expected_results$abundance_compartments$compartment_3[, 3, 2, 2] <- abundance_r2[3,]
+  expected_results$extirpation[c(1:4, 6), 2] <- 3
+  expected_results$last_occupied_abundance_count <- array(colSums(abundance_r2))
+  expected_results$abundance_count_min <- sum(abundance_r2)
+  expected_results$harvested[, 3, 2, 2] <- colSums(harvested)
+  expected_results$harvested_compartments$compartment_1[, 3, 2, 2] <- harvested[1,]
+  expected_results$harvested_compartments$compartment_2[, 3, 2, 2] <- harvested[2,]
+  expected_results$harvested_compartments$compartment_3[, 3, 2, 2] <- harvested[3,]
+  results_2 <- result_functions$calculate_at_season(r = 2, tm = 3, season = 2,
+                                                    segment_abundance = abundance_r2,
+                                                    harvested, results)
+  expect_equal(results_2, expected_results)
+  expected_results_2 <- expected_results
+  abundance_t4 <- abundance_r2*0
+  expected_results_2$all$extirpation[2] <- 3.5
+  expected_results_2$extirpation[7, 2] <- 3.5
+  expected_results_2$abundance_count_min <- 0
+  expect_equal(result_functions$calculate_at_season(r = 2, tm = 4, season = 1,
+                                                    segment_abundance = abundance_t4,
+                                                    harvested*0, results_2),
+               expected_results_2)
+  # Calculate abundance and harvested separately
+  expected_results_abundance <- expected_results
+  expected_results_abundance$all$harvested <- results$all$harvested
+  expected_results_abundance$all$harvested_compartments <- results$all$harvested_compartments
+  expected_results_abundance$harvested <- results$harvested
+  expected_results_abundance$harvested_compartments <- results$harvested_compartments
+  results_2_a <- result_functions$calculate_at_season(r = 2, tm = 3, season = 2,
+                                                      segment_abundance = abundance_r2,
+                                                      NULL, results)
+  expect_equal(results_2_a, expected_results_abundance)
+  expected_results_abundance <- expected_results_2
+  expected_results_abundance$all$harvested <- expected_results$all$harvested
+  expected_results_abundance$all$harvested_compartments <- expected_results$all$harvested_compartments
+  expected_results_abundance$harvested <- expected_results$harvested
+  expected_results_abundance$harvested_compartments <- expected_results$harvested_compartments
+  expect_equal(result_functions$calculate_at_season(r = 2, tm = 4, season = 1,
+                                                    segment_abundance = abundance_t4,
+                                                    NULL, results_2),
+               expected_results_2)
+  expected_results_harvested <- results
+  expected_results_harvested$all$harvested <- expected_results$all$harvested
+  expected_results_harvested$all$harvested_compartments <- expected_results$all$harvested_compartments
+  expected_results_harvested$harvested <- expected_results$harvested
+  expected_results_harvested$harvested_compartments <- expected_results$harvested_compartments
+  expect_equal(result_functions$calculate_at_season(r = 2, tm = 3, season = 2,
+                                                    segment_abundance = NULL,
+                                                    harvested, results),
+               expected_results_harvested)
+})
+
+test_that("calculate at replicate", {
+  coordinates = array(c(1:4, 4:1), c(7, 2))
+  initial_abundance <- matrix(c(0,  0, 6,  8, 0,  0,  0,
+                                0,  0, 4,  6, 0,  0,  0), nrow = 2, ncol = 7,
+                              byrow = TRUE)
+  results_selection <- c("extinction_location")
+  # Single replicate and included stages combined
+  result_functions <- disease_results(replicates = 1, time_steps = 10,
+                                      seasons = 2, stages = 1, compartments = 2,
+                                      coordinates = coordinates,
+                                      initial_abundance = initial_abundance,
+                                      results_selection = results_selection,
+                                      results_breakdown = "pooled")
+  results <- result_functions$initialize_replicate(result_functions$initialize_attributes())
+  results <- result_functions$initialize_replicate(results)
+  expected_results <- results
+  expected_results$all$extinction_location[1,] <- 10/24*coordinates[3,] + 14/24*coordinates[4,]
+  stage_abundance <- matrix(0, nrow = 2, ncol = 7)
+  expect_equal(result_functions$calculate_at_replicate(1, stage_abundance, results),
+               expected_results)
+  # Multiple replicates
+  result_functions <- disease_results(replicates = 3, time_steps = 10,
+                                      seasons = 2, stages = 1,
+                                      compartments = 2,
+                                      coordinates = coordinates,
+                                      initial_abundance = initial_abundance,
+                                      results_selection = results_selection,
+                                      results_breakdown = "pooled")
+  results <- result_functions$initialize_replicate(result_functions$initialize_attributes())
+  results <- result_functions$initialize_replicate(results)
+  expected_results <- results
+  expected_results$all$extinction_location[1,] <- 10/24*coordinates[3,] + 14/24*coordinates[4,]
+  expected_results$all$extinction_location[2,] <- coordinates[4,]
+  expected_results$last_occupied_abundance_count[3] <- 0
+  results <- result_functions$calculate_at_replicate(1, stage_abundance, results)
+  results$last_occupied_abundance_count[3] <- 0
+  expect_equal(result_functions$calculate_at_replicate(2, stage_abundance, results),
+               expected_results)
+})
+
+test_that("finalize_attributes", {
+  coordinates = array(c(1:4, 4:1), c(7, 2))
+  initial_abundance <- matrix(c(7, 13, 0, 26, 0, 39, 47,
+                                2,  0, 6,  8, 0, 12, 13,
+                                0,  3, 4,  6, 0,  9, 10), nrow = 3, ncol = 7, byrow = TRUE)
+  harvested <- round(initial_abundance*0.3)
+  results_selection <- c("abundance", "ema", "extirpation",
+                         "extinction_location", "harvested", "occupancy", "summarize")
+  # Summarized replicates and separated stage combinations
+  result_functions <- disease_results(replicates = 5, time_steps = 10,
+                                         seasons = 2, stages = 3,
+                                         compartments = 1,
+                                         coordinates, initial_abundance,
+                                         results_selection = results_selection,
+                                         results_breakdown = "stages")
+  results <- result_functions$initialize_replicate(result_functions$initialize_attributes())
+  # Run 5 replicates of a single time step + season
+  abundance <- list(initial_abundance, initial_abundance, initial_abundance,
+                    initial_abundance, initial_abundance*0)
+  abundance[[2]][, 1] <- 0
+  abundance[[3]][, 1:2] <- 0
+  abundance[[4]][, 1:3] <- 0
+  for (i in 1:5) {
+    results <- result_functions$initialize_replicate(results)
+    results <- result_functions$calculate_at_season(r = i, tm = 3, season = 1,
+                                                      segment_abundance = abundance[[i]],
+                                                      harvested + i, results)
+  }
+  expected_results <- results
+  expected_results$all$abundance$sd[3, 1] <- sqrt(expected_results$all$abundance$sd[3, 1]/(5 - 1))
+  expected_results$all$abundance_stages$stage_1$sd[3, 1] <- sqrt(expected_results$all$abundance_stages$stage_1$sd[3, 1]/(5 - 1))
+  expected_results$all$abundance_stages$stage_2$sd[3, 1] <- sqrt(expected_results$all$abundance_stages$stage_2$sd[3, 1]/(5 - 1))
+  expected_results$all$abundance_stages$stage_3$sd[3, 1] <- sqrt(expected_results$all$abundance_stages$stage_3$sd[3, 1]/(5 - 1))
+  expected_results$all$harvested$sd[3] <- sqrt(expected_results$all$harvested$sd[3, 1]/(5 - 1))
+  expected_results$all$harvested_stages$stage_1$sd[3, 1] <- sqrt(expected_results$all$harvested_stages$stage_1$sd[3, 1]/(5 - 1))
+  expected_results$all$harvested_stages$stage_2$sd[3, 1] <- sqrt(expected_results$all$harvested_stages$stage_2$sd[3, 1]/(5 - 1))
+  expected_results$all$harvested_stages$stage_3$sd[3, 1] <- sqrt(expected_results$all$harvested_stages$stage_3$sd[3, 1]/(5 - 1))
+  expected_results$all$occupancy$sd[3, 1] <- sqrt(expected_results$all$occupancy$sd[3, 1]/(5 - 1))
+  expected_results$abundance$sd[, 3, 1] <- sqrt(expected_results$abundance$sd[, 3, 1]/(5 - 1))
+  expected_results$abundance_stages$stage_1$sd[, 3, 1] <- sqrt(expected_results$abundance_stages$stage_1$sd[, 3, 1]/(5 - 1))
+  expected_results$abundance_stages$stage_2$sd[, 3, 1] <- sqrt(expected_results$abundance_stages$stage_2$sd[, 3, 1]/(5 - 1))
+  expected_results$abundance_stages$stage_3$sd[, 3, 1] <- sqrt(expected_results$abundance_stages$stage_3$sd[, 3, 1]/(5 - 1))
+  expected_results$harvested$sd[, 3, 1] <- sqrt(expected_results$harvested$sd[, 3, 1]/(5 - 1))
+  expected_results$harvested_stages$stage_1$sd[, 3, 1] <- sqrt(expected_results$harvested_stages$stage_1$sd[, 3, 1]/(5 - 1))
+  expected_results$harvested_stages$stage_2$sd[, 3, 1] <- sqrt(expected_results$harvested_stages$stage_2$sd[, 3, 1]/(5 - 1))
+  expected_results$harvested_stages$stage_3$sd[, 3, 1] <- sqrt(expected_results$harvested_stages$stage_3$sd[, 3, 1]/(5 - 1))
+  expected_results$occupancy$sd[, 3, 1] <- sqrt(expected_results$occupancy$sd[, 3, 1]/(5 - 1))
+  expected_results$extirpation[which(is.na(expected_results$extirpation))] <- Inf
+  expected_results$extirpation <- apply(expected_results$extirpation, 1, stats::fivenum)
+  expected_results$extirpation[which(is.infinite(expected_results$extirpation))] <- NA
+  expected_results$extirpation <- list(min = expected_results$extirpation[1,],
+                                       q1 = expected_results$extirpation[2,],
+                                       median = expected_results$extirpation[3,],
+                                       q3 = expected_results$extirpation[4,],
+                                       max = expected_results$extirpation[5,])
+  expected_results$abundance_count_min <- NULL
+  expected_results$last_occupied_abundance_count <- NULL
+  expect_equal(result_functions$finalize_attributes(results), expected_results)
+  # Full extirpation
+  results <- result_functions$initialize_replicate(result_functions$initialize_attributes())
+  for (i in 1:5) { # Run 5 replicates of a single time step + season
+    results <- result_functions$initialize_replicate(results)
+    results <- result_functions$calculate_at_season(r = i, tm = 3, season = 1,
+                                                    segment_abundance = abundance[[i]],
+                                                    harvested + i, results)
+    results <- result_functions$calculate_at_season(r = i, tm = 5, season = 1,
+                                                    segment_abundance = abundance[[i]]*0,
+                                                    harvested + i, results)
+  }
+  expected_extirpation <- results$extirpation
+  expected_extirpation <- list(mean = apply(expected_extirpation, 1, mean),
+                               sd = apply(expected_extirpation, 1, stats::sd),
+                               min = apply(expected_extirpation, 1, min),
+                               max = apply(expected_extirpation, 1, max))
+  expect_equal(result_functions$finalize_attributes(results)[["extirpation"]],
+               expected_extirpation)
 })
