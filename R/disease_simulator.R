@@ -319,6 +319,8 @@
 #' segment (stage x compartment combination.) "compartments" returns results for
 #' each disease compartment. "stages" returns results for each life cycle stage.
 #' "pooled" returns results that are not broken down by stage or compartment.}
+#' \item{\code{verbose}}{TRUE or FALSE, indicating if the user wants informative
+#' messages throughout the simulation process.}
 #'}
 #'@return Selected simulation results as a nested list summarized (mean, sd,
 #'  min, max) across multiple replicates (default), or 2-3D arrays including

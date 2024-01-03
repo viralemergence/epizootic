@@ -310,6 +310,8 @@
 #' segment (stage x compartment combination.) "compartments" returns results for
 #' each disease compartment. "stages" returns results for each life cycle stage.
 #' "pooled" returns results that are not broken down by stage or compartment.}
+#' \item{\code{verbose}}{TRUE or FALSE, indicating if the user wants informative
+#' messages throughout the simulation process.}
 #'}
 #'@return A list identical to the inputs, except with default values supplied
 #' to fill in any crucial missing values, as explained in the documentation
@@ -495,6 +497,37 @@ check_simulator_inputs <- function(inputs) {
     inputs[["season_lengths"]] <- rep(
       round(365/inputs[['seasons']]), inputs[['seasons']]
     )
+  }
+
+  demography <- c("mortality", "mortality_unit", "mortality_mask", 
+    "fecundity", "fecundity_unit", "fecundity_mask", "transmission",
+    "transmission_unit", "transmission_mask", "recovery", "recovery_unit",
+    "recovery_mask")
+  
+  if (!is.null(inputs[["verbose"]])) {
+    if (!is.logical(inputs[["verbose"]]) | length(inputs[["verbose"]]) > 1) {
+      cli_abort(c("`verbose` must TRUE or FALSE."))
+    }
+  } else {
+    verbose <- TRUE
+  }
+  
+  if (inputs[["verbose"]] && 
+  !all(demography |> map(\(x) inputs[[x]]) |> map_if(is.vector, names) |> map_lgl(is.null)) | 
+    !all(demography |> map(\(x) inputs[[x]]) |> map(\(y) if (is.vector(y)) names(y) else NULL) |> map(is.null) |> flatten_lgl())) {
+    cli_inform("Named lists of demographic rates have been ordered
+               alphabetically.")
+  }
+
+  for (element in demography) {
+    if (is.vector(inputs[[element]]) && !is.null(names(inputs[[element]]))) {
+      inputs[[element]] <- inputs[[element]][order(names(inputs[[element]]))]
+    }
+    for (i in 1:length(inputs[[element]])) {
+      if (is.vector(inputs[[element]][[i]]) && !is.null(names(inputs[[element]][[i]]))) {
+        inputs[[element]][[i]] <- inputs[[element]][[i]][order(names(inputs[[element]][[i]]))]
+      }
+    }
   }
 
   # Check fecundity and survival
