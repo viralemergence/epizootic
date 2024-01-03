@@ -127,6 +127,26 @@ test_that("Valid mortality list input", {
   expect_identical(lengths(result[["mortality"]]), c(3L, 3L))
 })
 
+test_that("Named lists get sorted appropriately", {
+    inputs <- list(
+    replicates = 5,
+    time_steps = 100,
+    populations = 5,
+    initial_abundance = matrix(rep(10, 5*3), nrow = 3),
+    carrying_capacity = rep(20, 5),
+    fecundity = rep(0.11, 3),
+    transmission = rep(0, 3),
+    simulation_order = c("transition"),
+    mortality = list(b = c(c = 0.1, b = 0.2, a = 0.3), a = c(0.4, 0.5, 0.6)),
+    seasons = 2,
+    stages = 3,
+    compartments = 1
+  )
+  expected_list <- list(a = c(0.4, 0.5, 0.6), b = c(a = 0.3, b = 0.2, c = 0.1))
+  result <- check_simulator_inputs(inputs)
+  expect_equal(result[["mortality"]], expected_list)
+})
+
 test_that("Valid mortality vector input", {
   inputs <- list(
     replicates = 5,

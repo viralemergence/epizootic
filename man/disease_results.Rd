@@ -9,11 +9,12 @@ disease_results(
   replicates,
   time_steps,
   seasons,
+  stages,
+  compartments,
   coordinates,
   initial_abundance,
   results_selection = NULL,
-  result_stages = NULL,
-  result_compartments = NULL
+  results_breakdown = NULL
 )
 }
 \arguments{
@@ -23,6 +24,10 @@ disease_results(
 
 \item{seasons}{Number of seasons per time step.}
 
+\item{stages}{Number of life cycle stages.}
+
+\item{compartments}{Number of disease compartments.}
+
 \item{coordinates}{Data frame (or matrix) of X-Y population coordinates.}
 
 \item{initial_abundance}{Matrix of initial abundances at each combination of
@@ -30,16 +35,15 @@ stage and compartment (in rows) for each population (in columns).}
 
 \item{results_selection}{List of results selection from: "abundance"
 (default), "ema", "extirpation", "extinction_location", "harvested",
-"occupancy"; "summarize" (default) or "replicate".}
+"occupancy"; "summarize" (default) or "replicate". "summarize" calculates
+mean, sd, min and max across replicates. "replicate" returns results
+separately for each replicate.}
 
-\item{result_stages}{Array of booleans or numeric (0, 1, 2, ...) for each
-stage to indicate which stages are included/combined (each unique digit > 0;
-optionally named) in the results (default is 1 for all stages).}
-
-\item{result_compartments}{Array of booleans or numeric for each
-compartment to indicate which stages are included/combined (each unique
-digit \> 0; optionally named) in the results (default is 1 for all
-compartments).}
+\item{results_breakdown}{A string with one of these values: "segments" (default),
+"compartments", "stages" or "pooled." "segments" returns results for each
+segment (stage x compartment combination.) "compartments" returns results for
+each disease compartment. "stages" returns results for each life cycle stage.
+"pooled" returns results that are not broken down by stage or compartment.}
 }
 \value{
 List of result functions:

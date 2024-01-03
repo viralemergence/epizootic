@@ -63,8 +63,8 @@ DiseaseModel <- R6Class(
         attribute_aliases <- c(
           attribute_aliases,
           list(
-            dispersal_n_k_cutoff = "dispersal_source_n_k$cutoff",
-            dispersal_n_k_threshold = "dispersal_source_n_k$threshold"
+            dispersal_source_n_k_cutoff = "dispersal_source_n_k$cutoff",
+            dispersal_source_n_k_threshold = "dispersal_source_n_k$threshold"
           )
         )
       }
