@@ -319,6 +319,21 @@
 
 check_simulator_inputs <- function(inputs) {
 
+  # Unpack inputs if they are in the form of a DiseaseModel
+  if (inherits(inputs, "DiseaseModel")) {
+    if (!inputs$is_consistent()) {
+      cli_abort(c("The `DiseaseModel` input contains the following inconsistent
+                  attributes:",
+                  "x" = "{model$inconsistent_attributes}"))
+    } else if (!inputs$is_complete()) {
+      cli_abort(c("The `DiseaseModel` input contains the following incomplete
+                  attributes:",
+                  "x" = "{model$incomplete_attributes}"))
+    } else {
+      inputs <- inputs$get_attributes()
+    }
+  }
+
   # Stop if minimal inputs are not present
   if (is.null(inputs[["time_steps"]]) || is.null(inputs[["populations"]]) ||
       is.null(inputs[["initial_abundance"]]) ||
@@ -388,8 +403,7 @@ check_simulator_inputs <- function(inputs) {
   )
 
   # Initial abundance for each stage and population
-  if (inherits(inputs, "DiseaseModel") &&
-      !is.null(inputs[["region"]]) &&
+  if (!is.null(inputs[["region"]]) &&
       inputs[["region"]][["use_raster"]] &&
       inherits(class(inputs[["initial_abundance"]]),
                c("RasterLayer", "RasterStack", "RasterBrick"))) {
@@ -430,7 +444,7 @@ check_simulator_inputs <- function(inputs) {
   }
 
   # Check carrying capacity
-  if (inherits(inputs, "DiseaseModel") && !is.null(inputs[["region"]]) &&
+  if (!is.null(inputs[["region"]]) &&
       inputs[["region"]][["use_raster"]] &&
       inherits(class(inputs[["carrying_capacity"]]),
                c("RasterLayer", "RasterStack", "RasterBrick"))) {
@@ -457,8 +471,7 @@ check_simulator_inputs <- function(inputs) {
 
   # Check breeding season length
   if (!is.null(inputs[["breeding_season_length"]])) {
-    if (inherits(inputs, "DiseaseModel") &&
-        !is.null(inputs[["region"]]) &&
+    if (!is.null(inputs[["region"]]) &&
         inputs[["region"]][["use_raster"]] &&
         inherits(class(inputs[["breeding_season_length"]]),
                  c("RasterLayer", "RasterStack", "RasterBrick"))) {
@@ -1053,6 +1066,15 @@ check_simulator_inputs <- function(inputs) {
     cli_abort(c("{.var dispersal} must be a list of length 1 or
                 length {stages}.",
                 "x" = "{.var dispersal} is length {length(dispersal)}."))
+  }
+
+  if (is.list(inputs[["dispersal"]]) && 
+      !is.null(names(inputs[["dispersal"]]))) {
+    inputs[["dispersal"]] <- inputs[["dispersal"]][order(names(inputs[["dispersal"]]))]
+    if (inputs[["verbose"]]) {
+      cli_inform(c("`dispersal` is a named list.",
+                 "i" = "The named list has been sorted alphabetically."))
+    }
   }
 
   # Abundance threshold
