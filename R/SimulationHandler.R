@@ -2,12 +2,12 @@
 #'
 #' @description
 #' \code{\link[R6:R6Class]{R6}} class to represent a handler for running multiple model
-#' simulations and saving results. This simulation manager bears some resemblance to 
+#' simulations and saving results. This simulation manager bears some resemblance to
 #' the \code{\link[poems:SimulationManager]{SimulationManager}} in \code{poems}, but differs
 #' in that it can handle multiple dispersal generators, uses a different engine
 #' for parallelization, handles errors differently, and has a different default
 #' data format (\code{.qs}).
-#' 
+#'
 #' @importFrom future plan
 #' @importFrom future sequential
 #' @importFrom future multisession
@@ -121,26 +121,26 @@ SimulationHandler <- R6Class("SimulationHandler",
     set_model_sample = function(model, sample_index) {
       sample_list <- as.list(self$sample_data[sample_index, ])
       names(sample_list) <- names(self$sample_data)
-      
+
       if (!is.null(model$attached$sample_model_names)) {
         model$set_sample_attributes(params = sample_list[model$attached$sample_model_names])
       }
-      
+
       if (!is.null(self$generators)) {
         for (i in 1:length(self$generators)) {
           generator <- self$generators[[i]]
-          
+
           if (!is.null(model$attached$sample_generative_names[[i]])) {
             tryCatch({
               if ("DispersalGenerator" %in% class(generator)) {
                 inputs <- generator$get_attribute_aliases(params = generator$inputs)
-                
+
                 if (any(names(self$model_template$get_attributes()) %in% inputs)) {
-                  generator$set_attributes(params = model$get_attributes()[inputs])        
+                  generator$set_attributes(params = model$get_attributes()[inputs])
                 } else if (any(names(self$sample_data) %in% inputs)) {
                   generator$set_sample_attributes(params = sample_list[inputs])
                 }
-                
+
                 if (generator$generative_requirements_satisfied()$dispersal_data) {
                   generator$calculate_dispersals()
                   name <- model$attached$sample_generative_names[[i]]
@@ -151,20 +151,17 @@ SimulationHandler <- R6Class("SimulationHandler",
                 }
               } else {
                 inputs <- unique(c(generator$inputs, generator$get_attribute_aliases(params = generator$inputs)))
-                input_values <- list()
-                
-                if (any(names(model$get_attributes()) %in% inputs)) {
-                  input_values <- input_values |> append(model$get_attributes()[inputs])       
-                } else if (any(names(sample_list) %in% inputs)) {
-                  input_values <- input_values |> append(sample_list[inputs])
-                }
-                
-                if (any(duplicated(names(input_values)))) {
-                  cli_abort(c("You have set values for the same model attribute in
-                              the model template and the sample data. Please 
-                              resolve these duplicated inputs."))
-                }
-                
+                # Initialize input_values as a named list with the same names as inputs
+                input_values <- setNames(vector("list", length(inputs)), inputs)
+
+                # Update values from model$get_attributes()
+                matching_attributes <- intersect(names(input_values), names(model$get_attributes()))
+                input_values[matching_attributes] <- model$get_attributes()[matching_attributes]
+
+                # Update values from sample_list
+                matching_samples <- intersect(names(input_values), names(sample_list))
+                input_values[matching_samples] <- sample_list[matching_samples]
+
                 model$set_sample_attributes(params = generator$generate(input_values = input_values))
               }
             })
@@ -191,7 +188,7 @@ SimulationHandler <- R6Class("SimulationHandler",
       }
 
       # Check that model and sample data is present
-      if (is.null(self$model_template) || length(self$sample_data) == 0) {
+      if (is.null(self$model_template) | length(self$sample_data) == 0) {
         cli_abort(c("Simulations cannot run unless there is a `model_template`
                     or a `sample_data` with at least one row."))
       }
@@ -204,9 +201,6 @@ SimulationHandler <- R6Class("SimulationHandler",
       }
 
       # Check that the results directory is present and exists
-      if (!is.null(results_dir)) {
-        self$results_dir <- results_dir
-      }
       if (is.null(self$results_dir)) {
         stop("No output directory set for results", call. = FALSE)
       }
@@ -223,7 +217,7 @@ SimulationHandler <- R6Class("SimulationHandler",
       # Allow extra attachments to be passed
       if ("nested_model" %in% names(self$attached)) {
         self$nested_model$attached <- self$attached$nested_model
-      } 
+      }
 
       model_sample_columns <- which(names(self$sample_data) %in% self$nested_model$get_attribute_aliases())
       if (length(model_sample_columns) > 0) {
@@ -272,10 +266,10 @@ SimulationHandler <- R6Class("SimulationHandler",
       }
 
       simulation_log <- future_map(1:nrow(self$sample_data), \(j) {
-        
+
         # Clone the model
         model <- self$nested_model$clone()
-        
+
         # Set the model sample attributes
         self$set_model_sample(model, j)
         if (length(model$error_messages)) {
@@ -303,7 +297,7 @@ SimulationHandler <- R6Class("SimulationHandler",
           }
         }
 
-        return(simulator_run_status)        
+        return(simulator_run_status)
       }, .options = furrr_options(seed = TRUE, conditions = character()))
 
       # Summarize and write log to a file
@@ -336,7 +330,7 @@ SimulationHandler <- R6Class("SimulationHandler",
   ), # end private
 
   active = list(
-    
+
     #' @field sample_data A data frame of sampled parameters for each simulation/result.
     sample_data = function(value) { # inherited
       if (missing(value)) {
@@ -402,7 +396,7 @@ SimulationHandler <- R6Class("SimulationHandler",
         }
       }
     },
-    
+
     #' @field parallel_cores Number of cores for running the simulations in parallel.
     parallel_cores = function(value) { # inherited
       if (missing(value)) {
