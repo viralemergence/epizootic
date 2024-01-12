@@ -1,5 +1,4 @@
-#'Stage-based seasonal spatially explicit SIRI model of the
-#'*Mycoplasma gallisepticum* outbreak in *Haemorhous mexicanus*.
+#'Stage-based seasonal spatially explicit population-level disease model.
 #'
 #'Simulates a stage-based demographic population model and returns simulation
 #'results across multiple replicate runs. Processes run at each simulation
@@ -12,10 +11,10 @@
 #'   \item Dispersal calculations (default or user-defined)
 #'   \item Results collection
 #' }
-#'This simulator is not ready for use in any system other than the *Mycoplasma
-#'gallisepticum* outbreak in the house finch. Note that the breeding season is
+#'Note that the breeding season is
 #'always treated as the first season.
 #'
+#'@param inputs Nested list/object with named elements:
 #'@param inputs Nested list/object with named elements:
 #'\describe{
 #'  \item{\code{random_seed}}{Number to seed the random number generation for
@@ -154,15 +153,9 @@
 #'     }
 #'  \item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
 #'  dependence processes).}
-#'  \item{\code{density_affects}}{Matrix of booleans or
-#'  numeric (0-1) indicating the transition vital rates affected by density
-#'  (default is all).}
 #'  \item{\code{density_stages}}{Array of booleans or numeric
 #'  (0,1) for each stage to indicate which stages are affected by density
 #'  (default is all).}
-#'  \item{\code{density_precision}}{Numeric precision of the
-#'  calculated multipliers (used when stages \> 1) applied to affected
-#'  transition rates (default is 3 decimal places).}
 #'  \item{\code{translocation}}{An optional user-defined function (optionally
 #'     nested in a list with additional attributes) for applying translocation
 #'     or spatio-temporal management (to abundances): \code{function(params)},
@@ -197,7 +190,7 @@
 #'  \item{\code{harvest}}{An optional user-defined function (optionally nested
 #'  in a list with additional attributes) for applying harvesting (to
 #'  abundances): \code{function(params)} as per translocation.}
-#'  \item{\code{mortality}}{An optional user-defined function (optionally nested
+#'  \item{\code{mortality_function}}{An optional user-defined function (optionally nested
 #'  in a list with additional attributes) for applying mortality (to
 #'  abundances): \code{function(params)} as per translocation.}
 #'  \item{\code{dispersal}}{A list that is either length 1 or the same length as
@@ -434,7 +427,7 @@ disease_simulator <- function(inputs) {
       populations = populations,
       demographic_stochasticity = demographic_stochasticity,
       density_stages = density_stages,
-      transformation = inputs[["mortality"]],
+      transformation = inputs[["mortality_function"]],
       simulator = simulator,
       name = "mortality"
     )

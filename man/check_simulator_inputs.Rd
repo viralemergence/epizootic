@@ -146,15 +146,9 @@ and returns a transformed transition 3D array.
 }
 \item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
 dependence processes).}
-\item{\code{density_affects}}{Matrix of booleans or
-numeric (0-1) indicating the transition vital rates affected by density
-(default is all).}
 \item{\code{density_stages}}{Array of booleans or numeric
 (0,1) for each stage to indicate which stages are affected by density
 (default is all).}
-\item{\code{density_precision}}{Numeric precision of the
-calculated multipliers (used when stages \> 1) applied to affected
-transition rates (default is 3 decimal places).}
 \item{\code{translocation}}{An optional user-defined function (optionally
 nested in a list with additional attributes) for applying translocation
 or spatio-temporal management (to abundances): \code{function(params)},
@@ -189,7 +183,7 @@ abundance and carrying capacity).
 \item{\code{harvest}}{An optional user-defined function (optionally nested
 in a list with additional attributes) for applying harvesting (to
 abundances): \code{function(params)} as per translocation.}
-\item{\code{mortality}}{An optional user-defined function (optionally nested
+\item{\code{mortality_function}}{An optional user-defined function (optionally nested
 in a list with additional attributes) for applying mortality (to
 abundances): \code{function(params)} as per translocation.}
 \item{\code{dispersal}}{A list that is either length 1 or the same length as

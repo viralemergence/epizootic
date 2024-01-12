@@ -145,15 +145,9 @@
 #'     }
 #'  \item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
 #'  dependence processes).}
-#'  \item{\code{density_affects}}{Matrix of booleans or
-#'  numeric (0-1) indicating the transition vital rates affected by density
-#'  (default is all).}
 #'  \item{\code{density_stages}}{Array of booleans or numeric
 #'  (0,1) for each stage to indicate which stages are affected by density
 #'  (default is all).}
-#'  \item{\code{density_precision}}{Numeric precision of the
-#'  calculated multipliers (used when stages \> 1) applied to affected
-#'  transition rates (default is 3 decimal places).}
 #'  \item{\code{translocation}}{An optional user-defined function (optionally
 #'     nested in a list with additional attributes) for applying translocation
 #'     or spatio-temporal management (to abundances): \code{function(params)},
@@ -188,7 +182,7 @@
 #'  \item{\code{harvest}}{An optional user-defined function (optionally nested
 #'  in a list with additional attributes) for applying harvesting (to
 #'  abundances): \code{function(params)} as per translocation.}
-#'  \item{\code{mortality}}{An optional user-defined function (optionally nested
+#'  \item{\code{mortality_function}}{An optional user-defined function (optionally nested
 #'  in a list with additional attributes) for applying mortality (to
 #'  abundances): \code{function(params)} as per translocation.}
 #'  \item{\code{dispersal}}{A list that is either length 1 or the same length as
@@ -389,6 +383,7 @@ check_simulator_inputs <- function(inputs) {
   inputs[["stages"]] <- ifelse(
     is.null(inputs[["stages"]]), 1, inputs[["stages"]]
   )
+  stages <- inputs[["stages"]]
   inputs[["compartments"]] <- ifelse(
     is.null(inputs[["compartments"]]), 1, inputs[["compartments"]]
   )
@@ -522,7 +517,7 @@ check_simulator_inputs <- function(inputs) {
       cli_abort(c("`verbose` must TRUE or FALSE."))
     }
   } else {
-    verbose <- TRUE
+    inputs[["verbose"]] <- TRUE
   }
   
   if (inputs[["verbose"]] && 
@@ -1029,9 +1024,9 @@ check_simulator_inputs <- function(inputs) {
   }
 
   # Dispersal parameters
-  dispersal_stages <- inputs[["density_stages"]]
+  dispersal_stages <- inputs[["dispersal_stages"]]
   if (is.null(dispersal_stages)) {
-    inputs[["density_stages"]] <- array(1, inputs[["stages"]])
+    inputs[["dispersal_stages"]] <- array(1, inputs[["stages"]])
   }
   dispersal_source_n_k <- inputs[["dispersal_source_n_k"]]
   if (is.null(dispersal_source_n_k)) {
@@ -1063,9 +1058,9 @@ check_simulator_inputs <- function(inputs) {
   }
   if (!is.null(inputs[["dispersal"]]) &&
       !length(inputs[["dispersal"]]) %in% c(1, stages)) {
-    cli_abort(c("{.var dispersal} must be a list of length 1 or
-                length {stages}.",
-                "x" = "{.var dispersal} is length {length(dispersal)}."))
+    cli_abort(c('`dispersal` must be a list of length 1 or
+                length {inputs[["stages"]]}.",
+                "x" = "{.var dispersal} is length {length(inputs[["dispersal"]])}.'))
   }
 
   if (is.list(inputs[["dispersal"]]) && 
@@ -1139,6 +1134,36 @@ check_simulator_inputs <- function(inputs) {
         'segments.'",
         "x" = "{.var results_breakdown} is {results_breakdown}.")
     )
+  }
+
+  harvest <- inputs[["harvest"]]
+  if (!is.null(harvest)) {
+    if (!is.list(harvest) && !is.function(harvest)) {
+      cli_abort(
+        c("{.var harvest} must be a function or a list.",
+          "x" = "{.var harvest} is {class(harvest)}.")
+      )
+    }
+  }
+
+  translocation <- inputs[["translocation"]]
+  if (!is.null(translocation)) {
+    if (!is.list(translocation) && !is.function(translocation)) {
+      cli_abort(
+        c("{.var translocation} must be a function or a list.",
+          "x" = "{.var translocation} is {class(translocation)}.")
+      )
+    }
+  }
+
+  mortality_function <- inputs[["mortality_function"]]
+  if (!is.null(mortality_function)) {
+    if (!is.list(mortality_function) && !is.function(mortality_function)) {
+      cli_abort(
+        c("{.var mortality_function} must be a function or a list.",
+          "x" = "{.var mortality_function} is {class(mortality_function)}.")
+      )
+    }
   }
 
   return(inputs)
