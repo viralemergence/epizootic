@@ -1,8 +1,7 @@
 #' @keywords internal
 "_PACKAGE"
 
-## usethis namespace: start
-## usethis namespace: end
+## Global variable bindings
 . <- Day <- abundance_threshold <- breeding_season_length <- NULL
 compare <- carrying_capacity <- compartments <- fecundity <- NULL
 fecundity_mask <- fecundity_unit <- initial_vector <- mortality <- NULL
