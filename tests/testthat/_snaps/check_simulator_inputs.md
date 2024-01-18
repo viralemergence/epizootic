@@ -168,7 +168,7 @@
 
 # check error handling for fecundity [plain]
 
-    The `mortality` vector must have 2 elements, one for each combination of stage and compartment.
+    Each vector inside the `fecundity` list must have 2 elements, one for each combination of stage and compartment. Or, provide a fecundity mask so that fecundity values may be assigned to the appropriate stages and compartments.
 
 ---
 
@@ -186,15 +186,17 @@
 
 ---
 
-    `.x` must be a list, not a double vector.
+    Vectors inside `fecundity` and `fecundity_mask` must be the same length.
+    * `fecundity` has vectors of length 3.
+    * `fecundity_mask` has vectors of length 4.
 
 ---
 
-    `.x` must be a list, not a double vector.
+    fecundity_mask values must be 0 or 1
 
 # check error handling for fecundity [ansi]
 
-    [1m[22mThe `mortality` vector must have 2 elements, one for each combination of stage and compartment.
+    [1m[22mEach vector inside the `fecundity` list must have 2 elements, one for each combination of stage and compartment. Or, provide a fecundity mask so that fecundity values may be assigned to the appropriate stages and compartments.
 
 ---
 
@@ -212,15 +214,17 @@
 
 ---
 
-    [1m[22m`.x` must be a list, not a double vector.
+    [1m[22mVectors inside `fecundity` and `fecundity_mask` must be the same length.
+    [36m*[39m `fecundity` has vectors of length 3.
+    [36m*[39m `fecundity_mask` has vectors of length 4.
 
 ---
 
-    [1m[22m`.x` must be a list, not a double vector.
+    [1m[22mfecundity_mask values must be 0 or 1
 
 # check error handling for fecundity [unicode]
 
-    The `mortality` vector must have 2 elements, one for each combination of stage and compartment.
+    Each vector inside the `fecundity` list must have 2 elements, one for each combination of stage and compartment. Or, provide a fecundity mask so that fecundity values may be assigned to the appropriate stages and compartments.
 
 ---
 
@@ -238,15 +242,17 @@
 
 ---
 
-    `.x` must be a list, not a double vector.
+    Vectors inside `fecundity` and `fecundity_mask` must be the same length.
+    • `fecundity` has vectors of length 3.
+    • `fecundity_mask` has vectors of length 4.
 
 ---
 
-    `.x` must be a list, not a double vector.
+    fecundity_mask values must be 0 or 1
 
 # check error handling for fecundity [fancy]
 
-    [1m[22mThe `mortality` vector must have 2 elements, one for each combination of stage and compartment.
+    [1m[22mEach vector inside the `fecundity` list must have 2 elements, one for each combination of stage and compartment. Or, provide a fecundity mask so that fecundity values may be assigned to the appropriate stages and compartments.
 
 ---
 
@@ -264,9 +270,11 @@
 
 ---
 
-    [1m[22m`.x` must be a list, not a double vector.
+    [1m[22mVectors inside `fecundity` and `fecundity_mask` must be the same length.
+    [36m•[39m `fecundity` has vectors of length 3.
+    [36m•[39m `fecundity_mask` has vectors of length 4.
 
 ---
 
-    [1m[22m`.x` must be a list, not a double vector.
+    [1m[22mfecundity_mask values must be 0 or 1
 

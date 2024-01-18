@@ -104,47 +104,6 @@
 #'  A list of vectors may be provided if this varies by season. If no recovery
 #'  mask is provided, then it is assumed that all stages in the second
 #'  compartment can recover.}
-#'  \item{\code{density_dependence}}{Selects a density dependence function, if
-#'  desired. Choices are "none" (the default), "ceiling", "logistic" (Ricker),
-#'  or a user-defined function (optionally nested in a list with additional
-#'  attributes) for adjusting transition rates: \code{function(params)},
-#'  where \code{params} is a list passed to the function containing:
-#'       \describe{
-#'         \item{\code{transition_array}}{3D array of transition rates: stages
-#'         by stages by populations.}
-#'         \item{\code{fecundity_mask}}{Matrix of 0-1 to indicate which
-#'         (proportions) of transition rates refer to fecundity.}
-#'         \item{\code{fecundity_max}}{Maximum transition fecundity rate
-#'         (in Leslie/Lefkovitch matrix).}
-#'         \item{\code{carrying_capacity}}{Array of carrying capacity values for
-#'         each population.}
-#'         \item{\code{segment_abundance}}{Matrix of abundances for each stage-
-#'         compartment combination (rows) and population (columns).}
-#'         \item{\code{population_abundance}}{Array of summed population
-#'         abundances for all stages.}
-#'         \item{\code{density_abundance}}{Array of summed population abundances
-#'         for stages affected by density.}
-#'         \item{\code{growth_rate_max}}{Maximum growth rate value or array for
-#'         populations.}
-#'         \item{\code{occupied_indices}}{Array of indices for populations
-#'         occupied at (current) time step.}
-#'         \item{\code{calculate_multipliers}}{Function
-#'         (\code{function(growth_rates)}) for finding multipliers (when stages
-#'         \> 1) to apply to affected transitions that result in target growth
-#'          rates (dominant eigenvalues).}
-#'         \item{\code{apply_multipliers}}{Function
-#'         (\code{function(transition_array, multipliers}) for applying
-#'         multipliers (when stages \> 1) to the affected transition rates
-#'         within a transition array (returns multiplied array).}
-#'         \item{\code{simulator}}{\code{\link{SimulatorReference}} object with
-#'         dynamically accessible \emph{attached} and \emph{results} lists.}
-#'         \item{\code{optional attributes}}{Additional numeric attributes when
-#'         density dependence is optionally nested in a list.}
-#'       }
-#'       and returns a transformed transition 3D array.
-#'     }
-#'  \item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
-#'  dependence processes).}
 #'  \item{\code{density_stages}}{Array of booleans or numeric
 #'  (0,1) for each stage to indicate which stages are affected by density
 #'  (default is all).}
@@ -387,10 +346,6 @@ check_simulator_inputs <- function(inputs) {
   inputs[["compartments"]] <- ifelse(
     is.null(inputs[["compartments"]]), 1, inputs[["compartments"]]
   )
-  inputs[["density_dependence"]] <- ifelse(
-    is.null(inputs[["density_dependence"]]), "none",
-    inputs[["density_dependence"]]
-  )
   inputs[["demographic_stochasticity"]] <- ifelse(
     is.null(inputs[["demographic_stochasticity"]]),
     TRUE,
@@ -507,11 +462,11 @@ check_simulator_inputs <- function(inputs) {
     )
   }
 
-  demography <- c("mortality", "mortality_unit", "mortality_mask", 
+  demography <- c("mortality", "mortality_unit", "mortality_mask",
     "fecundity", "fecundity_unit", "fecundity_mask", "transmission",
     "transmission_unit", "transmission_mask", "recovery", "recovery_unit",
     "recovery_mask")
-  
+
   if (!is.null(inputs[["verbose"]])) {
     if (!is.logical(inputs[["verbose"]]) | length(inputs[["verbose"]]) > 1) {
       cli_abort(c("`verbose` must TRUE or FALSE."))
@@ -519,21 +474,24 @@ check_simulator_inputs <- function(inputs) {
   } else {
     inputs[["verbose"]] <- TRUE
   }
-  
-  if (inputs[["verbose"]] && 
-  !all(demography |> map(\(x) inputs[[x]]) |> map_if(is.vector, names) |> map_lgl(is.null)) | 
-    !all(demography |> map(\(x) inputs[[x]]) |> map(\(y) if (is.vector(y)) names(y) else NULL) |> map(is.null) |> flatten_lgl())) {
-    cli_inform("Named lists of demographic rates have been ordered
-               alphabetically.")
-  }
 
   for (element in demography) {
     if (is.vector(inputs[[element]]) && !is.null(names(inputs[[element]]))) {
       inputs[[element]] <- inputs[[element]][order(names(inputs[[element]]))]
+      if (inputs[["verbose"]]) {
+        cli_inform("Named lists of demographic rates have been ordered
+               alphabetically.")
+      }
     }
-    for (i in 1:length(inputs[[element]])) {
-      if (is.vector(inputs[[element]][[i]]) && !is.null(names(inputs[[element]][[i]]))) {
-        inputs[[element]][[i]] <- inputs[[element]][[i]][order(names(inputs[[element]][[i]]))]
+    if (is.list(inputs[[element]])) {
+      for (i in 1:length(inputs[[element]])) {
+        if (is.vector(inputs[[element]][[i]]) && !is.null(names(inputs[[element]][[i]]))) {
+          inputs[[element]][[i]] <- inputs[[element]][[i]][order(names(inputs[[element]][[i]]))]
+          if (inputs[["verbose"]]) {
+            cli_inform("Named lists of demographic rates have been ordered
+               alphabetically.")
+          }
+        }
       }
     }
   }
@@ -725,9 +683,18 @@ check_simulator_inputs <- function(inputs) {
     }
   } else {
     if (is.list(fecundity) && !is.list(inputs[["fecundity_mask"]])) {
-      inputs[["fecundity_mask"]] <- replicate(length(fecundity),
-                                              inputs[["fecundity_mask"]],
-                                              simplify = FALSE)
+      if (length(inputs[["fecundity_mask"]]) == length(fecundity[[1]])) {
+        inputs[["fecundity_mask"]] <- replicate(length(fecundity),
+                                                inputs[["fecundity_mask"]],
+                                                simplify = FALSE)
+      } else {
+        cli_abort(c("Vectors inside `fecundity` and `fecundity_mask` must be the
+                    same length.",
+                    "*" = "`fecundity` has vectors of length
+                          {length(fecundity[[1]])}.",
+                    "*" = "`fecundity_mask` has vectors of length
+                          {length(inputs[['fecundity_mask']])}."))
+      }
     }
     unit_values <- inputs[["fecundity_mask"]] |> flatten_dbl() |> unique()
     if (!all(unit_values %in% c(0, 1))) {
@@ -853,11 +820,11 @@ check_simulator_inputs <- function(inputs) {
     if(is.list(transmission)) {
       inputs[["transmission_mask"]] <- replicate(
         length(transmission),
-        rep(1, length(transmission[[1]])),
+        rep(0, segments) |> replace(1:stages, 1),
         simplify = FALSE
       )
     } else {
-      inputs[["transmission_mask"]] <- rep(1, segments)
+      inputs[["transmission_mask"]] <- rep(0, segments) |> replace(1:stages, 1)
     }
   } else {
     if (is.list(transmission) && !is.list(inputs[["transmission_mask"]])) {
@@ -991,11 +958,12 @@ check_simulator_inputs <- function(inputs) {
     if(is.list(recovery)) {
       inputs[["recovery_mask"]] <- replicate(
         length(recovery),
-        rep(1, length(recovery[[1]])),
+        rep(0, segments) |> replace((stages+1):(stages*2), 1),
         simplify = FALSE
       )
     } else {
-      inputs[["recovery_mask"]] <- rep(1, segments)
+      inputs[["recovery_mask"]] <- rep(0, segments) |>
+        replace((stages+1):(stages*2), 1)
     }
   } else {
     if (is.list(recovery) && !is.list(inputs[["recovery_mask"]])) {
@@ -1063,7 +1031,7 @@ check_simulator_inputs <- function(inputs) {
                 "x" = "{.var dispersal} is length {length(inputs[["dispersal"]])}.'))
   }
 
-  if (is.list(inputs[["dispersal"]]) && 
+  if (is.list(inputs[["dispersal"]]) &&
       !is.null(names(inputs[["dispersal"]]))) {
     inputs[["dispersal"]] <- inputs[["dispersal"]][order(names(inputs[["dispersal"]]))]
     if (inputs[["verbose"]]) {

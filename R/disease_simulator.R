@@ -4,7 +4,6 @@
 #'results across multiple replicate runs. Processes run at each simulation
 #'time-step include:
 #' \enumerate{
-#'   \item Density dependence calculations (ceiling, logistic, or user-defined)
 #'   \item Stage transition (stochastic) calculations
 #'   \item Population growth/decline calculations
 #'   \item Disease outbreak according to a compartmental model
@@ -14,7 +13,6 @@
 #'Note that the breeding season is
 #'always treated as the first season.
 #'
-#'@param inputs Nested list/object with named elements:
 #'@param inputs Nested list/object with named elements:
 #'\describe{
 #'  \item{\code{random_seed}}{Number to seed the random number generation for
@@ -112,47 +110,6 @@
 #'  A list of vectors may be provided if this varies by season. If no recovery
 #'  mask is provided, then it is assumed that all stages in the second
 #'  compartment can recover.}
-#'  \item{\code{density_dependence}}{Selects a density dependence function, if
-#'  desired. Choices are "none" (the default), "ceiling", "logistic" (Ricker),
-#'  or a user-defined function (optionally nested in a list with additional
-#'  attributes) for adjusting transition rates: \code{function(params)},
-#'  where \code{params} is a list passed to the function containing:
-#'       \describe{
-#'         \item{\code{transition_array}}{3D array of transition rates: stages
-#'         by stages by populations.}
-#'         \item{\code{fecundity_mask}}{Matrix of 0-1 to indicate which
-#'         (proportions) of transition rates refer to fecundity.}
-#'         \item{\code{fecundity_max}}{Maximum transition fecundity rate
-#'         (in Leslie/Lefkovitch matrix).}
-#'         \item{\code{carrying_capacity}}{Array of carrying capacity values for
-#'         each population.}
-#'         \item{\code{segment_abundance}}{Matrix of abundances for each stage-
-#'         compartment combination (rows) and population (columns).}
-#'         \item{\code{population_abundance}}{Array of summed population
-#'         abundances for all stages.}
-#'         \item{\code{density_abundance}}{Array of summed population abundances
-#'         for stages affected by density.}
-#'         \item{\code{growth_rate_max}}{Maximum growth rate value or array for
-#'         populations.}
-#'         \item{\code{occupied_indices}}{Array of indices for populations
-#'         occupied at (current) time step.}
-#'         \item{\code{calculate_multipliers}}{Function
-#'         (\code{function(growth_rates)}) for finding multipliers (when stages
-#'         \> 1) to apply to affected transitions that result in target growth
-#'          rates (dominant eigenvalues).}
-#'         \item{\code{apply_multipliers}}{Function
-#'         (\code{function(transition_array, multipliers}) for applying
-#'         multipliers (when stages \> 1) to the affected transition rates
-#'         within a transition array (returns multiplied array).}
-#'         \item{\code{simulator}}{\code{\link{SimulatorReference}} object with
-#'         dynamically accessible \emph{attached} and \emph{results} lists.}
-#'         \item{\code{optional attributes}}{Additional numeric attributes when
-#'         density dependence is optionally nested in a list.}
-#'       }
-#'       and returns a transformed transition 3D array.
-#'     }
-#'  \item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
-#'  dependence processes).}
 #'  \item{\code{density_stages}}{Array of booleans or numeric
 #'  (0,1) for each stage to indicate which stages are affected by density
 #'  (default is all).}
@@ -380,25 +337,6 @@ disease_simulator <- function(inputs) {
   # Generate simulation functions
   transition_function <- disease_transitions(stages, compartments)
 
-  if (density_dependence != "none") {
-    density_function <- population_density(
-      populations,
-      stage_matrix,
-      fecundity_mask,
-      fecundity_max,
-      density_dependence,
-      inputs$growth_rate_max,
-      inputs$density_affects,
-      density_stages,
-      density_precision = inputs$density_precision,
-      simulator
-    )
-    if ((is.function(density_dependence) ||
-         is.list(density_dependence))) {
-      density_dependence <- "adjusts_transitions"
-    }
-  }
-
   translocation_function <- population_transformation(
     replicates = replicates,
     time_steps = time_steps,
@@ -553,13 +491,6 @@ disease_simulator <- function(inputs) {
               # Perform stage-based transitions
               segment_abundance <- transition_function(segment_abundance,
                                                        occupied_indices)
-
-              # Limit abundances to carrying capacity when "ceiling" density
-              # dependence
-              if (density_dependence == "ceiling") {
-                segment_abundance <- density_function(carrying_capacity,
-                                                      segment_abundance)
-              }
             }
           }
 
@@ -619,11 +550,10 @@ disease_simulator <- function(inputs) {
                                                       occupied_indices)
             } else if (!is.null(dispersal_functions)) {
               indices <- map(1:stages, \(s) seq(s, segments, stages))
-              dispersal_function <- dispersal_functions[[s]]
               stage_dispersal <- map(1:stages, \(s) {
-                abundance <- dispersal_function(r, tm, carrying_capacity,
-                                                segment_abundance[indices[[s]],],
-                                                occupied_indices)
+                abundance <- dispersal_functions[[s]](r, tm, carrying_capacity,
+                                                       segment_abundance[indices[[s]],],
+                                                       occupied_indices)
                 return(abundance)
               })
               for (i in 1:stages) {

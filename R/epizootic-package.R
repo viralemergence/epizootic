@@ -3,9 +3,48 @@
 
 ## usethis namespace: start
 ## usethis namespace: end
-. <- Day <- abundance_threshold <- breeding_season_length <- NULL
-compare <- carrying_capacity <- compartments <- fecundity <- NULL
-fecundity_mask <- fecundity_unit <- initial_vector <- mortality <- NULL
-mortality_unit <- occupied_indices <- recovery <- recovery_mask <- NULL
-recovery_unit <- stages <- time_steps <- tm <- transmission <- NULL
-transmission_mask <- transmission_unit <- NULL
+utils::globalVariables(c(
+  ".",
+  "Day",
+  "abundance_threshold",
+  "breeding_season_length",
+  "compare",
+  "carrying_capacity",
+  "compartments",
+  "fecundity",
+  "fecundity_mask",
+  "fecundity_unit",
+  "initial_vector",
+  "mortality",
+  "mortality_unit",
+  "occupied_indices",
+  "recovery",
+  "recovery_mask",
+  "recovery_unit",
+  "stages",
+  "time_steps",
+  "tm",
+  "transmission",
+  "transmission_mask",
+  "transmission_unit",
+  "carrying_capacity_matrix",
+  "carrying_capacity_t_max",
+  "demographic_stochasticity",
+  "density_stages",
+  "dispersal",
+  "dispersal_source_n_k",
+  "dispersal_stages",
+  "dispersal_target_k",
+  "dispersal_target_n",
+  "dispersal_target_n_k",
+  "initial_abundance",
+  "populations",
+  "replicates",
+  "results_breakdown",
+  "results_selection",
+  "s",
+  "season_functions",
+  "seasons",
+  "segments",
+  "simulation_order"
+))

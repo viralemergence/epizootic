@@ -76,14 +76,14 @@ check_aspatial_siri_inputs <- function(inputs) {
                 compartments.",
                 "x" = "You have entered {compartments} compartment{?s}."))
   }
-  if (is.null(fecundity)) {
-    inputs[["fecundity"]] <- 0
+  if (is.null(inputs[["fecundity"]])) {
+    inputs[["fecundity"]] <- fecundity <- 0
   }
-  if (is.null(fecundity_unit)) {
-    inputs[["fecundity_unit"]] <- 0
+  if (is.null(inputs[["fecundity_unit"]])) {
+    inputs[["fecundity_unit"]] <- fecundity_unit <- 0
   }
-  if (is.null(fecundity_mask)) {
-    inputs[["fecundity_mask"]] <- rep(0, 8)
+  if (is.null(inputs[["fecundity_mask"]])) {
+    inputs[["fecundity_mask"]] <- fecundity_mask <- rep(0, 8)
   }
   if (!all(c(mortality[!as.logical(mortality_unit)],
              fecundity[!as.logical(fecundity_unit)],

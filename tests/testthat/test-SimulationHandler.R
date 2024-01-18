@@ -31,20 +31,20 @@ test_that("Runs successfully with valid inputs", {
                              dispersal2 = "dispersal$b")
   )
 
-  model_simulator <- ModelSimulator$new(simulation_model = model_template, 
+  model_simulator <- ModelSimulator$new(simulation_model = model_template,
                                         simulation_function = disease_simulator)
-  
+
   results_dir <- tempdir()
-  
+
   generator3 <- Generator$new(
     description = "Test generator",
     decimals = 0,
     inputs = "seed_number",
     outputs = "carrying_capacity"
   )
-  
+
   generator3$add_generative_requirements(carrying_capacity = "function")
-  
+
   generator3$add_function_template(
     "carrying_capacity",
     function_def = function(params) {
@@ -53,14 +53,14 @@ test_that("Runs successfully with valid inputs", {
     call_params = c("seed_number")
   )
 
-  distance_matrix <- geosphere::distm(model_template$coordinates, 
-                                       model_template$coordinates, 
+  distance_matrix <- geosphere::distm(model_template$coordinates,
+                                       model_template$coordinates,
                                        fun = geosphere::distGeo)/1000
-  dispersal_gen1 <- DispersalGenerator$new(coordinates = model_template$coordinates, 
+  dispersal_gen1 <- DispersalGenerator$new(coordinates = model_template$coordinates,
                                            distance_classes = seq(100, 600, 20))
   dispersal_gen1$calculate_distance_data(distance_matrix = distance_matrix)
   dispersal_gen1$set_attributes(proportion = 0.4, breadth = 110, max_distance = 300)
-  dispersal_gen2 <- DispersalGenerator$new(coordinates = model_template$coordinates, 
+  dispersal_gen2 <- DispersalGenerator$new(coordinates = model_template$coordinates,
                                            distance_classes = seq(100, 600, 20))
   dispersal_gen2$calculate_distance_data(distance_matrix = distance_matrix)
   dispersal_gen2$set_attributes(proportion = 0.2, breadth = 110, max_distance = 500)
@@ -68,13 +68,13 @@ test_that("Runs successfully with valid inputs", {
   sample_data <- data.frame(seed_number = 100000, fecundity = 15, fecundity_unit = 1)
 
   # Check with valid inputs
-  expect_silent(SimulationHandler$new(sample_data = sample_data, 
-                model_template = model_template, 
+  expect_silent(SimulationHandler$new(sample_data = sample_data,
+                model_template = model_template,
                 model_simulator = model_simulator,
                 generators = list(dispersal_gen1, dispersal_gen2, generator3),
                 parallel_cores = 1, results_dir = test_path("test_results")))
-  handler <- SimulationHandler$new(sample_data = sample_data, 
-                model_template = model_template, 
+  handler <- SimulationHandler$new(sample_data = sample_data,
+                model_template = model_template,
                 model_simulator = model_simulator,
                 generators = list(dispersal_gen1, dispersal_gen2, generator3),
                 parallel_cores = 1, results_dir = test_path("test_results"))
@@ -89,13 +89,13 @@ test_that("Runs successfully with valid inputs", {
   # Check if it works when the generator input is in the model template
   sample_data <- data.frame(fecundity = 15, fecundity_unit = 1)
   model_template$set_attributes(seed_number = 100000)
-  expect_silent(SimulationHandler$new(sample_data = sample_data, 
-                model_template = model_template, 
+  expect_silent(SimulationHandler$new(sample_data = sample_data,
+                model_template = model_template,
                 model_simulator = model_simulator,
                 generators = list(dispersal_gen1, dispersal_gen2, generator3),
                 parallel_cores = 1, results_dir = test_path("test_results")))
-  handler <- SimulationHandler$new(sample_data = sample_data, 
-                model_template = model_template, 
+  handler <- SimulationHandler$new(sample_data = sample_data,
+                model_template = model_template,
                 model_simulator = model_simulator,
                 generators = list(dispersal_gen1, dispersal_gen2, generator3),
                 parallel_cores = 1, results_dir = test_path("test_results"))

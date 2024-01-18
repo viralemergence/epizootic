@@ -24,7 +24,8 @@ Imports:
     furrr (>= 0.3.1),
     future (>= 1.33.0)
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    geosphere (>= 1.5)
 Config/testthat/edition: 3
 Collate: 
     'DiseaseModel.R'

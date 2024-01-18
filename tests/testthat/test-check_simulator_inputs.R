@@ -140,7 +140,8 @@ test_that("Named lists get sorted appropriately", {
     mortality = list(b = c(c = 0.1, b = 0.2, a = 0.3), a = c(0.4, 0.5, 0.6)),
     seasons = 2,
     stages = 3,
-    compartments = 1
+    compartments = 1,
+    verbose = F
   )
   expected_list <- list(a = c(0.4, 0.5, 0.6), b = c(a = 0.3, b = 0.2, c = 0.1))
   result <- check_simulator_inputs(inputs)
@@ -235,7 +236,7 @@ test_that_cli("check error handling for fecundity", {
   inputs <- list(time_steps = 100, populations = 5, stages = 2,
                  initial_abundance = matrix(rep(10, 5*2), nrow = 2),
                  carrying_capacity = rep(20, 5),
-                 mortality = 0.11, transmission = 0,
+                 mortality = c(0.11, 0.22), transmission = 0,
                  simulation_order = c("transition"), seasons = 2,
                  fecundity = list(c(0.01, 0.02), c(0.01)))
   expect_snapshot_error(check_simulator_inputs(inputs))
@@ -286,7 +287,7 @@ test_that_cli("check error handling for fecundity", {
     initial_abundance = matrix(rep(10, 5*3), nrow = 3),
     carrying_capacity = rep(20, 5),
     mortality = rep(0.11, 3),
-    transmission = 0,
+    transmission = rep(0, 3),
     simulation_order = c("transition"),
     fecundity = list(c(0.1, 0.2, 0.3), c(0.4, 0.5, 0.6)),
     fecundity_unit = list(c(1, 1, 1), c(0, 0, 1)),
