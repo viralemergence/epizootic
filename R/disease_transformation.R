@@ -5,58 +5,14 @@
 #' of a population across stages and disease compartments (and optionally
 #' carrying capacity) at a specified time step via a user-defined function.
 #'
-#' @param replicates Number of replicate simulation runs.
-#' @param time_steps Number of simulation time steps.
-#' @param seasons Number of seasons.
-#' @param populations Number of populations.
-#' @param compartments Number of disease compartments (e.g., 3 for a SIR model).
-#'  Default: 1.
-#' @param demographic_stochasticity Boolean for optionally choosing demographic
-#' stochasticity for the transformation.
-#' @param stages Number of life cycle stages.
-#' @param abundance_threshold A quasi-extinction threshold below which a
-#'  population becomes extinct.
-#' @param mortality A vector of mortality rates, one for each
-#'  combination of stages and compartments. Assumed by default to be daily
-#'  mortality rates unless indicated otherwise (see below).
-#' @param mortality_unit A vector indicating whether mortality rates are
-#'  daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all 0.
-#'  A list of vectors may be provided if this varies by season.
-#' @param fecundity A vector of fecundity rates, one for each
-#'  combination of stages and compartments for which fecundity applies (see
-#'  \code{fecundity_mask} below).
-#' @param fecundity_unit A vector indicating whether mortality rates are
-#'  daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all 0.
-#'  A list of vectors may be provided if this varies by season.
-#' @param fecundity_mask A vector indicating which stages and
-#'  compartments reproduce.
-#' @param transmission A vector of transmission rates, one for each
-#'  combination of stages and compartment for which transmission applies (see
-#'  \code{transmission_mask} below.
-#' @param transmission_unit A vector indicating whether mortality rates
-#'  are daily or seasonal. 1 indicates seasonal, 0 indicates daily.
-#' @param transmission_mask A vector indicating which stages and
-#'  compartments are subject to transmission (i.e., classes susceptible to
-#'  infection.) Must be the same length as \code{compartments}.
-#' @param recovery A vector of recovery rates, one for each
-#'  combination of stages and compartment for which recovery applies (see
-#'  \code{recovery_mask} below.) If recovery varies by season, a list of
-#'  recovery vectors the same length as \code{seasons} may be provided instead.
-#' @param recovery_unit A vector
-#'  indicating whether mortality rates are daily or seasonal. 1 indicates
-#'  seasonal, 0 indicates daily.
-#' @param recovery_mask A vector indicating which compartments are subject to
-#' recovery (i.e., infected classes that can recover.) Must be the same length as
-#'  \code{compartments}.
-#' @param transformation A user-defined function (optionally nested in a list
-#' with additional attributes) for performing transformation:
-#' \code{function(params)}, where \emph{params} is a list passed to the function
-#' containing:
+#' @param params A list of parameters, which must contain all of the below,
+#' except `name`, which is optional:
 #'   \describe{
 #'     \item{\code{replicates}}{Number of replicate simulation runs.}
 #'     \item{\code{time_steps}}{Number of simulation time steps.}
 #'     \item{\code{years_per_step}}{Number of years per time step.}
 #'     \item{\code{populations}}{Number of populations.}
+#'     \item{\code{seasons}}{Number of seasons per year.}
 #'     \item{\code{stages}}{Number of life cycle stages.}
 #'     \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
 #'     SIR model).}
@@ -91,27 +47,15 @@
 #'     are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
 #'     \item{\code{recovery_mask}}{A vector indicating which compartments are
 #'     subject to recovery (i.e., infected classes that can recover.)}
-#'     \item{\code{r}}{Simulation replicate.}
-#'     \item{\code{tm}}{Simulation time step.}
-#'     \item{\code{carrying_capacity}}{Array of carrying capacity values for
-#'     each population at time step.}
-#'     \item{\code{breeding_season_length}}{Array of breeding season lengths in
-#'     days for each population at time step.}
-#'     \item{\code{segment_abundance}}{Matrix of (current) abundance for each
-#'     stage-compartment combo (rows) and population (columns) at time step.}
-#'     \item{\code{occupied_indices}}{Array of indices for populations occupied
-#'     at (current) time step.}
+#'     \item{\code{transformation}}{A user-defined function (optionally nested in a list
+#'     with additional attributes) for performing transformation using `params` as
+#'     arguments.}
 #'     \item{\code{simulator}}{\code{\link{SimulatorReference}} object with
 #'     dynamically accessible \emph{attached} and \emph{results} lists.}
+#'     \item{\code{name}}{Optional name for the transformation function.}
 #'     \item{\code{additional attributes}}{Additional attributes when the
 #'     transformation is optionally nested in a list.}
 #'   }
-#'   returns a transformed stage abundance matrix (or a list with stage
-#'   abundance and carrying capacity)
-#' @param simulator \code{\link{SimulatorReference}} object with dynamically
-#' accessible \emph{attached} and \emph{results} lists.
-#' @param name Optional name for the transformation (default is
-#' "transformation").
 #' @return Abundance (and capacity) transformation function:
 #' \code{function(r, tm, carrying_capacity, segment_abundance,
 #' occupied_indices)}, where:
@@ -129,28 +73,31 @@
 #'   }
 #' @export disease_transformation
 
-disease_transformation <- function(replicates,
-                                   time_steps,
-                                   seasons,
-                                   compartments,
-                                   populations,
-                                   demographic_stochasticity,
-                                   stages,
-                                   abundance_threshold,
-                                   mortality,
-                                   mortality_unit,
-                                   fecundity,
-                                   fecundity_unit,
-                                   fecundity_mask,
-                                   transmission,
-                                   transmission_unit,
-                                   transmission_mask,
-                                   recovery,
-                                   recovery_unit,
-                                   recovery_mask,
-                                   transformation,
-                                   simulator,
-                                   name = "transformation") {
+disease_transformation <- function(params) {
+
+  if (!is.list(params)) {
+    cli_abort(c("`params` supplied to `disease_transformation` must be a list."))
+  }
+
+  required_inputs <- c("replicates", "time_steps", "seasons", "compartments",
+                       "populations", "demographic_stochasticity", "stages",
+                       "abundance_threshold", "mortality", "mortality_unit",
+                       "fecundity", "fecundity_unit", "fecundity_mask",
+                       "transmission", "transmission_unit", "transmission_mask",
+                       "recovery", "recovery_unit", "recovery_mask",
+                       "transformation", "simulator")
+  if (!all(required_inputs %in% names(params))) {
+    missing_inputs <- which(!(required_inputs %in% names(params)))
+    cli_abort(c("`params` supplied to `disease_transformation` are incomplete.",
+                "x" = "{missing_inputs} are missing (or are not named)."))
+  }
+
+  if (is.null(params[["name"]])) {
+    params[["name"]] <- "transformation"
+  }
+
+  list2env(params, envir = environment())
+
   if (!is.null(transformation)) {
 
     # Unpack transformation function and additional attributes from a list
@@ -161,7 +108,9 @@ disease_transformation <- function(replicates,
       transformation <- transformation[[function_index]]
     }
 
-    params <- mget(ls())
+    arg_names <- names(formals(disease_transformation))
+    params <- mget(arg_names, envir = environment())
+    names(params) <- arg_names
 
     if (is.function(transformation)) {
 

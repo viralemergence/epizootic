@@ -410,28 +410,30 @@ disease_simulator <- function(inputs) {
     season_function_list <- list()
     for (i in 1:length(season_functions)) {
       season_function_list[[i]] <- disease_transformation(
-        replicates,
-        time_steps,
-        seasons,
-        compartments,
-        populations,
-        demographic_stochasticity,
-        stages,
-        abundance_threshold,
-        mortality[[i]],
-        mortality_unit[[i]],
-        fecundity[[i]],
-        fecundity_unit[[i]],
-        fecundity_mask[[i]],
-        transmission[[i]],
-        transmission_unit[[i]],
-        transmission_mask[[i]],
-        recovery[[i]],
-        recovery_unit[[i]],
-        recovery_mask[[i]],
-        transformation = season_functions[[i]],
-        simulator,
-        name = paste0("season", i, collapse = "_")
+        list(
+          "replicates" = replicates,
+          "time_steps" = time_steps,
+          "seasons" = seasons,
+          "compartments" = compartments,
+          "populations" = populations,
+          "demographic_stochasticity" = demographic_stochasticity,
+          "stages" = stages,
+          "abundance_threshold" = abundance_threshold,
+          "mortality" = mortality[[i]],
+          "mortality_unit" = mortality_unit[[i]],
+          "fecundity" = fecundity[[i]],
+          "fecundity_unit" = fecundity_unit[[i]],
+          "fecundity_mask" = fecundity_mask[[i]],
+          "transmission" = transmission[[i]],
+          "transmission_unit" = transmission_unit[[i]],
+          "transmission_mask" = transmission_mask[[i]],
+          "recovery" = recovery[[i]],
+          "recovery_unit" = recovery_unit[[i]],
+          "recovery_mask" = recovery_mask[[i]],
+          "transformation" = season_functions[[i]],
+          "simulator" = simulator,
+          "name" = paste0("season", i, collapse = "_")
+        )
       )
     }
   }

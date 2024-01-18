@@ -25,3 +25,9 @@ devtools::install_github("viralemergence/epizootic")
 ```
 
 ## About R6 classes
+
+`poems` and `epizootic` run on
+[R6](https://r6.r-lib.org/articles/Introduction.html) classes. R is
+primarily a *functional* programming language in which the primary units
+of programming are expressions and functions. Here we use R6 to create
+an *object-oriented* framework inside of R.

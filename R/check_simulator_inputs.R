@@ -437,13 +437,10 @@ check_simulator_inputs <- function(inputs) {
   if (!is.null(inputs[["breeding_season_length"]])) {
     if (!is.null(inputs[["region"]]) &&
         inputs[["region"]][["use_raster"]] &&
-        inherits(class(inputs[["breeding_season_length"]]),
-                 c("RasterLayer", "RasterStack", "RasterBrick"))) {
-      inputs[["breeding_season_matrix"]] <- matrix(
-        inputs[["breeding_season_length"]][inputs[["region"]]
-                                           [["region_indices"]]],
-        nrow = inputs[["populations"]]
-      )
+        any(c("RasterLayer", "RasterStack", "RasterBrick") %in%
+        class(inputs[["breeding_season_length"]]))) {
+      inputs[["breeding_season_matrix"]] <- inputs[["breeding_season_length"]] |>
+        as.matrix() |> _[inputs[["region"]][["region_indices"]],]
     } else {
       inputs[["breeding_season_matrix"]] <- matrix(
         inputs[["breeding_season_length"]], nrow = inputs[["populations"]]
@@ -529,7 +526,7 @@ check_simulator_inputs <- function(inputs) {
           combination of stage & compartment.")
       )
     }
-    if (mortality |> map(is.list) |> any()) {
+    if (mortality |> map_lgl(is.list) |> any()) {
       mortality <- inputs[["mortality"]] <- mortality |>
         map_if(is.list, flatten_dbl)
     }
@@ -583,7 +580,7 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`mortality` is length {length(mortality)}.",
                   "*" = "`mortality_unit` is length {length(mortality_unit)}."))
     }
-    if (inputs[["mortality_unit"]] |> map(is.list) |> any()) {
+    if (inputs[["mortality_unit"]] |> map_lgl(is.list) |> any()) {
       mortality_unit <- inputs[["mortality_unit"]] <- mortality_unit |>
         map_if(is.list, flatten_dbl)
     }
@@ -622,7 +619,7 @@ check_simulator_inputs <- function(inputs) {
           compartments.")
       )
     }
-    if (fecundity |> map(is.list) |> any()) {
+    if (fecundity |> map_lgl(is.list) |> any()) {
       fecundity <- inputs[["fecundity"]] <- fecundity |>
         map_if(is.list, flatten_dbl)
     }
@@ -696,7 +693,7 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`fecundity_unit` vectors are lengths
                   {lengths(fecundity_unit)}."))
     }
-    if (inputs[["fecundity_unit"]] |> map(is.list) |> any()) {
+    if (inputs[["fecundity_unit"]] |> map_lgl(is.list) |> any()) {
       inputs[["fecundity_unit"]] <- inputs[["fecundity_unit"]] |>
         map_if(is.list, list_c)
     }
@@ -737,7 +734,7 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`fecundity` is length {length(fecundity)}.",
                   "*" = "`fecundity_mask` is length {length(fecundity_mask)}."))
     }
-    if (inputs[["fecundity_mask"]] |> map(is.list) |> any()) {
+    if (inputs[["fecundity_mask"]] |> map_lgl(is.list) |> any()) {
       inputs[["fecundity_mask"]] <- inputs[["fecundity_mask"]] |>
         map_if(is.list, flatten_dbl)
     }
@@ -779,7 +776,7 @@ check_simulator_inputs <- function(inputs) {
           compartments.")
       )
     }
-    if (transmission |> map(is.list) |> any()) {
+    if (transmission |> map_lgl(is.list) |> any()) {
       transmission <- inputs[["transmission"]] <- transmission |>
         map_if(is.list, list_c)
     }
@@ -845,7 +842,7 @@ check_simulator_inputs <- function(inputs) {
         rep(inputs[["transmission_unit"]][[x]], segments)
       })
     }
-    if (inputs[["transmission_unit"]] |> map(is.list) |> any()) {
+    if (inputs[["transmission_unit"]] |> map_lgl(is.list) |> any()) {
       inputs[["transmission_unit"]] <- inputs[["transmission_unit"]] |>
       map_if(is.list, list_c)
     }
@@ -877,7 +874,7 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`transmission` is length {length(transmission)}.",
                   "*" = "`transmission_mask` is length {length(transmission_mask)}."))
     }
-    if (inputs[["transmission_mask"]] |> map(is.list) |> any()) {
+    if (inputs[["transmission_mask"]] |> map_lgl(is.list) |> any()) {
       inputs[["transmission_mask"]] <- inputs[["transmission_mask"]] |>
         map_if(is.list, list_c)
     }
@@ -902,11 +899,13 @@ check_simulator_inputs <- function(inputs) {
         c(unit[mask == 1], rep(0, sum(mask == 0)))
       })
     } else {
-      stop("Incongruity between transmission_mask and transmission_unit")
+      cli_abort(c("Incongruity between mask vector and unit vector. Please
+                  make sure that the sum of the mask vector matches the length
+                  of the unit vector."))
     }
   }
 
-  # Now you can use this function to apply the mask to the transmission unit
+  # use the function to apply the mask to the transmission unit
   inputs[["transmission_unit"]] <- apply_mask(inputs[["transmission_unit"]],
                                               inputs[["transmission_mask"]])
   if (any(lengths(transmission) != lengths(inputs[["transmission_unit"]]))) {
@@ -956,7 +955,7 @@ check_simulator_inputs <- function(inputs) {
           compartments.")
       )
     }
-    if (recovery |> map(is.list) |> any()) {
+    if (recovery |> map_lgl(is.list) |> any()) {
       recovery <- inputs[["recovery"]] <- recovery |>
         map_if(is.list, list_c())
     }
@@ -1023,15 +1022,7 @@ check_simulator_inputs <- function(inputs) {
         rep(inputs[["recovery_unit"]][[x]], segments)
       })
     }
-    if (any(lengths(recovery) != lengths(inputs[["recovery_unit"]]))) {
-      recovery_unit <- inputs[["recovery_unit"]]
-      cli_abort(c("vectors inside `recovery` and `recovery_unit` must be the
-                  same length.",
-                  "*" = "`recovery` vectors are lengths {lengths(recovery)}.",
-                  "*" = "`recovery_unit` vectors are lengths
-                  {lengths(recovery_unit)}."))
-    }
-    if (inputs[["recovery_unit"]] |> map(is.list) |> any()) {
+    if (inputs[["recovery_unit"]] |> map_lgl(is.list) |> any()) {
       inputs[["recovery_unit"]] <- inputs[["recovery_unit"]] |>
         map_if(is.list, list_c)
     }
@@ -1064,10 +1055,21 @@ check_simulator_inputs <- function(inputs) {
                   "*" = "`recovery` is length {length(recovery)}.",
                   "*" = "`recovery_mask` is length {length(recovery_mask)}."))
     }
-    if (inputs[["recovery_mask"]] |> map(is.list) |> any()) {
+    if (inputs[["recovery_mask"]] |> map_lgl(is.list) |> any()) {
       inputs[["recovery_mask"]] <- inputs[["recovery_mask"]] |>
         map_if(is.list, list_c)
     }
+  }
+  # use the function to apply the mask to the recovery unit
+  inputs[["recovery_unit"]] <- apply_mask(inputs[["recovery_unit"]],
+                                              inputs[["recovery_mask"]])
+  if (any(lengths(recovery) != lengths(inputs[["recovery_unit"]]))) {
+    recovery_unit <- inputs[["recovery_unit"]]
+    cli_abort(c("vectors inside `recovery` and `recovery_unit` must be the
+                  same length.",
+                "*" = "`recovery` vectors are lengths {lengths(recovery)}.",
+                "*" = "`recovery_unit` vectors are lengths
+                  {lengths(recovery_unit)}."))
   }
   recovery <- map2(recovery, inputs[["recovery_mask"]],
                    \(x, y) x[as.logical(y)])

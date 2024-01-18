@@ -13,7 +13,7 @@
 #'     \item{\code{occupied_indices}}{Array of indices for populations occupied
 #'     at (current) time step.}
 #'  }
-#'  @export disease_transitions
+#' @export disease_transitions
 
 disease_transitions <- function(stages, compartments) {
 

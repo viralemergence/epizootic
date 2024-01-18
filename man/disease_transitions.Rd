@@ -20,7 +20,6 @@ stage-compartment combo (rows) and population (columns) at time step.}
 \item{\code{occupied_indices}}{Array of indices for populations occupied
 at (current) time step.}
 }
-@export disease_transitions
 }
 \description{
 Modular functions for the disease simulator to transition populations
