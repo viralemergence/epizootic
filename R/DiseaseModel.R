@@ -11,6 +11,7 @@
 #' consistency and completeness of model parameters.
 #'
 #' @importFrom R6 R6Class
+#' @importFrom raster nlayers
 #' @importFrom poems SimulationModel
 #' @export DiseaseModel
 
@@ -170,6 +171,15 @@ DiseaseModel <- R6Class(
             # ignore incomplete attributes
             consistent_list[[param]] <- NA
           } else {
+            is_recursive_numeric <- function(x) {
+              if (is.numeric(x)) {
+                return(TRUE)
+              } else if (is.list(x)) {
+                return(all(rapply(x, is.numeric, how = "unlist")))
+              } else {
+                return(FALSE)
+              }
+            }
             consistent_list[[param]] <- switch(
               param,
               populations = (is.numeric(param_value) && param_value > 0) &&
@@ -192,17 +202,17 @@ DiseaseModel <- R6Class(
                 length(param_value) == self$seasons
               } else { NA },
               season_functions = is.list(param_value) && length(param_value) == self$seasons,
-              fecundity_unit = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              fecundity_mask = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              transmission_unit = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              transmission_mask = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              recovery_unit = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              recovery_mask = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              mortality_unit = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
               standard_deviation = NA,
               simulation_order = is.character(param_value) || (is.list(param_value) && all(sapply(param_value, is.character))),
-              fecundity = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
-              mortality = is.numeric(param_value) || (is.list(param_value) && all(sapply(param_value, is.numeric))),
+              fecundity_unit = is_recursive_numeric(param_value),
+              fecundity_mask = is_recursive_numeric(param_value),
+              transmission_unit = is_recursive_numeric(param_value),
+              transmission_mask = is_recursive_numeric(param_value),
+              recovery_unit = is_recursive_numeric(param_value),
+              recovery_mask = is_recursive_numeric(param_value),
+              mortality_unit = is_recursive_numeric(param_value),
+              fecundity = is_recursive_numeric(param_value),
+              mortality = is_recursive_numeric(param_value),
               verbose = is.logical(param_value),
               harvest = is.list(param_value) | is.function(param_value),
               translocation = is.list(param_value) | is.function(param_value),
@@ -211,7 +221,7 @@ DiseaseModel <- R6Class(
               initial_abundance = if (is.numeric(self$populations) && is.numeric(self$compartments) && is.numeric(self$stages)) {
                 if (any(class(param_value) %in% c("RasterLayer", "RasterStack", "RasterBrick"))) {
                   if (!is.null(self$region) && self$region$use_raster && !is.null(self$region$region_raster)) {
-                    (self$region$raster_is_consistent(param_value) && self$region$region_cells == self$populations && raster::nlayers(param_value) %in% c(1, self$stages*self$compartments))
+                    (self$region$raster_is_consistent(param_value) && self$region$region_cells == self$populations && nlayers(param_value) %in% c(1, self$stages*self$compartments))
                   } else {
                     NA
                   }
