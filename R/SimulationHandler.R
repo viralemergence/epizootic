@@ -131,40 +131,46 @@ SimulationHandler <- R6Class("SimulationHandler",
           generator <- self$generators[[i]]
 
           if (!is.null(model$attached$sample_generative_names[[i]])) {
-            tryCatch({
-              if ("DispersalGenerator" %in% class(generator)) {
-                inputs <- generator$get_attribute_aliases(params = generator$inputs)
+            if ("DispersalGenerator" %in% class(generator)) {
+              inputs <- intersect(generator$inputs, generator$get_attribute_aliases())
 
-                if (any(names(self$model_template$get_attributes()) %in% inputs)) {
-                  generator$set_attributes(params = model$get_attributes()[inputs])
-                } else if (any(names(self$sample_data) %in% inputs)) {
-                  generator$set_sample_attributes(params = sample_list[inputs])
-                }
-
-                if (generator$generative_requirements_satisfied()$dispersal_data) {
-                  generator$calculate_dispersals()
-                  name <- model$attached$sample_generative_names[[i]]
-                  suppressWarnings(model$set_sample_attributes(params = setNames(list(generator$dispersal_data), name)))
-                } else {
-                  cli_abort(c("Errors produced when generating {self$nested_model$attached$sample_generative_names[[i]]}.",
-                              "x" = "This generator requires {generator$inputs}."))
-                }
-              } else {
-                inputs <- unique(c(generator$inputs, generator$get_attribute_aliases(params = generator$inputs)))
-                # Initialize input_values as a named list with the same names as inputs
-                input_values <- setNames(vector("list", length(inputs)), inputs)
-
-                # Update values from model$get_attributes()
-                matching_attributes <- intersect(names(input_values), names(model$get_attributes()))
-                input_values[matching_attributes] <- model$get_attributes()[matching_attributes]
-
-                # Update values from sample_list
-                matching_samples <- intersect(names(input_values), names(sample_list))
-                input_values[matching_samples] <- sample_list[matching_samples]
-
-                model$set_sample_attributes(params = generator$generate(input_values = input_values))
+              if (any(names(self$model_template$get_attributes()) %in% inputs)) {
+                generator$set_attributes(params = model$get_attributes()[inputs])
+              } else if (any(names(self$sample_data) %in% inputs)) {
+                generator$set_attributes(params = sample_list[inputs])
               }
-            })
+
+              if (generator$generative_requirements_satisfied()$dispersal_data) {
+                generator$calculate_dispersals()
+                name <- model$attached$sample_generative_names[[i]]
+                if (length(generator$error_messages)) {
+                  cli_abort(c("Dispersal generator {name} produced errors:",
+                              "x" = "{generator$error_messages}"))
+                }
+                suppressWarnings(model$set_sample_attributes(params = setNames(list(generator$dispersal_data), name)))
+              } else {
+                cli_abort(c("Errors produced when generating {self$nested_model$attached$sample_generative_names[[i]]}.",
+                            "x" = "This generator requires {generator$inputs}."))
+              }
+            } else {
+              inputs <- unique(c(generator$inputs, generator$get_attribute_aliases(params = generator$inputs)))
+              # Initialize input_values as a named list with the same names as inputs
+              input_values <- setNames(vector("list", length(inputs)), inputs)
+
+              # Update values from model$get_attributes()
+              matching_attributes <- intersect(names(input_values), names(model$get_attributes()))
+              input_values[matching_attributes] <- model$get_attributes()[matching_attributes]
+
+              # Update values from sample_list
+              matching_samples <- intersect(names(input_values), names(sample_list))
+              input_values[matching_samples] <- sample_list[matching_samples]
+
+              model$set_sample_attributes(params = generator$generate(input_values = input_values))
+              if (length(generator$error_messages)) {
+                cli_abort(c("Generator {generator$description} produced errors:",
+                            "x" = "{generator$error_messages}"))
+              }
+            }
           }
         }
       }

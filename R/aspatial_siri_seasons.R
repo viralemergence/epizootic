@@ -220,6 +220,7 @@ siri_model_winter <- function(inputs) {
 
   # Set up initial vectors
   population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  carrying_capacity <- carrying_capacity[occupied_indices]
 
   population_new <- pmap(list(initial_pop = population_list,
                               mortality = mortality,
