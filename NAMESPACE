@@ -3,6 +3,7 @@
 export(DiseaseModel)
 export(SimulationHandler)
 export(aspatial_siri)
+export(check_simulator_inputs)
 export(disease_results)
 export(disease_simulator)
 export(disease_transformation)
