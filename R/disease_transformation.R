@@ -108,10 +108,6 @@ disease_transformation <- function(params) {
       transformation <- transformation[[function_index]]
     }
 
-    arg_names <- names(formals(disease_transformation))
-    params <- mget(arg_names, envir = environment())
-    names(params) <- arg_names
-
     if (is.function(transformation)) {
 
       user_defined_function <- function(r, tm, carrying_capacity,
