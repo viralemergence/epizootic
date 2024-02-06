@@ -146,11 +146,12 @@ in a list with additional attributes) for applying mortality (to
 abundances): \code{function(params)} as per translocation.}
 \item{\code{dispersal}}{A list that is either length 1 or the same length as
 \code{stages}. If it is length 1, the same dispersal will be applied across
-all stages. Within each element of the list, there should be either a matrix
-of dispersal rates between populations (source columns to target rows) or a
-list of data frames of non-zero dispersal rates and indices for constructing
-a compact dispersal matrix, and optional changing rates over time (as per
-class \code{\link{DispersalGenerator}} \emph{dispersal_data} attribute).}
+all stages. Within each element of the list, there should be either a function,
+a matrix of dispersal rates between populations (source columns to target
+rows) or a list of data frames of non-zero dispersal rates and indices for
+constructing a compact dispersal matrix, and optional changing rates over
+time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data}
+attribute).}
 \item{\code{dispersal_source_n_k}}{Dispersal proportion (p) density
 dependence via source population abundance divided by carrying capacity
 (n/k), where p is reduced via a linear slope (defined by two list items)

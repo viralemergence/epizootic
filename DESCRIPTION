@@ -22,7 +22,8 @@ Imports:
     R6 (>= 2.5.1),
     cli (>= 3.6.1),
     furrr (>= 0.3.1),
-    future (>= 1.33.0)
+    future (>= 1.33.0),
+    raster (>= 3.6)
 Suggests: 
     testthat (>= 3.0.0),
     geosphere (>= 1.5)
@@ -33,6 +34,7 @@ Collate:
     'aspatial_siri_seasons.R'
     'check_aspatial_siri_inputs.R'
     'check_simulator_inputs.R'
+    'disease_dispersal.r'
     'disease_results.R'
     'disease_simulator.R'
     'disease_transformation.R'

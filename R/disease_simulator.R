@@ -152,11 +152,12 @@
 #'  abundances): \code{function(params)} as per translocation.}
 #'  \item{\code{dispersal}}{A list that is either length 1 or the same length as
 #'  \code{stages}. If it is length 1, the same dispersal will be applied across
-#'  all stages. Within each element of the list, there should be either a matrix
-#'  of dispersal rates between populations (source columns to target rows) or a
-#'  list of data frames of non-zero dispersal rates and indices for constructing
-#'  a compact dispersal matrix, and optional changing rates over time (as per
-#'  class \code{\link{DispersalGenerator}} \emph{dispersal_data} attribute).}
+#'  all stages. Within each element of the list, there should be either a function,
+#'  a matrix of dispersal rates between populations (source columns to target 
+#'  rows) or a list of data frames of non-zero dispersal rates and indices for
+#'  constructing a compact dispersal matrix, and optional changing rates over
+#'  time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data}
+#'  attribute).}
 #'  \item{\code{dispersal_source_n_k}}{Dispersal proportion (p) density
 #'  dependence via source population abundance divided by carrying capacity
 #'  (n/k), where p is reduced via a linear slope (defined by two list items)
@@ -371,39 +372,22 @@ disease_simulator <- function(inputs) {
     )
   }
 
-  if (length(inputs[["dispersal"]]) == 1) {
-    dispersal_function <- population_dispersal(
+  if ("dispersal" %in% simulation_order) {
+    dispersal_function <- disease_dispersal(
       replicates,
       time_steps,
       populations,
       demographic_stochasticity,
-      density_stages,
-      flatten(inputs[["dispersal"]]),
-      dispersal_stages,
-      dispersal_source_n_k,
-      dispersal_target_k,
-      dispersal_target_n,
-      dispersal_target_n_k,
+      dispersal,
+      dispersal_type,
+      dispersal_source_n_k = if (exists("dispersal_source_n_k")) dispersal_source_n_k else NULL,
+      dispersal_target_k = if (exists("dispersal_target_k")) dispersal_target_k else NULL,
+      dispersal_target_n = if (exists("dispersal_target_n")) dispersal_target_n else NULL,
+      dispersal_target_n_k = if (exists("dispersal_target_n_k")) dispersal_target_n_k else NULL,
+      stages = NULL,
+      compartments = NULL,
       simulator
     )
-  } else if (length(inputs[["dispersal"]]) > 1) {
-    dispersal_functions = list()
-    for (d in 1:length(inputs[["dispersal"]])) {
-      dispersal_functions[[d]] <- population_dispersal(
-        replicates,
-        time_steps,
-        populations,
-        demographic_stochasticity,
-        density_stages,
-        inputs[["dispersal"]][[d]],
-        dispersal_stages,
-        dispersal_source_n_k,
-        dispersal_target_k,
-        dispersal_target_n,
-        dispersal_target_n_k,
-        simulator
-      )
-    }
   }
 
   if (exists("season_functions")) {
@@ -480,9 +464,20 @@ disease_simulator <- function(inputs) {
         carrying_capacity <-
           carrying_capacity_matrix[, min(tm, carrying_capacity_t_max)]
       }
+      # Check if we're using breeding_season_length and
+      # set values accordingly
+      if (breeding_season_t_max > 1) {
+        season_length <- breeding_season_matrix[, min(tm, breeding_season_t_max)]
+      }
 
       ## Run simulation processes in configured order ##
       for (season in 1:seasons) {
+
+        # Check if we're using season_length and set values accordingly
+        if (exists("season_lengths") && !is.null(season_lengths)) {
+          season_length <- rep(season_lengths[season], populations)
+        }
+
         sim_order <- simulation_order[[season]]
 
         for (process in sim_order) {
@@ -544,23 +539,11 @@ disease_simulator <- function(inputs) {
           }
 
           ## Dispersal calculations ##
-          if (occupied_populations && process == "dispersal" &&
-              !is.null(dispersal)) {
-            if (!is.null(dispersal_function)) {
+          if (occupied_populations && process == "dispersal") {
+            if (exists("dispersal_function") && !is.null(dispersal_functions)) {
               segment_abundance <- dispersal_function(r, tm, carrying_capacity,
                                                       segment_abundance,
                                                       occupied_indices)
-            } else if (!is.null(dispersal_functions)) {
-              indices <- map(1:stages, \(s) seq(s, segments, stages))
-              stage_dispersal <- map(1:stages, \(s) {
-                abundance <- dispersal_functions[[s]](r, tm, carrying_capacity,
-                                                       segment_abundance[indices[[s]],],
-                                                       occupied_indices)
-                return(abundance)
-              })
-              for (i in 1:stages) {
-                segment_abundance[indices[[i]],] <- stage_dispersal[[i]]
-              }
             }
           }
 
@@ -568,7 +551,7 @@ disease_simulator <- function(inputs) {
             transformed <- season_function_list[[season]](r, tm,
                                                           carrying_capacity,
                                                           segment_abundance,
-                                                          breeding_season_length,
+                                                          season_length,
                                                           occupied_indices)
             segment_abundance <- transformed$segment_abundance
             if ("carrying_capacity" %in% names(transformed)) {
