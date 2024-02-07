@@ -5,11 +5,11 @@ test_that("User-defined transformation function behavior", {
     return(params)
   }
 
-  new_function <- disease_transformation(
-    transformation = custom_transformation,
-    name = "test",
-    stages = 1
-  )
+  params <- list(transformation = custom_transformation,
+                 name = "test",
+                 stages = 1)
+
+  new_function <- disease_transformation(params)
 
   result <- new_function(
     carrying_capacity = rep(100, 4),
@@ -32,11 +32,11 @@ test_that("Error handling within user-defined transformation function", {
     stop("Custom transformation function error")
   }
 
-  new_function <- disease_transformation(
-    transformation = error_transformation,
-    name = "test",
-    stages = 1
-  )
+  params <- list(transformation = error_transformation,
+                 name = "test",
+                 stages = 1)
+
+  new_function <- disease_transformation(params)
 
   # Expect an error when calling disease_transformation
   expect_error(
@@ -62,11 +62,11 @@ test_that_cli("Warnings for negative or non-finite values in transformed data",
                   return(params)
                 }
 
-                new_function <- disease_transformation(
-                  transformation = invalid_transformation,
-                  name = "test",
-                  stages = 1
-                )
+                params <- list(transformation = invalid_transformation,
+                               name = "test",
+                               stages = 1)
+
+                new_function <- disease_transformation(params)
 
                 expect_snapshot(
                   invisible(new_function(
@@ -86,11 +86,11 @@ test_that_cli("Warnings for negative or non-finite values in transformed data",
                   return(params)
                 }
 
-                new_function <- disease_transformation(
-                  transformation = invalid_transformation,
-                  name = "test",
-                  stages = 1
-                )
+                params <- list(transformation = invalid_transformation,
+                               name = "test",
+                               stages = 1)
+
+                new_function <- disease_transformation(params)
 
                 expect_snapshot(
                   invisible(new_function(
@@ -105,7 +105,8 @@ test_that_cli("Warnings for negative or non-finite values in transformed data",
               })
 
 test_that("The function works as expected with siri_model_summer", {
-  new_function <- disease_transformation(
+
+  params <- list(
     time_steps = 78,
     transformation = siri_model_summer,
     name = "Summer SIRI model",
@@ -126,6 +127,9 @@ test_that("The function works as expected with siri_model_summer", {
     recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
     seasons = 2
   )
+
+  new_function <- disease_transformation(params)
+
   inputs <- list(
     populations = 6355,
     stages = 2,

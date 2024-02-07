@@ -79,17 +79,8 @@ disease_transformation <- function(params) {
     cli_abort(c("`params` supplied to `disease_transformation` must be a list."))
   }
 
-  required_inputs <- c("replicates", "time_steps", "seasons", "compartments",
-                       "populations", "demographic_stochasticity", "stages",
-                       "abundance_threshold", "mortality", "mortality_unit",
-                       "fecundity", "fecundity_unit", "fecundity_mask",
-                       "transmission", "transmission_unit", "transmission_mask",
-                       "recovery", "recovery_unit", "recovery_mask",
-                       "transformation", "simulator")
-  if (!all(required_inputs %in% names(params))) {
-    missing_inputs <- which(!(required_inputs %in% names(params)))
-    cli_abort(c("`params` supplied to `disease_transformation` are incomplete.",
-                "x" = "{missing_inputs} are missing (or are not named)."))
+  if (is.null(names(params))) {
+    cli_abort(c("{.var params} must be a named list."))
   }
 
   if (is.null(params[["name"]])) {

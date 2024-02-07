@@ -54,4 +54,4 @@ example_region$raster_from_values(initial_abundance[2,]) |>
   raster::plot(main = "Susceptible Adults")
 ```
 
-<img src="man/figures/README-initial state-1.png" width="100%" />
+<img src="man/figures/README-initial_state-1.png" width="100%" />

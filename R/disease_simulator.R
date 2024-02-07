@@ -109,7 +109,7 @@
 #'  classes that can recover.) Must be the same length as \code{compartments}.
 #'  A list of vectors may be provided if this varies by season. If no recovery
 #'  mask is provided, then it is assumed that all stages in the second
-#'  compartment can recover.}
+#'  compartment can recover, if there is a second compartment.}
 #'  \item{\code{density_stages}}{Array of booleans or numeric
 #'  (0,1) for each stage to indicate which stages are affected by density
 #'  (default is all).}
@@ -153,7 +153,7 @@
 #'  \item{\code{dispersal}}{A list that is either length 1 or the same length as
 #'  \code{stages}. If it is length 1, the same dispersal will be applied across
 #'  all stages. Within each element of the list, there should be either a function,
-#'  a matrix of dispersal rates between populations (source columns to target 
+#'  a matrix of dispersal rates between populations (source columns to target
 #'  rows) or a list of data frames of non-zero dispersal rates and indices for
 #'  constructing a compact dispersal matrix, and optional changing rates over
 #'  time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data}
@@ -460,13 +460,13 @@ disease_simulator <- function(inputs) {
 
       # Load carrying capacity for each population for time if there is a
       # temporal trend in K
-      if (carrying_capacity_t_max > 1) {
+      if (exists("carrying_capacity_t_max") && carrying_capacity_t_max > 1) {
         carrying_capacity <-
           carrying_capacity_matrix[, min(tm, carrying_capacity_t_max)]
       }
       # Check if we're using breeding_season_length and
       # set values accordingly
-      if (breeding_season_t_max > 1) {
+      if (exists("breeding_season_t_max")) {
         season_length <- breeding_season_matrix[, min(tm, breeding_season_t_max)]
       }
 

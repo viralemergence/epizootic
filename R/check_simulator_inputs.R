@@ -103,7 +103,7 @@
 #'  classes that can recover.) Must be the same length as \code{compartments}.
 #'  A list of vectors may be provided if this varies by season. If no recovery
 #'  mask is provided, then it is assumed that all stages in the second
-#'  compartment can recover.}
+#'  compartment can recover, if there is a second compartment.}
 #'  \item{\code{density_stages}}{Array of booleans or numeric
 #'  (0,1) for each stage to indicate which stages are affected by density
 #'  (default is all).}
@@ -347,6 +347,7 @@ check_simulator_inputs <- function(inputs) {
   inputs[["compartments"]] <- ifelse(
     is.null(inputs[["compartments"]]), 1, inputs[["compartments"]]
   )
+  compartments <- inputs[["compartments"]]
   inputs[["demographic_stochasticity"]] <- ifelse(
     is.null(inputs[["demographic_stochasticity"]]),
     TRUE,
@@ -358,10 +359,10 @@ check_simulator_inputs <- function(inputs) {
     inputs[["region"]][["use_raster"]] &&
     any(c("RasterLayer", "RasterStack", "RasterBrick") %in%
     class(inputs[["initial_abundance"]]))) {
-  
+
       # Convert the RasterBrick to a matrix
       inputs[["initial_abundance"]] <- raster::values(inputs[["initial_abundance"]])
-      
+
       # Subset the matrix
       inputs[["initial_abundance"]] <- inputs[["initial_abundance"]][inputs[["region"]][["region_indices"]],]
     } else if (is.vector(inputs[["initial_abundance"]]) &&
@@ -451,7 +452,7 @@ check_simulator_inputs <- function(inputs) {
     class(inputs[["breeding_season_length"]]))) {
       # Convert the RasterBrick to a matrix
       inputs[["breeding_season_matrix"]] <- raster::values(inputs[["breeding_season_length"]])
-      
+
       # Subset the matrix
       inputs[["breeding_season_matrix"]] <- inputs[["breeding_season_matrix"]][inputs[["region"]][["region_indices"]],]
     } else {
@@ -895,7 +896,7 @@ check_simulator_inputs <- function(inputs) {
         map_if(is.list, list_c)
     }
   }
-  if (is.list(transmission) && length(transmission[[1]]) != segments && 
+  if (is.list(transmission) && length(transmission[[1]]) != segments &&
       is.list(inputs[['transmission_mask']])) {
     transmission <- inputs[["transmission"]] <- map2(transmission,
     inputs[["transmission_mask"]],
@@ -963,7 +964,7 @@ check_simulator_inputs <- function(inputs) {
                 "*" = "`transmission_unit` vectors are lengths
                   {lengths(transmission_unit)}."))
   }
-  inputs[["transmission"]] <- map2(inputs[['transmission']], 
+  inputs[["transmission"]] <- map2(inputs[['transmission']],
                                  inputs[["transmission_mask"]],
                                  ~ ifelse(.y == 0, 0, .x))
 
@@ -1076,15 +1077,19 @@ check_simulator_inputs <- function(inputs) {
     }
   }
   if (is.null(inputs[["recovery_mask"]])) {
+    if (inputs[["compartments"]] > 1) {
+      recovery_mask <- rep(0, segments) |> replace((stages+1):(stages*2), 1)
+    } else if (inputs[["compartments"]] == 1) {
+      recovery_mask <- rep(0, segments)
+    }
     if(is.list(recovery)) {
       inputs[["recovery_mask"]] <- replicate(
         length(recovery),
-        rep(0, segments) |> replace((stages+1):(stages*2), 1),
+        recovery_mask,
         simplify = FALSE
       )
     } else {
-      inputs[["recovery_mask"]] <- rep(0, segments) |>
-        replace((stages+1):(stages*2), 1)
+      inputs[["recovery_mask"]] <- recovery_mask
     }
   } else {
     if (is.list(recovery) && !is.list(inputs[["recovery_mask"]])) {
@@ -1110,7 +1115,7 @@ check_simulator_inputs <- function(inputs) {
   }
   # use the function to apply the mask to the recovery unit
   inputs[["recovery_unit"]] <- apply_mask(inputs[["recovery_unit"]],
-                                              inputs[["recovery_mask"]])
+                                          inputs[["recovery_mask"]])
   if (any(lengths(recovery) != lengths(inputs[["recovery_unit"]]))) {
     recovery_unit <- inputs[["recovery_unit"]]
     cli_abort(c("vectors inside `recovery` and `recovery_unit` must be the
@@ -1164,8 +1169,8 @@ check_simulator_inputs <- function(inputs) {
   if (!is.null(inputs[["dispersal"]]) &&
       !length(inputs[["dispersal"]]) %in% c(1, stages, compartments, segments)) {
     cli_abort(c('`dispersal` must be a list of length 1 or
-                {inputs[["stages"]]} (number of stages), 
-                {compartments} (number of compartments), or 
+                {inputs[["stages"]]} (number of stages),
+                {compartments} (number of compartments), or
                 {segments} (stages * compartments).",
                 "x" = "{.var dispersal} is length {length(inputs[["dispersal"]])}.'))
   }

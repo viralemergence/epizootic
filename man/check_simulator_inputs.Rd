@@ -104,7 +104,7 @@ vector indicating which compartments are subject to recovery (i.e., infected
 classes that can recover.) Must be the same length as \code{compartments}.
 A list of vectors may be provided if this varies by season. If no recovery
 mask is provided, then it is assumed that all stages in the second
-compartment can recover.}
+compartment can recover, if there is a second compartment.}
 \item{\code{density_stages}}{Array of booleans or numeric
 (0,1) for each stage to indicate which stages are affected by density
 (default is all).}

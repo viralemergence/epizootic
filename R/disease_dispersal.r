@@ -1,16 +1,16 @@
 #' Nested functions for population dispersal in a disease ecology simulation.
 #'
 #' Modular functions for the disease simulator for performing dispersal of segment (stage by compartment)
-#' abundance at a specified time step via dispersal rates provided. Dispersal can be handled identically for 
+#' abundance at a specified time step via dispersal rates provided. Dispersal can be handled identically for
 #' all stages and compartments, or can be handled differently by stage, compartment, or both.
 #'
 #' @param replicates Number of replicate simulation runs.
 #' @param time_steps Number of simulation time steps.
 #' @param populations Number of populations.
 #' @param demographic_stochasticity Boolean for optionally choosing demographic stochasticity for the transformation.
-#' @param dispersal Must be a list. Either a list of matrices of dispersal rates between populations (source columns to target rows) 
-#' or a list of data frames of non-zero dispersal rates and indices for constructing a compact dispersal matrix, 
-#' and optionally a list of lists of data frames showing changing rates over time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data} attribute). 
+#' @param dispersal Must be a list. Either a list of matrices of dispersal rates between populations (source columns to target rows)
+#' or a list of data frames of non-zero dispersal rates and indices for constructing a compact dispersal matrix,
+#' and optionally a list of lists of data frames showing changing rates over time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data} attribute).
 #' Alternatively a list of user-defined functions may be used: \code{function(params)}, where \emph{params} is a list passed to the function containing:
 #'   \describe{
 #'     \item{\code{replicates}}{Number of replicate simulation runs.}
@@ -70,50 +70,58 @@ disease_dispersal <- function(replicates,
 
   # Sanity checks
   if (dispersal_type == "pooled" && length(dispersal) != 1) {
-      cli_abort("Error: Dispersal length should be 1 for 'pooled' dispersal type.",
-                "x" = "Dispersal length is {length(dispersal)}.")
+      cli_abort(c("Error: Dispersal length should be 1 for 'pooled' dispersal
+                  type.",
+                "x" = "Dispersal length is {length(dispersal)}."))
     } else if (dispersal_type == "stages" && length(dispersal) != stages) {
-      cli_abort("Error: Dispersal length should be equal to the number of stages for 'stages' 
-                dispersal type.",
-                "x" = "There are {stages} stages and dispersal length is {length(dispersal)}.")
-    } else if (dispersal_type == "compartments" && length(dispersal) != compartments) {
-      cli_abort("Error: Dispersal length should be equal to the number of compartments for 
-                'compartments' dispersal type.",
-                "x" = "There are {compartments} compartments and dispersal length is 
-                {length(dispersal)}.")
-    } else if (dispersal_type == "segments" && length(dispersal) != stages * compartments) {
-      cli_abort("Error: Dispersal length should be equal to the number of stages multiplied 
-      by the number of compartments for 'segments' dispersal type.",
-      "x" = "There are {stages} stages and {compartments} compartments and dispersal length is 
-                {length(dispersal)}.")
+      cli_abort(c("Error: Dispersal length should be equal to the number of
+      stages for 'stages' dispersal type.",
+                "x" = "There are {stages} stages and dispersal length is
+                {length(dispersal)}."))
+    } else if (dispersal_type == "compartments" &&
+               length(dispersal) != compartments) {
+      cli_abort(c("Error: Dispersal length should be equal to the number of
+      compartments for 'compartments' dispersal type.",
+                "x" = "There are {compartments} compartments and dispersal
+                length is {length(dispersal)}."))
+    } else if (dispersal_type == "segments" &&
+               length(dispersal) != stages * compartments) {
+      cli_abort(c("Error: Dispersal length should be equal to the number of
+      stages multiplied by the number of compartments for 'segments' dispersal
+                  type.",
+      "x" = "There are {stages} stages and {compartments} compartments and
+      dispersal length is {length(dispersal)}."))
     }
 
   # User-defined function?
   if (length(which(unlist(lapply(dispersal, is.function))))) {
     # List of parameters to pass to the user-defined function
-    params <- list(replicates = replicates, time_steps = time_steps, years_per_step = years_per_step,
-                   populations = populations, stages = stages, demographic_stochasticity = demographic_stochasticity,
-                   density_stages = density_stages, dispersal_stages = dispersal_stages,
-                   dispersal_source_n_k = dispersal_source_n_k, dispersal_target_k = dispersal_target_k,
-                   dispersal_target_n = dispersal_target_n, dispersal_target_n_k = dispersal_target_n_k,
+    params <- list(replicates = replicates, time_steps = time_steps,
+                   populations = populations, stages = stages,
+                   compartments = compartments, dispersal_type = dispersal_type,
+                   demographic_stochasticity = demographic_stochasticity,
+                   dispersal_source_n_k = dispersal_source_n_k,
+                   dispersal_target_k = dispersal_target_k,
+                   dispersal_target_n = dispersal_target_n,
+                   dispersal_target_n_k = dispersal_target_n_k,
                    simulator = simulator)
-    
-    if (dispersal_type == "stages") {
-      step_indices <- lapply(1:stages, function(s) {
-        step_indices <- seq(s, nrow(segment_abundance), by = stages)
-      })
-    } else if (dispersal_type == "compartments") {
-      step_indices <- lapply(1:compartments, function(s) {
-        step_indices <- seq(stages * s - (stages - 1), stages * s, 1)
-      })
-    } else if (dispersal_type == "segments") {
-      step_indices <- c(1:(stages*compartments)) |> as.list()
-    } else if (dispersal_type == "pooled") {
-      step_indices <- list(c(1:(stages*compartments)))
-    }
 
     ## Create a nested function for applying user-defined dispersal of segment abundance ##
     dispersal_function <- function(r, tm, carrying_capacity, segment_abundance, occupied_indices) {
+
+      if (dispersal_type == "stages") {
+        step_indices <- lapply(1:stages, function(s) {
+          step_indices <- seq(s, nrow(segment_abundance), by = stages)
+        })
+      } else if (dispersal_type == "compartments") {
+        step_indices <- lapply(1:compartments, function(s) {
+          step_indices <- seq(stages * s - (stages - 1), stages * s, 1)
+        })
+      } else if (dispersal_type == "segments") {
+        step_indices <- c(1:(stages*compartments)) |> as.list()
+      } else if (dispersal_type == "pooled") {
+        step_indices <- list(c(1:(stages*compartments)))
+      }
 
       for (f in 1:length(dispersal)) {
 
@@ -148,7 +156,7 @@ disease_dispersal <- function(replicates,
 
   # Initialize reusable dispersal attributes
   if (length(which(unlist(lapply(dispersal, is.matrix))))) {
-    
+
     # Initialize lists
     dispersal_data_list <- list()
     dispersal_compact_rows_list <- list()
@@ -190,7 +198,7 @@ disease_dispersal <- function(replicates,
         dispersal_rows <- NULL; dispersal_cols <- NULL; compact_emigrant_matrix = NULL; compact_immigrant_matrix = NULL; target_sorted_indices = NULL
       }
     }
-  } else if (is.list(dispersal) && all(sapply(dispersal, is.list)) && 
+  } else if (is.list(dispersal) && all(sapply(dispersal, is.list)) &&
   all(sapply(unlist(dispersal, recursive = FALSE), is.data.frame)) &&
   nrow(dispersal[[1]][[1]]) > 0) {
     # Initialize lists
@@ -237,9 +245,9 @@ disease_dispersal <- function(replicates,
   }
 
   # Use lapply to apply the function to each element in the lists
-  dispersal_compact_matrix_list <- mapply(generate_compact_matrix, dispersal_data_list, 
+  dispersal_compact_matrix_list <- mapply(generate_compact_matrix, dispersal_data_list,
                                           dispersal_compact_rows_list, SIMPLIFY=FALSE)
-  
+
   # Does dispersal depend on source population abundance N divided by carrying capacity K?
   dispersal_depends_on_source_pop_n_k <- (is.list(dispersal_source_n_k) && (is.numeric(dispersal_source_n_k$cutoff) ||
                                                                               is.numeric(dispersal_source_n_k$threshold)))
@@ -250,7 +258,7 @@ disease_dispersal <- function(replicates,
                                                                           is.numeric(dispersal_target_n$cutoff)))
   dispersal_depends_on_target_pop_n_k <- (is.list(dispersal_target_n_k) && (is.numeric(dispersal_target_n_k$threshold) ||
                                                                               is.numeric(dispersal_target_n_k$cutoff)))
-  
+
   # Setup density dependence dispersal parameters
   if (dispersal_depends_on_source_pop_n_k) {
 
@@ -265,7 +273,7 @@ disease_dispersal <- function(replicates,
       dispersal_depends_on_source_pop_n_k <- FALSE
       cli_warn("Dispersal density dependence for source N/K threshold must be greater than cutoff.",
                "i" = "Source threshold is {dispersal_source_n_k$threshold} and source cutoff is
-                     {dispersal_source_n_k$cutoff}.", 
+                     {dispersal_source_n_k$cutoff}.",
                "x" = "Dispersal density dependence for source N/K not used.")
     }
   }
@@ -294,7 +302,7 @@ disease_dispersal <- function(replicates,
     }
 
     # Use mapply to apply the function to each element in the lists
-    dispersal_target_pop_map_list <- mapply(generate_target_pop_map, dispersal_data_list, 
+    dispersal_target_pop_map_list <- mapply(generate_target_pop_map, dispersal_data_list,
                                             dispersal_compact_rows_list, SIMPLIFY=FALSE)
   }
 
@@ -329,10 +337,10 @@ disease_dispersal <- function(replicates,
       simulator$attached$dispersal_compact_matrix_tm <- dispersal_compact_matrix_tm
     }
 
-    dispersal_compact_matrix_tm_list <- mapply(apply_dispersal_changes, dispersal_compact_matrix_list, 
-                                               dispersals_change_over_time_list, 
+    dispersal_compact_matrix_tm_list <- mapply(apply_dispersal_changes, dispersal_compact_matrix_list,
+                                               dispersals_change_over_time_list,
                                                dispersal_data_changes_list, SIMPLIFY=FALSE)
-    
+
     # Select dispersals for occupied populations
     occupied_dispersals_list <- dispersal_compact_matrix_tm_list |> map(\(x) x[, occupied_indices])
 
@@ -366,9 +374,9 @@ disease_dispersal <- function(replicates,
     } # dispersal depends on source pop N/K?
 
     # Select occupied dispersal non-zero indices
-    occupied_dispersal_indices_list <- occupied_dispersals_list |> 
+    occupied_dispersal_indices_list <- occupied_dispersals_list |>
                                        map(\(d) which(as.logical(d))) # > 0
-    
+
     # Modify dispersal rates when dispersal depends on target population K, N, or N/K
     if (dispersal_depends_on_target_pop_k || dispersal_depends_on_target_pop_n || dispersal_depends_on_target_pop_n_k) {
 
@@ -439,7 +447,7 @@ disease_dispersal <- function(replicates,
 
     } # dispersal depends on target pop N, K or N/K?
 
-    
+
     if (dispersal_type == "stages") {
       step_indices <- lapply(1:stages, function(s) {
         step_indices <- seq(s, nrow(segment_abundance), by = stages)
@@ -459,7 +467,7 @@ disease_dispersal <- function(replicates,
     }
 
     for (segment in 1:(stages*compartments)) {
-      
+
       # Disperser generation via abundance and corresponding dispersal rates
       occupied_abundance <- segment_abundance[segment, occupied_indices]
       occupied_abundance_rep <- segment_abundance[rep(segment, dispersal_compact_rows_list[[step_indices_vector[segment]]]), occupied_indices]
@@ -509,7 +517,7 @@ disease_dispersal <- function(replicates,
     # Perform additional dispersal for overcrowded cells (only to cells with room)
     if ((dispersal_depends_on_target_pop_n && all(dispersal_target_n$threshold < dispersal_target_n$cutoff)) ||
         (dispersal_depends_on_target_pop_n_k && all(dispersal_target_n_k$threshold < dispersal_target_n_k$cutoff))) {
-      
+
       # Flags for dependencies
       depends_on_target_pop_n <- (dispersal_depends_on_target_pop_n && all(dispersal_target_n$threshold < dispersal_target_n$cutoff))
       depends_on_target_pop_n_k <- (dispersal_depends_on_target_pop_n_k && all(dispersal_target_n_k$threshold < dispersal_target_n_k$cutoff))
@@ -573,12 +581,12 @@ disease_dispersal <- function(replicates,
               full_index <- which(target_indices == target_i)
               target_indices <- target_indices[-full_index]
               dispersal_indices <- dispersal_indices[-full_index]
-            }            
+            }
           }
         }
-      }  
+      }
 
-    }      
+    }
   }
 
   return(dispersal_function)
