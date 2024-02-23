@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# epizootic
+# epizootic <img src='man/figures/hex.svg' align="right" height="125" />
 
 <!-- badges: start -->
 

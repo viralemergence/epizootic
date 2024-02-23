@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# epizootic
+# epizootic <img src='man/figures/hex.svg' align="right" height="125" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml)
