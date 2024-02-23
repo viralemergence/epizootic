@@ -49,7 +49,6 @@ Alternatively a list of user-defined functions may be used: \code{function(param
 \item{\code{tm}}{Simulation time step.}
 \item{\code{carrying_capacity}}{Array of carrying capacity values for each population at time step.}
 \item{\code{segment_abundance}}{Matrix of abundance for each stage by compartment (rows) and population (columns) at time step.}
-\item{\code{occupied_indices}}{Array of indices for populations occupied at time step.}
 \item{\code{simulator}}{\code{\link{SimulatorReference}} object with dynamically accessible \emph{attached} and \emph{results} lists.}
 }
 returns the post-dispersal abundance matrix}
@@ -77,7 +76,6 @@ Dispersal function: \code{function(r, tm, carrying_capacity, segment_abundance, 
 \item{\code{tm}}{Simulation time step.}
 \item{\code{carrying_capacity}}{Array of carrying capacity values for each population at time step.}
 \item{\code{segment_abundance}}{Matrix of abundance for each stage by compartment (rows) and population (columns) at time step.}
-\item{\code{occupied_indices}}{Array of indices for populations occupied at time step.}
 \item{\code{returns}}{New stage abundance matrix with dispersal applied.}
 }
 }

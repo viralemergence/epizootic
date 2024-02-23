@@ -167,6 +167,10 @@ disease_transformation <- function(params) {
                      {which(transformed[['carrying_capacity']] < 0)}"
           )
         }
+        if (is.null(transformed[["segment_abundance"]])) {
+          cli_abort("NULL segment_abundance produced by user-defined {name}
+                    function at time step {tm} of replicate {r}.")
+        }
 
         return(transformed)
       }

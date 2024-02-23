@@ -278,11 +278,11 @@ check_simulator_inputs <- function(inputs) {
     if (!inputs$is_consistent()) {
       cli_abort(c("The `DiseaseModel` input contains the following inconsistent
                   attributes:",
-                  "x" = "{model$inconsistent_attributes}"))
+                  "x" = "{inputs$inconsistent_attributes()}"))
     } else if (!inputs$is_complete()) {
       cli_abort(c("The `DiseaseModel` input contains the following incomplete
                   attributes:",
-                  "x" = "{model$incomplete_attributes}"))
+                  "x" = "{inputs$incomplete_attributes()}"))
     } else {
       inputs <- inputs$get_attributes()
     }

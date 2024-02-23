@@ -13,6 +13,7 @@
 #' @importFrom future multisession
 #' @importFrom furrr furrr_options
 #' @importFrom furrr future_map
+#' @importFrom qs qsave
 #' @importFrom R6 R6Class
 #' @export SimulationHandler
 
@@ -293,7 +294,11 @@ SimulationHandler <- R6Class("SimulationHandler",
         if (!is.null(simulator$results)) {
           results_file <- file.path(self$results_dir, paste0(self$get_results_filename(j), self$results_ext))
           suppressWarnings(try(
-            saveRDS(simulator$results, file = results_file),
+            if (self$results_ext == ".qs") {
+              qsave(simulator$results, results_file)
+            } else {
+              saveRDS(simulator$results, file = results_file)
+            },
             silent = TRUE))
           if (file.exists(results_file)) {
             simulator_run_status$message <- paste0(simulator_run_status$message, " and the results were saved")

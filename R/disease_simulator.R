@@ -359,7 +359,7 @@ disease_simulator <- function(inputs) {
     name = "harvest"
   )
 
-  if ("mortality" %in% simulation_order) {
+  if ("mortality" %in% flatten(simulation_order)) {
     mortality_function <- population_transformation(
       replicates = replicates,
       time_steps = time_steps,
@@ -372,7 +372,7 @@ disease_simulator <- function(inputs) {
     )
   }
 
-  if ("dispersal" %in% simulation_order) {
+  if ("dispersal" %in% flatten(simulation_order)) {
     dispersal_function <- disease_dispersal(
       replicates,
       time_steps,
@@ -384,8 +384,8 @@ disease_simulator <- function(inputs) {
       dispersal_target_k = if (exists("dispersal_target_k")) dispersal_target_k else NULL,
       dispersal_target_n = if (exists("dispersal_target_n")) dispersal_target_n else NULL,
       dispersal_target_n_k = if (exists("dispersal_target_n_k")) dispersal_target_n_k else NULL,
-      stages = NULL,
-      compartments = NULL,
+      stages = stages,
+      compartments = compartments,
       simulator
     )
   }
@@ -540,13 +540,13 @@ disease_simulator <- function(inputs) {
 
           ## Dispersal calculations ##
           if (occupied_populations && process == "dispersal") {
-            if (exists("dispersal_function") && !is.null(dispersal_functions)) {
+            if (exists("dispersal_function") && !is.null(dispersal_function)) {
               segment_abundance <- dispersal_function(r, tm, carrying_capacity,
-                                                      segment_abundance,
-                                                      occupied_indices)
+                                                      segment_abundance)
             }
           }
 
+          ## Season functions ##
           if (process == "season_functions" && is.list(season_function_list)) {
             transformed <- season_function_list[[season]](r, tm,
                                                           carrying_capacity,
