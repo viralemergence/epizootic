@@ -23,12 +23,11 @@ Imports:
     furrr (>= 0.3.1),
     future (>= 1.33.0),
     raster (>= 3.6),
-    qs (>= 0.25.7)
+    qs (>= 0.25.7),
+    poems (>= 1.1.1)
 Suggests: 
     testthat (>= 3.0.0),
     geosphere (>= 1.5)
-Remotes:
-    GlobalEcologyLab/poems
 Config/testthat/edition: 3
 Collate: 
     'DiseaseModel.R'
@@ -43,3 +42,5 @@ Collate:
     'disease_transitions.R'
     'epizootic-package.R'
     'utils.R'
+Remotes:  
+    GlobalEcologyLab/poems
