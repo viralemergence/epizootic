@@ -358,6 +358,7 @@ disease_dispersal <- function(replicates,
     dispersal_data_changes_list <- expand_lists(dispersal_data_changes_list, step_indices = step_indices)
     dispersal_compact_rows_list <- expand_lists(dispersal_compact_rows_list, step_indices)
     dispersal_immigrant_map_list <- expand_lists(dispersal_immigrant_map_list, step_indices = step_indices)
+    dispersal_target_pop_map_list <- expand_lists(dispersal_target_pop_map_list, step_indices = step_indices)
 
     dispersal_compact_matrix_tm_list <- simulator$attached$dispersal_compact_matrix_tm_list
     if (is.null(dispersal_compact_matrix_tm_list)) {
@@ -569,26 +570,26 @@ disease_dispersal <- function(replicates,
       dispersals <- pmap(list(rate = dispersal_compact_matrix_tm_list,
                               update = occupied_dispersals_list,
                               occupied = occupied_indices_list),
-                              \(rate, update, occupied) rate[, occupied] <- update)
+                         \(rate, update, occupied) {
+                           rate[, occupied] <- update
+                           return(rate)
+                         })
 
-      # Identify overcrowded cells based on stages affected by density
+      # Identify overcrowded cells
       density_abundance <- .colSums(segment_abundance, m = stages*compartments, n = populations)
       if (depends_on_target_pop_n) {
         excessive_indices <- which(density_abundance > dispersal_target_n$cutoff)
-        excessive_indices_list <- map(occupied_indices_list, \(x)
-                                      which(x %in% excessive_indices))
       }
       if (depends_on_target_pop_n_k) {
         excessive_indices <- unique(c(excessive_indices,
                                       which(density_abundance/carrying_capacity > dispersal_target_n_k$cutoff)))
-        excessive_indices_list <- map(occupied_indices_list, \(x)
-                                      which(x %in% excessive_indices))
       }
-
       # Disperse excess from each overcrowded cell (in random order)
       for (segment in 1:(stages*compartments)) {
 
-        for (excessive_index in excessive_indices_list[[segment]][sample(length(excessive_indices_list[[segment]]))]) {
+        excessive_indices_segment <- excessive_indices[segment_abundance[segment, excessive_indices] > 0]
+
+        for (excessive_index in excessive_indices_segment[sample(length(excessive_indices_segment))]) {
 
           dispersal_indices <- which(dispersals[[segment]][, excessive_index] > 0)
           target_indices <- dispersal_target_pop_map_list[[segment]][, excessive_index][dispersal_indices]

@@ -61,6 +61,19 @@
 
 check_aspatial_siri_inputs <- function(inputs) {
   list2env(inputs, environment())
+
+  if (any(segment_abundance < 0)) {
+    cli_abort("x" = "Abundance values must be non-negative.",
+              "i" = "Populations {which(apply(segment_abundance, 2, function(x) any(x < 0)))}
+                     contain negative values at time step {tm}.")
+  }
+
+  if (any(is.na(segment_abundance))) {
+    cli_abort("x" = "Abundance values must be non-missing.",
+              "i" = "Populations {which(apply(is.na(segment_abundance), 2, function(x) any(x)))}
+                     contain missing values at time step {tm}.")
+  }
+
   if (!is.null(inputs[["tm"]]) && !is.null(inputs[["time_steps"]])) {
     if (tm > time_steps) {
     cli_abort("You have indicated that we are at timestep {tm} even though
