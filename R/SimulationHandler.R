@@ -269,7 +269,7 @@ SimulationHandler <- R6Class("SimulationHandler",
       if (self$parallel_cores == 1) {
         plan(sequential)
       } else {
-        plan(multiprocess, workers = self$parallel_cores)
+        plan(multisession, workers = self$parallel_cores)
       }
 
       simulation_log <- future_map(1:nrow(self$sample_data), \(j) {
