@@ -20,11 +20,11 @@ Imports:
     tibble (>= 3.2.1),
     R6 (>= 2.5.1),
     cli (>= 3.6.1),
-    furrr (>= 0.3.1),
-    future (>= 1.33.0),
     raster (>= 3.6),
     qs (>= 0.25.7),
-    poems (>= 1.1.0)
+    poems (>= 1.1.0),
+    doParallel (>= 1.0.16),
+    foreach (>= 1.5.1)
 Suggests: 
     testthat (>= 3.0.0),
     geosphere (>= 1.5),

@@ -8,11 +8,10 @@
 #' for parallelization, handles errors differently, and has a different default
 #' data format (\code{.qs}).
 #'
-#' @importFrom future plan
-#' @importFrom future sequential
-#' @importFrom future multisession
-#' @importFrom furrr furrr_options
-#' @importFrom furrr future_map
+#' @importFrom foreach foreach
+#' @importFrom foreach %dopar%
+#' @importFrom doParallel registerDoParallel
+#' @importFrom doParallel stopImplicitCluster
 #' @importFrom qs qsave
 #' @importFrom R6 R6Class
 #' @export SimulationHandler
@@ -265,34 +264,30 @@ SimulationHandler <- R6Class("SimulationHandler",
       }
       model <- NULL # release from memory
 
-      # Parallelize and simulate
-      if (self$parallel_cores == 1) {
-        plan(sequential)
-      } else {
-        plan(multisession, workers = self$parallel_cores)
-      }
-
-      simulation_log <- future_map(1:nrow(self$sample_data), \(j) {
+      doParallel::registerDoParallel(cores = self$parallel_cores)
+      simulation_log <- foreach(i = 1:nrow(self$sample_data),
+                                .packages = c("raster"),
+                                .errorhandling = c("pass")) %dopar% {
 
         # Clone the model
         model <- self$nested_model$clone()
 
         # Set the model sample attributes
-        self$set_model_sample(model, j)
+        self$set_model_sample(model, i)
         if (length(model$error_messages)) {
           return(list(successful = FALSE, message = self$get_message_sample("Error(s) setting model %s sample attributes", i), errors = model$error_messages))
         }
 
         # Create and run the simulator
-        simulator <- self$model_simulator$new_clone(simulation_model = model, sample_id = j)
+        simulator <- self$model_simulator$new_clone(simulation_model = model, sample_id = i)
         simulator_run_status <- simulator$run()
 
         # Substitute sample details into the simulator run status message
-        simulator_run_status$message <- self$get_message_sample(simulator_run_status$message, j)
+        simulator_run_status$message <- self$get_message_sample(simulator_run_status$message, i)
 
         # Save results
         if (!is.null(simulator$results)) {
-          results_file <- file.path(self$results_dir, paste0(self$get_results_filename(j), self$results_ext))
+          results_file <- file.path(self$results_dir, paste0(self$get_results_filename(i), self$results_ext))
           suppressWarnings(try(
             if (self$results_ext == ".qs") {
               qsave(simulator$results, results_file)
@@ -309,7 +304,8 @@ SimulationHandler <- R6Class("SimulationHandler",
         }
 
         return(simulator_run_status)
-      }, .options = furrr_options(seed = TRUE, conditions = character()))
+      }
+      doParallel::stopImplicitCluster()
 
       # Summarize and write log to a file
       simulation_log <- self$log_simulation(simulation_log)
