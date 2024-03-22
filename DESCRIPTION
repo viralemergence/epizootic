@@ -1,6 +1,6 @@
 Package: epizootic
 Title: Spatially Explicit Population Models of Disease Transmission in Wildlife
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person("July", "Pilowsky", email = "pilowskyj@caryinstitute.org", role = c("aut", "cre"),
            comment = c(ORCID = "https://orcid.org/0000-0002-6376-2585"))
