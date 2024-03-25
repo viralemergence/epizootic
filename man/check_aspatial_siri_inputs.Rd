@@ -16,7 +16,7 @@ check_aspatial_siri_inputs(inputs)
 \item{\code{stages}}{Number of life cycle stages.}
 \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
 SIR model).}
-\item{\code{abundance_threshold}}{A quasi-extinction threshold below
+\item{\code{abundance_threshold}}{A quasi-extinction threshold at
 which a population becomes extinct.}
 \item{\code{mortality}}{A vector of mortality rates, one for each
 combination of stages and compartments.}

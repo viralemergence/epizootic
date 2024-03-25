@@ -22,7 +22,7 @@ each combination of stage and compartment.}
 \item{carrying_capacity}{A single numeric that indicates the carrying
 capacity of the population in this season.}
 
-\item{abundance_threshold}{A quasi-extinction threshold below which a
+\item{abundance_threshold}{A quasi-extinction threshold at which a
 population becomes extinct.}
 
 \item{mortality}{A vector of length 8 with the mortality rates for each

@@ -71,7 +71,7 @@ compartments reproduce. Must be the same length as
 \code{stages * compartments}. A list of vectors may be provided if this
 varies by season. If no fecundity mask is provided, then it is assumed that
 all stages and compartments reproduce.}
-\item{\code{abundance_threshold}}{A quasi-extinction threshold below which a
+\item{\code{abundance_threshold}}{A quasi-extinction threshold at which a
 population becomes extinct. Default: 0.}
 \item{\code{demographic_stochasticity}}{Boolean for choosing demographic
 stochasticity for transition, dispersal, and/or other processes (default is
