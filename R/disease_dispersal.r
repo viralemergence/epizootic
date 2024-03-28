@@ -160,9 +160,10 @@ disease_dispersal <- function(replicates,
     dispersal_data_list <- list()
     dispersal_compact_rows_list <- list()
     dispersals_change_over_time_list <- list()
+    dispersal_stages <- dispersal |> flatten() |> map_int(nrow) == 0
 
     # Loop over each matrix in the dispersal list
-    for (i in seq_along(dispersal)) {
+    for (i in seq_along(dispersal[dispersal_stages])) {
       if (is.matrix(dispersal[[i]])) { # create compact matrix data
 
         # Calculate the indices of non-zero dispersals
@@ -210,8 +211,10 @@ disease_dispersal <- function(replicates,
       dispersal <- list(dispersal)
     }
 
+    dispersal_stages <- dispersal |> flatten() |> map_int(nrow) > 0
+
     # Loop over each list in the dispersal list
-    for (i in seq_along(dispersal)) {
+    for (i in seq_along(dispersal[dispersal_stages])) {
       # Unpack dispersal data and determine compact matrix dimensions
       dispersal_data <- dispersal[[i]][[1]]
       dispersal_compact_rows <- max(dispersal_data[, c("emigrant_row", "immigrant_row")])
@@ -359,6 +362,15 @@ disease_dispersal <- function(replicates,
     dispersal_compact_rows_list <- expand_lists(dispersal_compact_rows_list, step_indices)
     dispersal_immigrant_map_list <- expand_lists(dispersal_immigrant_map_list, step_indices = step_indices)
     dispersal_target_pop_map_list <- expand_lists(dispersal_target_pop_map_list, step_indices = step_indices)
+    dispersal_stages_expanded <- expand_lists(as.list(dispersal_stages), step_indices) |> unlist()
+    if (!all(map_int(occupied_indices_list, length))) {
+      dispersal_stages_expanded[map_int(occupied_indices_list, length) == 0] <- FALSE
+    }
+    if (all(!dispersal_stages_expanded)) {
+      cli_warn("No occupied populations capable of dispersing at timestep {tm}.",
+               "i" = "Dispersal not applied.")
+      return(segment_abundance)
+    }
 
     dispersal_compact_matrix_tm_list <- simulator$attached$dispersal_compact_matrix_tm_list
     if (is.null(dispersal_compact_matrix_tm_list)) {
@@ -368,13 +380,18 @@ disease_dispersal <- function(replicates,
     apply_dispersal_changes <- function(dispersal_compact_matrix,
                                         dispersals_change_over_time,
                                         dispersal_data_changes,
-                                        dispersal_compact_matrix_tm) {
-      if (tm == 1 || !dispersals_change_over_time) {
-        dispersal_compact_matrix_tm <- dispersal_compact_matrix
-      } else if (dispersals_change_over_time &&
-                 nrow(dispersal_data_changes[[tm]]) &&
-                 !is.null(dispersal_compact_matrix_tm)) { # and tm > 1
-        dispersal_compact_matrix_tm[as.matrix(dispersal_data_changes[[tm]][, c("emigrant_row","source_pop")])] <- dispersal_data_changes[[tm]]$dispersal_rate
+                                        dispersal_compact_matrix_tm,
+                                        dispersal_stages) {
+      if (dispersal_stages) {
+        if (tm == 1 || !dispersals_change_over_time) {
+          dispersal_compact_matrix_tm <- dispersal_compact_matrix
+        } else if (dispersals_change_over_time &&
+                   nrow(dispersal_data_changes[[tm]]) &&
+                   !is.null(dispersal_compact_matrix_tm)) {
+          # and tm > 1
+          dispersal_compact_matrix_tm[as.matrix(dispersal_data_changes[[tm]][, c("emigrant_row", "source_pop")])] <-
+            dispersal_data_changes[[tm]]$dispersal_rate
+        }
       }
       return(dispersal_compact_matrix_tm)
     }
@@ -384,6 +401,7 @@ disease_dispersal <- function(replicates,
                                                dispersals_change_over_time_list,
                                                dispersal_data_changes_list,
                                                dispersal_compact_matrix_tm_list,
+                                               dispersal_stages_expanded,
                                                SIMPLIFY=FALSE)
 
     simulator$attached$dispersal_compact_matrix_tm_list <- dispersal_compact_matrix_tm_list
@@ -415,14 +433,24 @@ disease_dispersal <- function(replicates,
                                                dd_multipliers[modify_pop_indices])
 
       # Apply modifying multipliers to dispersals
-      occupied_dispersals_list <- pmap(list(occupied_dispersals_list,
-                                            occupied_indices_list,
-                                            dispersal_compact_rows_list),
-                                       \(d, i, r) d * matrix(dd_multipliers[i],
-                                                             nrow = r,
-                                                             ncol = length(i),
-                                                             byrow = TRUE))
-
+      occupied_dispersals_list <- pmap(
+        list(
+          occupied_dispersals_list,
+          occupied_indices_list,
+          dispersal_compact_rows_list,
+          dispersal_stages_expanded
+        ),
+        \(d, i, r, l) if (l) {
+          d * matrix(
+            dd_multipliers[i],
+            nrow = r,
+            ncol = length(i),
+            byrow = TRUE
+          )
+        } else {
+          0
+        }
+      )
 
     } # dispersal depends on source pop N/K?
 
@@ -511,6 +539,10 @@ disease_dispersal <- function(replicates,
 
     for (segment in 1:(stages*compartments)) {
 
+      if (!dispersal_stages_expanded[segment]) {
+        next
+      }
+
       # Disperser generation via abundance and corresponding dispersal rates
       occupied_abundance <- segment_abundance[segment, occupied_indices_list[[segment]]]
       occupied_abundance_rep <- segment_abundance[rep(segment, dispersal_compact_rows_list[[segment]]), occupied_indices_list[[segment]]]
@@ -569,9 +601,12 @@ disease_dispersal <- function(replicates,
       # Get all updated dispersal rates
       dispersals <- pmap(list(rate = dispersal_compact_matrix_tm_list,
                               update = occupied_dispersals_list,
-                              occupied = occupied_indices_list),
-                         \(rate, update, occupied) {
-                           rate[, occupied] <- update
+                              occupied = occupied_indices_list,
+                              l = dispersal_stages_expanded),
+                         \(rate, update, occupied, l) {
+                           if (l) {
+                             rate[, occupied] <- update
+                           }
                            return(rate)
                          })
 
@@ -586,6 +621,10 @@ disease_dispersal <- function(replicates,
       }
       # Disperse excess from each overcrowded cell (in random order)
       for (segment in 1:(stages*compartments)) {
+
+        if (!dispersal_stages_expanded[segment]) {
+          next
+        }
 
         excessive_indices_segment <- excessive_indices[segment_abundance[segment, excessive_indices] > 0]
 
