@@ -100,7 +100,15 @@ siri_model_summer <- function(inputs) {
     })
 
   # Set up initial vectors
-  population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  if (active_pops > 1) {
+    population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  }
+  if (active_pops == 1) {
+    population_list <- list(segment_abundance[, occupied_indices])
+  }
+  if (active_pops == 0) {
+    return(segment_abundance)
+  }
   carrying_capacity <- carrying_capacity[occupied_indices]
 
   population_new <- pmap(list(initial_pop = population_list,
@@ -219,7 +227,15 @@ siri_model_winter <- function(inputs) {
     })
 
   # Set up initial vectors
-  population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  if (active_pops > 1) {
+    population_list <- array_branch(segment_abundance[, occupied_indices], 2)
+  }
+  if (active_pops == 1) {
+    population_list <- list(segment_abundance[, occupied_indices])
+  }
+  if (active_pops == 0) {
+    return(segment_abundance)
+  }
   carrying_capacity <- carrying_capacity[occupied_indices]
 
   population_new <- pmap(list(initial_pop = population_list,

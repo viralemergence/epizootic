@@ -403,7 +403,7 @@ disease_simulator <- function(inputs) {
           }
 
           ## Season functions ##
-          if (process == "season_functions" && is.list(season_function_list)) {
+          if (occupied_populations && process == "season_functions" && is.list(season_function_list)) {
             transformed <- season_function_list[[season]](r, tm,
                                                           carrying_capacity,
                                                           segment_abundance,
