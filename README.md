@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml)
+[![Coveralls test
+coverage](https://coveralls.io/repos/github/viralemergence/epizootic/badge.svg)](https://coveralls.io/r/viralemergence/epizootic?branch=main)
 <!-- badges: end -->
 
 `epizootic` is an extension to `poems`, a spatially-explicit,
