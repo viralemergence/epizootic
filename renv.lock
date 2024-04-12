@@ -9,6 +9,13 @@
     ]
   },
   "Packages": {
+    "BH": {
+      "Package": "BH",
+      "Version": "1.84.0-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a8235afbcd6316e6e91433ea47661013"
+    },
     "DEoptimR": {
       "Package": "DEoptimR",
       "Version": "1.1-3",
@@ -456,14 +463,14 @@
     },
     "poems": {
       "Package": "poems",
-      "Version": "1.1.0",
+      "Version": "1.3.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "GlobalEcologyLab",
       "RemoteRepo": "poems",
       "RemoteRef": "main",
-      "RemoteSha": "33ff023c6f4105bbc6269cf3a09cd00ad0d84998",
+      "RemoteSha": "251671a76493c7ff8d785396d39cdc9ccfc4dfcf",
       "Requirements": [
         "R",
         "R6",
@@ -478,7 +485,7 @@
         "trend",
         "truncnorm"
       ],
-      "Hash": "718c211682477c066ac19745406a9201"
+      "Hash": "8d0ffd5c31f9ae4ef3a8fdce5ab8ee3c"
     },
     "purrr": {
       "Package": "purrr",
@@ -497,16 +504,17 @@
     },
     "qs": {
       "Package": "qs",
-      "Version": "0.25.7",
+      "Version": "0.26.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "BH",
         "R",
         "RApiSerialize",
         "Rcpp",
         "stringfish"
       ],
-      "Hash": "f5adb766329cc757980d943ce472e831"
+      "Hash": "c0626a04f3021a24f05ab211280209ab"
     },
     "quantreg": {
       "Package": "quantreg",
