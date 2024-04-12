@@ -15,7 +15,6 @@ BugReports: https://github.com/viralemergence/epizootic/issues
 Depends: R (>= 4.3.0)
 Imports:
     purrr (>= 1.0.0),
-    terra (>= 1.7),
     dplyr (>= 1.1.3),
     tibble (>= 3.2.1),
     R6 (>= 2.5.1),
@@ -44,6 +43,5 @@ Collate:
     'disease_transformation.R'
     'disease_transitions.R'
     'epizootic-package.R'
-    'utils.R'
-Remotes:  
+Remotes: 
     GlobalEcologyLab/poems
