@@ -47,6 +47,7 @@
 #'     \item{\code{segment_abundance}}{Matrix of abundance for each stage by compartment (rows) and population (columns) at time step.}
 #'     \item{\code{returns}}{New stage abundance matrix with dispersal applied.}
 #'   }
+#' @import purrr
 #' @export disease_dispersal
 
 disease_dispersal <- function(replicates,
