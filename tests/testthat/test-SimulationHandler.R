@@ -28,7 +28,8 @@ test_that("Runs successfully with valid inputs", {
     results_selection = "abundance",
     results_breakdown = "stages",
     attribute_aliases = list(dispersal1 = "dispersal$a",
-                             dispersal2 = "dispersal$b")
+                             dispersal2 = "dispersal$b"),
+    verbose = FALSE
   )
 
   model_simulator <- ModelSimulator$new(simulation_model = model_template,

@@ -160,7 +160,7 @@ disease_dispersal <- function(replicates,
     dispersal_data_list <- list()
     dispersal_compact_rows_list <- list()
     dispersals_change_over_time_list <- list()
-    dispersal_stages <- dispersal |> flatten() |> map_int(nrow) == 0
+    dispersal_stages <- map_lgl(dispersal, ~nrow(.x) > 0)
 
     # Loop over each matrix in the dispersal list
     for (i in seq_along(dispersal[dispersal_stages])) {
@@ -211,7 +211,7 @@ disease_dispersal <- function(replicates,
       dispersal <- list(dispersal)
     }
 
-    dispersal_stages <- dispersal |> flatten() |> map_int(nrow) > 0
+    dispersal_stages <- !map_lgl(dispersal, ~all(map_lgl(.x, ~nrow(.x) == 0)))
 
     # Loop over each list in the dispersal list
     for (i in seq_along(dispersal[dispersal_stages])) {
@@ -361,7 +361,9 @@ disease_dispersal <- function(replicates,
     dispersal_data_changes_list <- expand_lists(dispersal_data_changes_list, step_indices = step_indices)
     dispersal_compact_rows_list <- expand_lists(dispersal_compact_rows_list, step_indices)
     dispersal_immigrant_map_list <- expand_lists(dispersal_immigrant_map_list, step_indices = step_indices)
-    dispersal_target_pop_map_list <- expand_lists(dispersal_target_pop_map_list, step_indices = step_indices)
+    if (exists("dispersal_target_pop_map_list")) {
+      dispersal_target_pop_map_list <- expand_lists(dispersal_target_pop_map_list, step_indices = step_indices)
+    }
     dispersal_stages_expanded <- expand_lists(as.list(dispersal_stages), step_indices) |> unlist()
     if (!all(map_int(occupied_indices_list, length))) {
       dispersal_stages_expanded[map_int(occupied_indices_list, length) == 0] <- FALSE
