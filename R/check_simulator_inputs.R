@@ -738,7 +738,7 @@ check_simulator_inputs <- function(inputs) {
     }
     if (any(lengths(transmission) != segments)) {
       odd_indices <- which(lengths(transmission) != segments)
-      if (is.vector(inputs[["transmission_mask"]])) {
+      if (is.list(inputs[["transmission_mask"]])) {
         transmission_mask <- inputs[["transmission_mask"]]
         suppressWarnings(
           transmission <- inputs[["transmission"]] <- map2(transmission[odd_indices],
@@ -747,6 +747,16 @@ check_simulator_inputs <- function(inputs) {
                                                        z <- rep(0, segments);
                                                        z[as.logical(y)] <- x})
         )
+      } else if (is.vector(inputs[["transmission_mask"]]) &&
+                 length(inputs[["transmission_mask"]]) == segments) {
+          transmission_mask <- inputs[["transmission_mask"]]
+          transmission <- inputs[["transmission"]] <- map(
+            transmission[odd_indices], \(x) {
+              z <- rep(0, segments)
+              z[as.logical(transmission_mask)] <- x
+              return(z)
+            }
+          )
       }
     }
     if (any(map(transmission, length) != segments)) {
@@ -941,7 +951,7 @@ check_simulator_inputs <- function(inputs) {
     }
     if (any(lengths(recovery) != segments)) {
       odd_indices <- which(lengths(recovery) != segments)
-      if (is.vector(inputs[["recovery_mask"]])) {
+      if (is.list(inputs[["recovery_mask"]])) {
         recovery_mask <- inputs[["recovery_mask"]]
         suppressWarnings(
           recovery <- inputs[["recovery"]] <- map2(recovery[odd_indices],
@@ -950,6 +960,16 @@ check_simulator_inputs <- function(inputs) {
                                                        z <- rep(0, segments);
                                                        z[as.logical(y)] <- x})
         )
+      } else if (is.vector(inputs[["recovery_mask"]]) &&
+                 length(inputs[["recovery_mask"]]) == segments) {
+          recovery_mask <- inputs[["recovery_mask"]]
+          recovery <- inputs[["recovery"]] <- map(
+            recovery[odd_indices], \(x) {
+              z <- rep(0, segments)
+              z[as.logical(recovery_mask)] <- x
+              return(z)
+            }
+          )
       }
     }
     if (any(map(recovery, length) != segments)) {
@@ -963,7 +983,7 @@ check_simulator_inputs <- function(inputs) {
     }
     if (recovery |> map_lgl(is.list) |> any()) {
       recovery <- inputs[["recovery"]] <- recovery |>
-        map_if(is.list, list_c())
+        map_if(is.list, list_c)
     }
 
   } else if (is.vector(recovery)) {
