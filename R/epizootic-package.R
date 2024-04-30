@@ -2,6 +2,8 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib epizootic, .registration = TRUE
 ## usethis namespace: end
 utils::globalVariables(
   c(

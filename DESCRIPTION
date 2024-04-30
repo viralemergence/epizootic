@@ -23,7 +23,8 @@ Imports:
     qs (>= 0.25.7),
     poems (>= 1.1.0),
     doParallel (>= 1.0.16),
-    foreach (>= 1.5.1)
+    foreach (>= 1.5.1),
+    Rcpp
 Suggests: 
     testthat (>= 3.0.0),
     geosphere (>= 1.5),
@@ -33,6 +34,7 @@ Suggests:
 Config/testthat/edition: 3
 Collate: 
     'DiseaseModel.R'
+    'RcppExports.R'
     'SimulationHandler.R'
     'aspatial_siri_seasons.R'
     'check_aspatial_siri_inputs.R'
@@ -45,3 +47,6 @@ Collate:
     'epizootic-package.R'
 Remotes: 
     GlobalEcologyLab/poems
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo

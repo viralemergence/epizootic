@@ -99,6 +99,20 @@
       ],
       "Hash": "5ea2700d21e038ace58269ecdbeb9ec0"
     },
+    "RcppArmadillo": {
+      "Package": "RcppArmadillo",
+      "Version": "0.12.8.2.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "d5448fb24fb114c4da1275a37a571f37"
+    },
     "RcppParallel": {
       "Package": "RcppParallel",
       "Version": "5.1.7",
@@ -470,7 +484,7 @@
       "RemoteUsername": "GlobalEcologyLab",
       "RemoteRepo": "poems",
       "RemoteRef": "main",
-      "RemoteSha": "251671a76493c7ff8d785396d39cdc9ccfc4dfcf",
+      "RemoteSha": "cd526ea0c8175a128ed4a78cdde67c2e7927ee2a",
       "Requirements": [
         "R",
         "R6",
@@ -481,11 +495,12 @@
         "geosphere",
         "lhs",
         "metRology",
+        "qs",
         "raster",
         "trend",
         "truncnorm"
       ],
-      "Hash": "8d0ffd5c31f9ae4ef3a8fdce5ab8ee3c"
+      "Hash": "b6fab9e592c35689b6ff1d6bdf956545"
     },
     "purrr": {
       "Package": "purrr",
