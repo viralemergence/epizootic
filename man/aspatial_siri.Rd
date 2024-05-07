@@ -25,13 +25,14 @@ each combination of stage and compartment.}
 \item{mortality}{A vector of length 8 with the mortality rates for each
 stage and compartment in the season in question.}
 
-\item{transmission}{A vector of length 4 with the transmission rates for each
-susceptible/recovered stage in the season in question.}
+\item{transmission}{A vector of length 8 with the transmission rates for each
+stage in the season in question.}
 
-\item{recovery}{A vector of length 4 with the recovery rates for each
+\item{recovery}{A vector of length 8 with the recovery rates for each
 infected stage in the season in question.}
 
-\item{fecundity}{A single numeric with the daily fecundity of adults.}
+\item{fecundity}{A vector of length 8 with the fecundity for each
+reproductive segment.}
 
 \item{abundance_threshold}{A quasi-extinction threshold below which a
 population becomes extinct.}

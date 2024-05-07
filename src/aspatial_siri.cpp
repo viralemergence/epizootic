@@ -1,5 +1,4 @@
 #include <RcppArmadillo.h>
-#include <random>
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -40,8 +39,7 @@ using namespace Rcpp;
                                    double abundance_threshold,
                                    double carrying_capacity,
                                    const char * season) {
-   std::random_device rd;
-   std::mt19937 gen(rd());
+
    int n_stages = 8;
    arma::mat state(n_stages, season_length + 1);
    Rcpp::NumericVector dd_mortality(n_stages);
@@ -81,95 +79,75 @@ using namespace Rcpp;
 
      if (isBreedingSeason) {
       double adults = Sa + I1a + Ra + I2a;
-      std::poisson_distribution<int> poisson_dist(birth_rate * (1.0 - N / carrying_capacity));
-
       int total_births = 0;
       for (int i = 0; i < static_cast<int>(adults); ++i) {
-          total_births += poisson_dist(gen);
+          total_births += Rcpp::rpois(1, birth_rate * (1.0 - N / carrying_capacity))[0];
       }
-
       new_juv = total_births;
     }
 
-    int trials_infection1_juv = static_cast<int>(Sj * (I1j + I2j + I1a + I2a));
-    std::binomial_distribution<int> dist_infection1_juv(trials_infection1_juv, transmission[0]);
-    double infection1_juv = std::min(static_cast<double>(dist_infection1_juv(gen)), Sj);
+    double trials_infection1_juv = Sj * (I1j + I2j + I1a + I2a);
+    double infection1_juv = std::min(Rcpp::rbinom(1, trials_infection1_juv, transmission[0])[0], Sj);
 
-    int trials_infection1_adult = static_cast<int>(Sa * (I1j + I2j + I1a + I2a));
-    std::binomial_distribution<int> dist_infection1_adult(trials_infection1_adult, transmission[1]);
-    double infection1_adult = std::min(static_cast<double>(dist_infection1_adult(gen)), Sa);
+    double trials_infection1_adult = Sa * (I1j + I2j + I1a + I2a);
+    double infection1_adult = std::min(Rcpp::rbinom(1, trials_infection1_adult, transmission[1])[0], Sa);
 
-    int trials_susceptible_adult_death = static_cast<int>(Sa - infection1_adult);
-    std::binomial_distribution<int> dist_susceptible_adult_death(trials_susceptible_adult_death, dd_mortality[1]);
-    double susceptible_adult_death = dist_susceptible_adult_death(gen);
+    double trials_susceptible_adult_death = Sa - infection1_adult;
+    double susceptible_adult_death = Rcpp::rbinom(1, trials_susceptible_adult_death, dd_mortality[1])[0];
 
-    int trials_susceptible_juvenile_death = isBreedingSeason ? static_cast<int>(Sj + new_juv - infection1_juv) : static_cast<int>(Sj - infection1_juv);
-    std::binomial_distribution<int> dist_susceptible_juvenile_death(trials_susceptible_juvenile_death, dd_mortality[0]);
-    double susceptible_juvenile_death = dist_susceptible_juvenile_death(gen);
+    double trials_susceptible_juvenile_death = isBreedingSeason ? Sj + new_juv - infection1_juv : Sj - infection1_juv;
+    double susceptible_juvenile_death = Rcpp::rbinom(1, trials_susceptible_juvenile_death, dd_mortality[0])[0];
 
-    // Infected juvenile deaths
-    int trials_infected1_juvenile = static_cast<int>(I1j + infection1_juv);
-    std::binomial_distribution<int> dist_infected1_juvenile(trials_infected1_juvenile, dd_mortality[2]);
-    double infected1_juvenile_death = dist_infected1_juvenile(gen);
+    double trials_infected1_juvenile = I1j + infection1_juv;
+    double infected1_juvenile_death = Rcpp::rbinom(1, trials_infected1_juvenile, dd_mortality[2])[0];
 
     // Infected adult deaths
-    int trials_infected1_adult = static_cast<int>(I1a + infection1_adult);
-    std::binomial_distribution<int> dist_infected1_adult(trials_infected1_adult, dd_mortality[3]);
-    double infected1_adult_death = dist_infected1_adult(gen);
+    double trials_infected1_adult = I1a + infection1_adult;
+    double infected1_adult_death = Rcpp::rbinom(1, trials_infected1_adult, dd_mortality[3])[0];
 
     // Recovery of juvenile after first infection
-    int trials_recovery1_juv = static_cast<int>(I1j + infection1_juv - infected1_juvenile_death);
-    std::binomial_distribution<int> dist_recovery1_juv(trials_recovery1_juv, recovery[2]);
-    double recovery1_juv = std::min(static_cast<double>(dist_recovery1_juv(gen)),
-                                    I1j + infection1_juv - infected1_juvenile_death);
+    double trials_recovery1_juv = I1j + infection1_juv - infected1_juvenile_death;
+    double recovery1_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery1_juv, recovery[2])[0]),
+            I1j + infection1_juv - infected1_juvenile_death);
 
     // Recovery of adult after first infection
-    int trials_recovery1_adult = static_cast<int>(I1a + infection1_adult - infected1_adult_death);
-    std::binomial_distribution<int> dist_recovery1_adult(trials_recovery1_adult, recovery[3]);
-    double recovery1_adult = std::min(static_cast<double>(dist_recovery1_adult(gen)),
-                                      I1a + infection1_adult - infected1_adult_death);
+    double trials_recovery1_adult = I1a + infection1_adult - infected1_adult_death;
+    double recovery1_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery1_adult, recovery[3])[0]),
+              I1a + infection1_adult - infected1_adult_death);
 
     // Second infection juvenile
-    int trials_infection2_juv = static_cast<int>((Rj + recovery1_juv) * (I1j + I2j + I1a + I2a));
-    std::binomial_distribution<int> dist_infection2_juv(trials_infection2_juv, transmission[4]);
-    double infection2_juv = std::min(static_cast<double>(dist_infection2_juv(gen)),
-                                     Rj + recovery1_juv);
+    double trials_infection2_juv = (Rj + recovery1_juv) * (I1j + I2j + I1a + I2a);
+    double infection2_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_infection2_juv, transmission[4])[0]),
+         Rj + recovery1_juv);
 
     // Second infection adult
-    int trials_infection2_adult = static_cast<int>((Ra + recovery1_adult) * (I1j + I2j + I1a + I2a));
-    std::binomial_distribution<int> dist_infection2_adult(trials_infection2_adult, transmission[5]);
-    double infection2_adult = std::min(static_cast<double>(dist_infection2_adult(gen)),
-                                       Ra + recovery1_adult);
+    double trials_infection2_adult = (Ra + recovery1_adult) * (I1j + I2j + I1a + I2a);
+    double infection2_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_infection2_adult, transmission[5])[0]),
+           Ra + recovery1_adult);
 
     // Second infected juvenile deaths
-    int trials_infected2_juvenile = static_cast<int>(I2j + infection2_juv);
-    std::binomial_distribution<int> dist_infected2_juvenile(trials_infected2_juvenile, dd_mortality[6]);
-    double infected2_juvenile_death = dist_infected2_juvenile(gen);
+    double trials_infected2_juvenile = I2j + infection2_juv;
+    double infected2_juvenile_death = Rcpp::rbinom(1, trials_infected2_juvenile, dd_mortality[6])[0];
 
     // Second infected adult deaths
-    int trials_infected2_adult = static_cast<int>(I2a + infection2_adult);
-    std::binomial_distribution<int> dist_infected2_adult(trials_infected2_adult, dd_mortality[7]);
-    double infected2_adult_death = dist_infected2_adult(gen);
+    double trials_infected2_adult = I2a + infection2_adult;
+    double infected2_adult_death = Rcpp::rbinom(1, trials_infected2_adult, dd_mortality[7])[0];
 
     // Second recovery juvenile
-    int trials_recovery2_juv = static_cast<int>(I2j + infection2_juv - infected2_juvenile_death);
-    std::binomial_distribution<int> dist_recovery2_juv(trials_recovery2_juv, recovery[6]);
-    double recovery2_juv = std::min(static_cast<double>(dist_recovery2_juv(gen)), I2j + infection2_juv - infected2_juvenile_death);
+    double trials_recovery2_juv = I2j + infection2_juv - infected2_juvenile_death;
+    double recovery2_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery2_juv, recovery[6])[0]), I2j + infection2_juv - infected2_juvenile_death);
 
     // Second recovery adult
-    int trials_recovery2_adult = static_cast<int>(I2a + infection2_adult - infected2_adult_death);
-    std::binomial_distribution<int> dist_recovery2_adult(trials_recovery2_adult, recovery[7]);
-    double recovery2_adult = std::min(static_cast<double>(dist_recovery2_adult(gen)), I2a + infection2_adult - infected2_adult_death);
+    double trials_recovery2_adult = I2a + infection2_adult - infected2_adult_death;
+    double recovery2_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery2_adult, recovery[7])[0]), I2a + infection2_adult - infected2_adult_death);
 
     // Recovered juvenile deaths
-    int trials_recovered_juvenile_death = static_cast<int>(Rj + recovery1_juv + recovery2_juv - infection2_juv);
-    std::binomial_distribution<int> dist_recovered_juvenile_death(trials_recovered_juvenile_death, dd_mortality[4]);
-    double recovered_juvenile_death = dist_recovered_juvenile_death(gen);
+    double trials_recovered_juvenile_death = Rj + recovery1_juv + recovery2_juv - infection2_juv;
+    double recovered_juvenile_death = Rcpp::rbinom(1, trials_recovered_juvenile_death, dd_mortality[4])[0];
 
     // Recovered adult deaths
-    int trials_recovered_adult_death = static_cast<int>(Ra + recovery1_adult + recovery2_adult - infection2_adult);
-    std::binomial_distribution<int> dist_recovered_adult_death(trials_recovered_adult_death, dd_mortality[5]);
-    double recovered_adult_death = dist_recovered_adult_death(gen);
+    double trials_recovered_adult_death = Ra + recovery1_adult + recovery2_adult - infection2_adult;
+    double recovered_adult_death = Rcpp::rbinom(1, trials_recovered_adult_death, dd_mortality[5])[0];
 
      // Update state for the next time step
      if (isBreedingSeason) {
