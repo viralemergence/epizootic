@@ -39,16 +39,26 @@ using namespace Rcpp;
                                    double abundance_threshold,
                                    double carrying_capacity,
                                    const char * season) {
-
+   // Setup                                 
    int n_stages = 8;
-   arma::mat state(n_stages, season_length + 1);
+   int remainder = season_length % 10;
+   int tendays = 0;
+   if (remainder >= 5) {
+    tendays = season_length + 10 - remainder;
+   } else {
+    tendays = season_length - remainder;
+   }
+   arma::mat state(n_stages, tendays + 1);
    Rcpp::NumericVector dd_mortality(n_stages);
    const char *str_comp1 = "breeding";
    bool isBreedingSeason = std::strcmp(str_comp1, season) == 0;
-   double birth_rate = fecundity[1];
+   double birth_rate = fecundity[1]*10;
+   Rcpp::NumericVector mortality_rate = mortality * 10;
+   Rcpp::NumericVector transmission_rate = transmission * 10;
+   Rcpp::NumericVector recovery_rate = recovery * 10;
 
    state.col(0) = initial_pop;
-   for (int t = 0; t < season_length; t++) {
+   for (int t = 0; t < tendays; t++) {
      // Unpack states
      double Sa = state(1, t);
      double Sj = state(0, t);
@@ -65,11 +75,11 @@ using namespace Rcpp;
      double N = std::min(arma::accu(state.col(t)), carrying_capacity);
 
      if (N < abundance_threshold) {
-      state.cols(t + 1, season_length).zeros();
+      state.cols(t + 1, tendays).zeros();
       break;
      }
 
-     dd_mortality = (1.0 + N / carrying_capacity) * mortality;
+     dd_mortality = (1.0 + N / carrying_capacity) * mortality_rate;
 
      for (int i = 0; i < n_stages; i++) {
        dd_mortality[i] = std::min(dd_mortality[i], 1.0);
@@ -87,10 +97,10 @@ using namespace Rcpp;
     }
 
     double trials_infection1_juv = Sj * (I1j + I2j + I1a + I2a);
-    double infection1_juv = std::min(Rcpp::rbinom(1, trials_infection1_juv, transmission[0])[0], Sj);
+    double infection1_juv = std::min(Rcpp::rbinom(1, trials_infection1_juv, transmission_rate[0])[0], Sj);
 
     double trials_infection1_adult = Sa * (I1j + I2j + I1a + I2a);
-    double infection1_adult = std::min(Rcpp::rbinom(1, trials_infection1_adult, transmission[1])[0], Sa);
+    double infection1_adult = std::min(Rcpp::rbinom(1, trials_infection1_adult, transmission_rate[1])[0], Sa);
 
     double trials_susceptible_adult_death = Sa - infection1_adult;
     double susceptible_adult_death = Rcpp::rbinom(1, trials_susceptible_adult_death, dd_mortality[1])[0];
@@ -107,22 +117,22 @@ using namespace Rcpp;
 
     // Recovery of juvenile after first infection
     double trials_recovery1_juv = I1j + infection1_juv - infected1_juvenile_death;
-    double recovery1_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery1_juv, recovery[2])[0]),
+    double recovery1_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery1_juv, recovery_rate[2])[0]),
             I1j + infection1_juv - infected1_juvenile_death);
 
     // Recovery of adult after first infection
     double trials_recovery1_adult = I1a + infection1_adult - infected1_adult_death;
-    double recovery1_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery1_adult, recovery[3])[0]),
+    double recovery1_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery1_adult, recovery_rate[3])[0]),
               I1a + infection1_adult - infected1_adult_death);
 
     // Second infection juvenile
     double trials_infection2_juv = (Rj + recovery1_juv) * (I1j + I2j + I1a + I2a);
-    double infection2_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_infection2_juv, transmission[4])[0]),
+    double infection2_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_infection2_juv, transmission_rate[4])[0]),
          Rj + recovery1_juv);
 
     // Second infection adult
     double trials_infection2_adult = (Ra + recovery1_adult) * (I1j + I2j + I1a + I2a);
-    double infection2_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_infection2_adult, transmission[5])[0]),
+    double infection2_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_infection2_adult, transmission_rate[5])[0]),
            Ra + recovery1_adult);
 
     // Second infected juvenile deaths
@@ -135,11 +145,11 @@ using namespace Rcpp;
 
     // Second recovery juvenile
     double trials_recovery2_juv = I2j + infection2_juv - infected2_juvenile_death;
-    double recovery2_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery2_juv, recovery[6])[0]), I2j + infection2_juv - infected2_juvenile_death);
+    double recovery2_juv = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery2_juv, recovery_rate[6])[0]), I2j + infection2_juv - infected2_juvenile_death);
 
     // Second recovery adult
     double trials_recovery2_adult = I2a + infection2_adult - infected2_adult_death;
-    double recovery2_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery2_adult, recovery[7])[0]), I2a + infection2_adult - infected2_adult_death);
+    double recovery2_adult = std::min(static_cast<double>(Rcpp::rbinom(1, trials_recovery2_adult, recovery_rate[7])[0]), I2a + infection2_adult - infected2_adult_death);
 
     // Recovered juvenile deaths
     double trials_recovered_juvenile_death = Rj + recovery1_juv + recovery2_juv - infection2_juv;
@@ -173,7 +183,7 @@ using namespace Rcpp;
    // Return the final state
    Rcpp::NumericVector final_state(n_stages);
    for (int i = 0; i < n_stages; i++) {
-     final_state[i] = state(i, season_length);
+     final_state[i] = state(i, tendays);
    }
 
    return final_state;
