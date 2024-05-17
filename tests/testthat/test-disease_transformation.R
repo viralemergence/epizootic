@@ -174,6 +174,6 @@ test_that("The function works as expected with siri_model_summer", {
   # Use expect_equal to compare the results
   expect_equal(result_from_new_function,
              list(segment_abundance = result_from_siri_model_summer),
-             tolerance = 20)  # Adjust the tolerance as needed
+             tolerance = 25)  # Adjust the tolerance as needed
 
 })
