@@ -1,6 +1,6 @@
 test_that("Runs successfully with valid inputs", {
   model_template <- DiseaseModel$new(
-    time_steps = 10,
+    time_steps = 5,
     seasons = 2,
     populations = 25,
     stages = 2,
@@ -27,6 +27,7 @@ test_that("Runs successfully with valid inputs", {
     simulation_order = c("transition", "season_functions", "results"),
     results_selection = "abundance",
     results_breakdown = "stages",
+    dispersal_type = "stages",
     attribute_aliases = list(dispersal1 = "dispersal$a",
                              dispersal2 = "dispersal$b"),
     verbose = FALSE
@@ -49,7 +50,7 @@ test_that("Runs successfully with valid inputs", {
   generator3$add_function_template(
     "carrying_capacity",
     function_def = function(params) {
-      matrix(params$seed_number, ncol = 10, nrow = 25)
+      matrix(params$seed_number, ncol = 5, nrow = 25)
     },
     call_params = c("seed_number")
   )

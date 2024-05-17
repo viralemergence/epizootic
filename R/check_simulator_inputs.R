@@ -8,6 +8,7 @@
 #' function.
 #'
 #'@param inputs Nested list/object with named elements:
+#'@param inputs Nested list/object with named elements:
 #'\describe{
 #'  \item{\code{random_seed}}{Number to seed the random number generation for
 #'  stochasticity.}
@@ -211,6 +212,15 @@
 #'  "season_functions" appears in element 1 of the list, `season_functions[[1]]`
 #'  will be called.) If the simulation processes are the same across seasons,
 #'  then a single character vector may be provided. Required input.}
+#'  \item{\code{dispersal_type}}{A character vector that may contain "pooled"
+#'  (if all individuals disperse the same), "stages", "compartments", or
+#'  "segments", if different stages, compartments, or stage-compartment
+#'  combinations disperse differently. If "pooled" is chosen, 
+#'  \code{dispersal} must be a list of length 1. If "stages" is chosen, it 
+#'  must be the same length as \code{stages}, if "compartments" is chosen,
+#'  it must be the same length as \code{compartments}, and if "segments" is
+#'  chosen, it must be the same length as stages*compartments. The default 
+#' value is "pooled".}
 #'  \item{\code{results_selection}}{List of results selection from: "abundance"
 #'  (default), "ema", "extirpation", "extinction_location",
 #'  "occupancy"; "summarize" (default) or "replicate".}
@@ -383,7 +393,7 @@ check_simulator_inputs <- function(inputs) {
   if (!(ncol(inputs[["carrying_capacity_matrix"]]) %in%
         c(1, inputs[["time_steps"]]))) {
     cli_abort(c(
-      "carrying_capacity has {ncol(inputs[['carrying_capacity_matrix']]
+      "carrying_capacity has {ncol(inputs[['carrying_capacity_matrix']]}
       column{?s}.",
       "x" = "There should be 1 or {inputs[['time_steps']]} column{?s}."
     ))
@@ -1152,29 +1162,30 @@ check_simulator_inputs <- function(inputs) {
                 "x" = "{.var dispersal} is length {length(inputs[["dispersal"]])}.'))
   }
 
-  if (length(inputs[["dispersal"]]) == 1) {
-    inputs[["dispersal_type"]] <- "pooled"
+  if(is.null(inputs[["dispersal_type"]]) && !is.null(inputs[["dispersal"]])) {
+      inputs[["dispersal_type"]] <- "pooled"
   }
 
-  if (length(inputs[["dispersal"]]) == stages) {
-    inputs[["dispersal_type"]] <- "stages"
-  }
-
-  if (length(inputs[["dispersal"]]) == compartments) {
-    inputs[["dispersal_type"]] <- "compartments"
-  }
-
-  if (length(inputs[["dispersal"]]) == segments) {
-    inputs[["dispersal_type"]] <- "segments"
-  }
-
-  if (is.list(inputs[["dispersal"]]) &&
-      !is.null(names(inputs[["dispersal"]]))) {
-    inputs[["dispersal"]] <- inputs[["dispersal"]][order(names(inputs[["dispersal"]]))]
-    if (inputs[["verbose"]]) {
-      cli_inform(c("`dispersal` is a named list.",
-                 "i" = "The named list has been sorted alphabetically."))
-    }
+  if (!is.null(inputs[["dispersal_type"]]) && !is.null(inputs[["dispersal"]])) {
+      if (inputs[["dispersal_type"]] == "pooled") {
+          if (length(inputs[["dispersal"]]) != 1) {
+              cli_abort(c("When `dispersal_type` is pooled, `dispersal` must be length 1."))
+          }
+      } else if (inputs[["dispersal_type"]] == "stages" && !is.null(inputs[["stages"]])) {
+          if (length(inputs[["dispersal"]]) != inputs[["stages"]]) {
+              cli_abort("Length of `dispersal` must be equal to the number of stages.")
+          }
+      } else if (inputs[["dispersal_type"]] == "compartments" && !is.null(inputs[["compartments"]])) {
+          if (length(inputs[["dispersal"]]) != inputs[["compartments"]]) {
+              cli_abort("Length of `dispersal` must be equal to the number of compartments.")
+          }
+      } else if (inputs[["dispersal_type"]] == "segments" && exists("segments")) {
+          if (length(inputs[["dispersal"]]) != segments) {
+              cli_abort("Length of `dispersal` must be equal to `stages*compartments`.")
+          }
+      } else {
+          cli_abort("Invalid value for `dispersal_type`.")
+      }
   }
 
   # Abundance threshold
