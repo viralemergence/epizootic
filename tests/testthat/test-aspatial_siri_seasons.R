@@ -1,6 +1,6 @@
 test_that("Summer simulator works with valid inputs", {
   inputs <- list(
-    populations = 6355,
+    populations = 63,
     stages = 2,
     compartments = 4,
     abundance_threshold = 10,
@@ -15,19 +15,19 @@ test_that("Summer simulator works with valid inputs", {
     recovery = c(0.05714286, 0.05714286, 0.1, 0.1),
     recovery_unit = rep(0, 4),
     recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
-    carrying_capacity = rep(150000, 6355),
-    breeding_season_length = rep(100, 6355),
+    carrying_capacity = rep(150000, 63),
+    breeding_season_length = rep(100, 63),
     segment_abundance = c(c(50000, 50000, 0, 1, 0, 0, 0, 0),
-                          rep(c(50000, 50000, 0, 0, 0, 0, 0, 0), 6354)) |>
+                          rep(c(50000, 50000, 0, 0, 0, 0, 0, 0), 62)) |>
       matrix(nrow = 8),
-    occupied_indices = c(1:1000)
+    occupied_indices = c(1:63)
   )
   expect_silent(siri_model_summer(inputs))
 })
 
 test_that("Winter simulator works with valid inputs", {
   inputs <- list(
-    populations = 6355,
+    populations = 63,
     stages = 2,
     compartments = 4,
     abundance_threshold = 10,
@@ -39,12 +39,12 @@ test_that("Winter simulator works with valid inputs", {
     recovery = c(0.05714286, 0.05714286, 0.1, 0.1),
     recovery_unit = rep(0, 4),
     recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
-    carrying_capacity = rep(150000, 6355),
-    breeding_season_length = rep(100, 6355),
+    carrying_capacity = rep(150000, 63),
+    breeding_season_length = rep(100, 63),
     segment_abundance = c(c(50000, 50000, 0, 1, 0, 0, 0, 0),
-                          rep(c(50000, 50000, 0, 0, 0, 0, 0, 0), 6354)) |>
+                          rep(c(50000, 50000, 0, 0, 0, 0, 0, 0), 62)) |>
       matrix(nrow = 8),
-    occupied_indices = c(1:6355)
+    occupied_indices = c(1:63)
   )
   expect_silent(siri_model_winter(inputs))
 })

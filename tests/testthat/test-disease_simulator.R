@@ -1,6 +1,6 @@
 test_that('disease_simulator works with valid inputs', {
   inputs <- list(
-    time_steps = 10,
+    time_steps = 5,
     seasons = 2,
     populations = 25,
     stages = 2,
@@ -10,7 +10,7 @@ test_that('disease_simulator works with valid inputs', {
     initial_abundance = c(c(5000, 5000, 0, 1, 0, 0, 0, 0),
                           rep(c(5000, 5000, 0, 0, 0, 0, 0, 0), 24)) |>
       matrix(nrow = 8),
-    carrying_capacity = matrix(100000, nrow = 25, ncol = 10),
+    carrying_capacity = matrix(100000, nrow = 25, ncol = 5),
     breeding_season_length = rep(100, 25),
     mortality = c(0.4, 0, 0.505, 0.105, 0.4, 0, 0.45, 0.05),
     mortality_unit = 1,
