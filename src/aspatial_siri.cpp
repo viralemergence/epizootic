@@ -44,6 +44,7 @@ Rcpp::NumericVector aspatial_siri(Rcpp::NumericVector initial_pop,
   Rcpp::NumericVector dd_mortality(n_stages);
   bool isBreedingSeason = (season == "breeding");
   double birth_rate = fecundity[1];
+  bool hasTransmission = arma::any(arma::vec(transmission.begin(), transmission.size()) > 0);
 
   state.col(0) = Rcpp::as<arma::vec>(initial_pop);
   for (int t = 0; t < season_length; t++) {
@@ -77,6 +78,21 @@ Rcpp::NumericVector aspatial_siri(Rcpp::NumericVector initial_pop,
       }
     }
 
+    bool hasInfections = (I1j + I1a + I2j + I2a) > 0;
+
+    if (!hasTransmission || !hasInfections) {
+      // Only update Sj and Sa, skipping all infection and recovery calculations
+      state(0, t + 1) = isBreedingSeason ? Sj + new_juv - Rcpp::rbinom(1, Sj + new_juv, dd_mortality[0])[0] : Sj - Rcpp::rbinom(1, Sj, dd_mortality[0])[0];
+      state(1, t + 1) = Sa - Rcpp::rbinom(1, Sa, dd_mortality[1])[0];
+      state(2, t + 1) = I1j;
+      state(3, t + 1) = I1a;
+      state(4, t + 1) = Rj;
+      state(5, t + 1) = Ra;
+      state(6, t + 1) = I2j;
+      state(7, t + 1) = I2a;
+      continue;
+    }
+
     double infection1_juv = std::min(Rcpp::rbinom(1, Sj * (I1j + I2j + I1a + I2a), transmission[0])[0], Sj);
     double infection1_adult = std::min(Rcpp::rbinom(1, Sa * (I1j + I2j + I1a + I2a), transmission[1])[0], Sa);
     double susceptible_adult_death = Rcpp::rbinom(1, Sa - infection1_adult, dd_mortality[1])[0];
@@ -108,5 +124,3 @@ Rcpp::NumericVector aspatial_siri(Rcpp::NumericVector initial_pop,
   // Return the final state
   return Rcpp::NumericVector(state.col(season_length).begin(), state.col(season_length).end());
 }
-
-
