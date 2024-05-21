@@ -212,6 +212,15 @@ desired order. Processes must be one of "transition", "dispersal",
 "season_functions" appears in element 1 of the list, \code{season_functions[[1]]}
 will be called.) If the simulation processes are the same across seasons,
 then a single character vector may be provided. Required input.}
+\item{\code{dispersal_type}}{A character vector that may contain "pooled"
+(if all individuals disperse the same), "stages", "compartments", or
+"segments", if different stages, compartments, or stage-compartment
+combinations disperse differently. If "pooled" is chosen,
+\code{dispersal} must be a list of length 1. If "stages" is chosen, it
+must be the same length as \code{stages}, if "compartments" is chosen,
+it must be the same length as \code{compartments}, and if "segments" is
+chosen, it must be the same length as stages*compartments. The default
+value is "pooled".}
 \item{\code{results_selection}}{List of results selection from: "abundance"
 (default), "ema", "extirpation", "extinction_location",
 "occupancy"; "summarize" (default) or "replicate".}
