@@ -12,12 +12,12 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // aspatial_siri
-Rcpp::NumericVector aspatial_siri(arma::vec initial_pop, int season_length, Rcpp::NumericVector mortality, Rcpp::NumericVector transmission, Rcpp::NumericVector recovery, Rcpp::NumericVector fecundity, double abundance_threshold, double carrying_capacity, const char * season);
+Rcpp::NumericVector aspatial_siri(Rcpp::NumericVector initial_pop, int season_length, Rcpp::NumericVector mortality, Rcpp::NumericVector transmission, Rcpp::NumericVector recovery, Rcpp::NumericVector fecundity, double abundance_threshold, double carrying_capacity, const std::string& season);
 RcppExport SEXP _epizootic_aspatial_siri(SEXP initial_popSEXP, SEXP season_lengthSEXP, SEXP mortalitySEXP, SEXP transmissionSEXP, SEXP recoverySEXP, SEXP fecunditySEXP, SEXP abundance_thresholdSEXP, SEXP carrying_capacitySEXP, SEXP seasonSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type initial_pop(initial_popSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type initial_pop(initial_popSEXP);
     Rcpp::traits::input_parameter< int >::type season_length(season_lengthSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mortality(mortalitySEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type transmission(transmissionSEXP);
@@ -25,7 +25,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type fecundity(fecunditySEXP);
     Rcpp::traits::input_parameter< double >::type abundance_threshold(abundance_thresholdSEXP);
     Rcpp::traits::input_parameter< double >::type carrying_capacity(carrying_capacitySEXP);
-    Rcpp::traits::input_parameter< const char * >::type season(seasonSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type season(seasonSEXP);
     rcpp_result_gen = Rcpp::wrap(aspatial_siri(initial_pop, season_length, mortality, transmission, recovery, fecundity, abundance_threshold, carrying_capacity, season));
     return rcpp_result_gen;
 END_RCPP
