@@ -384,8 +384,8 @@ disease_dispersal <- function(replicates,
                                         dispersals_change_over_time,
                                         dispersal_data_changes,
                                         dispersal_compact_matrix_tm,
-                                        dispersal_stages) {
-
+                                        dispersal_stages,
+                                        tm) {                         
       if (dispersal_stages) {
         if (tm == 1 || !dispersals_change_over_time) {
           dispersal_compact_matrix_tm <- dispersal_compact_matrix
@@ -410,12 +410,13 @@ disease_dispersal <- function(replicates,
       dispersal_compact_matrix_tm_list <- vector("list", n)
     }
 
-    dispersal_compact_matrix_tm_list <- pmap(list(dispersal_compact_matrix_list,
+    dispersal_compact_matrix_tm_list <- mapply(apply_dispersal_changes,
+                                              dispersal_compact_matrix_list,
                                               dispersals_change_over_time_list,
                                               dispersal_data_changes_list,
                                               dispersal_compact_matrix_tm_list,
-                                              dispersal_stages_expanded),
-                                              apply_dispersal_changes)
+                                              dispersal_stages_expanded,
+                                              replicate(n, list(tm)))
 
     simulator$attached$dispersal_compact_matrix_tm_list <- dispersal_compact_matrix_tm_list
 
