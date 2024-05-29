@@ -70,7 +70,7 @@ returns the post-dispersal abundance matrix}
 \item{simulator}{\code{\link{SimulatorReference}} object with dynamically accessible \emph{attached} and \emph{results} lists.}
 }
 \value{
-Dispersal function: \code{function(r, tm, carrying_capacity, segment_abundance, occupied_indices)}, where:
+Dispersal function: \code{function(r, tm, carrying_capacity, segment_abundance)}, where:
 \describe{
 \item{\code{r}}{Simulation replicate.}
 \item{\code{tm}}{Simulation time step.}

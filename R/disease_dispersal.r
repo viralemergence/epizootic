@@ -39,7 +39,7 @@
 #' @param stages Number of life cycle stages.
 #' @param compartments NUmber of disease compartments.
 #' @param simulator \code{\link{SimulatorReference}} object with dynamically accessible \emph{attached} and \emph{results} lists.
-#' @return Dispersal function: \code{function(r, tm, carrying_capacity, segment_abundance, occupied_indices)}, where:
+#' @return Dispersal function: \code{function(r, tm, carrying_capacity, segment_abundance)}, where:
 #'   \describe{
 #'     \item{\code{r}}{Simulation replicate.}
 #'     \item{\code{tm}}{Simulation time step.}
@@ -359,7 +359,9 @@ disease_dispersal <- function(replicates,
 
     dispersal_compact_matrix_list <- expand_lists(dispersal_compact_matrix_list, step_indices)
     dispersals_change_over_time_list <- expand_lists(dispersals_change_over_time_list, step_indices)
-    dispersal_data_changes_list <- expand_lists(dispersal_data_changes_list, step_indices = step_indices)
+    if (exists("dispersal_data_changes_list")) {
+      dispersal_data_changes_list <- expand_lists(dispersal_data_changes_list, step_indices = step_indices)
+    }
     dispersal_compact_rows_list <- expand_lists(dispersal_compact_rows_list, step_indices)
     dispersal_immigrant_map_list <- expand_lists(dispersal_immigrant_map_list, step_indices = step_indices)
     if (exists("dispersal_target_pop_map_list")) {
@@ -399,13 +401,18 @@ disease_dispersal <- function(replicates,
       return(dispersal_compact_matrix_tm)
     }
 
+    # Check if 'dispersal_data_changes_list' exists
+    if (!exists("dispersal_data_changes_list")) {
+      dispersal_data_changes_list <- list()
+    }
+
     dispersal_compact_matrix_tm_list <- mapply(apply_dispersal_changes,
-                                               dispersal_compact_matrix_list,
-                                               dispersals_change_over_time_list,
-                                               dispersal_data_changes_list,
-                                               dispersal_compact_matrix_tm_list,
-                                               dispersal_stages_expanded,
-                                               SIMPLIFY=FALSE)
+                                              dispersal_compact_matrix_list,
+                                              dispersals_change_over_time_list,
+                                              dispersal_data_changes_list,
+                                              dispersal_compact_matrix_tm_list,
+                                              dispersal_stages_expanded,
+                                              SIMPLIFY=FALSE)
 
     simulator$attached$dispersal_compact_matrix_tm_list <- dispersal_compact_matrix_tm_list
 
