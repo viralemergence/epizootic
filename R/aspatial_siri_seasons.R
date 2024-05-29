@@ -200,29 +200,29 @@ siri_model_winter <- function(inputs) {
   inputs <- check_aspatial_siri_inputs(inputs)
   list2env(inputs, environment())
   active_pops <- length(occupied_indices)
-  season_length <- 365 - breeding_season_length
+  season_length <- (365 - breeding_season_length)[occupied_indices]
 
   # Convert the units of anything seasonal to now be daily
   fecundity <- replicate(active_pops, list(fecundity)) |>
-    map2(breeding_season_length[occupied_indices], \(x, y) {
+    map2(season_length, \(x, y) {
       x[as.logical(fecundity_unit)] <- x[as.logical(fecundity_unit)] |>
         (`/`)(y)
       return(x)
     })
   mortality <- replicate(active_pops, list(mortality)) |>
-    map2(breeding_season_length[occupied_indices], \(x, y) {
+    map2(season_length, \(x, y) {
       x[as.logical(mortality_unit)] <- x[as.logical(mortality_unit)] |>
         (`/`)(y) |> pmin(1)
       return(x)
     })
   transmission <- replicate(active_pops, list(transmission)) |>
-    map2(breeding_season_length[occupied_indices], \(x, y) {
+    map2(season_length, \(x, y) {
       x[as.logical(transmission_unit)] <- x[as.logical(transmission_unit)] |>
         (`/`)(y) |> pmin(1)
       return(x)
     })
   recovery <- replicate(active_pops, list(recovery)) |>
-    map2(breeding_season_length[occupied_indices], \(x, y) {
+    map2(season_length, \(x, y) {
       x[as.logical(recovery_unit)] <- x[as.logical(recovery_unit)] |>
         (`/`)(y) |> pmin(1)
       return(x)
@@ -239,7 +239,6 @@ siri_model_winter <- function(inputs) {
     return(segment_abundance)
   }
   carrying_capacity <- carrying_capacity[occupied_indices]
-  season_length <- breeding_season_length[occupied_indices]
 
   population_new <- pmap(list(initial_pop = population_list,
                               mortality = mortality,
