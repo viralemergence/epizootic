@@ -797,4 +797,27 @@ test_that("density dependent dispersal", {
       segment_abundance
     )
   )
+  # Target abundance divide by carrying capacity N/K threshold < cutoff
+  # (avoids over-exploited cells)
+  dispersal_function <- disease_dispersal(
+    replicates = 4,
+    time_steps = 10,
+    populations = 7,
+    demographic_stochasticity = TRUE,
+    dispersal = list(dispersal_gen1$dispersal_matrix,
+                     dispersal_gen2$dispersal_matrix),
+    dispersal_type = "compartments",
+    dispersal_target_n_k = list(cutoff = 0.115, threshold = 0.679),
+    stages = 1,
+    compartments = 2,
+    simulator = simulator
+  )
+  expect_silent(
+    dispersal_function(
+      r = 2,
+      tm = 1,
+      carrying_capacity,
+      segment_abundance
+    )
+  )
 })

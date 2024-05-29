@@ -378,15 +378,14 @@ disease_dispersal <- function(replicates,
     }
 
     dispersal_compact_matrix_tm_list <- simulator$attached$dispersal_compact_matrix_tm_list
-    if (is.null(dispersal_compact_matrix_tm_list)) {
-      dispersal_compact_matrix_tm_list <- rep(list(NULL), stages*compartments)
-    }
+
     # Apply any spatio-temporal dispersal changes
     apply_dispersal_changes <- function(dispersal_compact_matrix,
                                         dispersals_change_over_time,
                                         dispersal_data_changes,
                                         dispersal_compact_matrix_tm,
                                         dispersal_stages) {
+
       if (dispersal_stages) {
         if (tm == 1 || !dispersals_change_over_time) {
           dispersal_compact_matrix_tm <- dispersal_compact_matrix
@@ -401,18 +400,22 @@ disease_dispersal <- function(replicates,
       return(dispersal_compact_matrix_tm)
     }
 
+    n <- length(dispersal_compact_matrix_list)
+
     # Check if 'dispersal_data_changes_list' exists
     if (!exists("dispersal_data_changes_list")) {
-      dispersal_data_changes_list <- list()
+      dispersal_data_changes_list <- vector("list", n)
+    }
+    if (is.null(dispersal_compact_matrix_tm_list)) {
+      dispersal_compact_matrix_tm_list <- vector("list", n)
     }
 
-    dispersal_compact_matrix_tm_list <- mapply(apply_dispersal_changes,
-                                              dispersal_compact_matrix_list,
+    dispersal_compact_matrix_tm_list <- pmap(list(dispersal_compact_matrix_list,
                                               dispersals_change_over_time_list,
                                               dispersal_data_changes_list,
                                               dispersal_compact_matrix_tm_list,
-                                              dispersal_stages_expanded,
-                                              SIMPLIFY=FALSE)
+                                              dispersal_stages_expanded),
+                                              apply_dispersal_changes)
 
     simulator$attached$dispersal_compact_matrix_tm_list <- dispersal_compact_matrix_tm_list
 

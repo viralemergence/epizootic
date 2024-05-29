@@ -1,10 +1,1 @@
-0 of 1 sample models ran and saved results successfully
-
-1 failed runs/errors:
-
-Sample 1 :
-Model sample 1 simulation ran unsuccessfully with errors
-Error in `value[[3L]]()`:
-! Error produced within user-defined season1 function:
-x Error in `pmap()`: i In index: 1. Caused by error in `.f()`: ! argument "season_length" is missing, with no default
-
+1 of 1 sample models ran and saved results successfully
