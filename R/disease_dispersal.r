@@ -385,7 +385,7 @@ disease_dispersal <- function(replicates,
                                         dispersal_data_changes,
                                         dispersal_compact_matrix_tm,
                                         dispersal_stages,
-                                        tm) {                         
+                                        tm) {
       if (dispersal_stages) {
         if (tm == 1 || !dispersals_change_over_time) {
           dispersal_compact_matrix_tm <- dispersal_compact_matrix
@@ -416,7 +416,8 @@ disease_dispersal <- function(replicates,
                                               dispersal_data_changes_list,
                                               dispersal_compact_matrix_tm_list,
                                               dispersal_stages_expanded,
-                                              replicate(n, list(tm)))
+                                              replicate(n, list(tm)),
+                                              SIMPLIFY = FALSE)
 
     simulator$attached$dispersal_compact_matrix_tm_list <- dispersal_compact_matrix_tm_list
 
