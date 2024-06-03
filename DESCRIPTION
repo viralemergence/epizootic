@@ -29,8 +29,7 @@ Suggests:
     testthat (>= 3.0.0),
     geosphere (>= 1.5),
     knitr (>= 1.17),
-    rmarkdown (>= 1.6),
-    deSolve (>= 1.40)
+    rmarkdown (>= 1.6)
 Config/testthat/edition: 3
 Collate: 
     'DiseaseModel.R'

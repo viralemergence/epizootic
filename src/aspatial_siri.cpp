@@ -73,9 +73,11 @@ Rcpp::NumericVector aspatial_siri(Rcpp::NumericVector initial_pop,
 
     if (isBreedingSeason) {
       double adults = Sa + I1a + Ra + I2a;
-      for (int i = 0; i < static_cast<int>(adults); ++i) {
-        new_juv += Rcpp::rpois(1, birth_rate * (1.0 - N / carrying_capacity))[0];
-      }
+      double birth_rate_adj = birth_rate * (1.0 - N / carrying_capacity);
+
+      // Generate Poisson random variables in a batch
+      Rcpp::NumericVector births = Rcpp::rpois(static_cast<int>(adults), birth_rate_adj);
+      new_juv = std::accumulate(births.begin(), births.end(), 0);
     }
 
     bool hasInfections = (I1j + I1a + I2j + I2a) > 0;
