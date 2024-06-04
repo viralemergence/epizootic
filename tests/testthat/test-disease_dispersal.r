@@ -629,37 +629,41 @@ test_that("default dispersal calculations", {
     ncol = 7,
     byrow = TRUE
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 1,
       carrying_capacity = carrying_capacity_tm_1,
       segment_abundance = segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 2,
       carrying_capacity = carrying_capacity_tm_2,
       segment_abundance = segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 3,
       carrying_capacity = carrying_capacity_tm_3,
       segment_abundance = segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 4,
       carrying_capacity = carrying_capacity_tm_4,
       segment_abundance = segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
 })
 
@@ -712,13 +716,14 @@ test_that("density dependent dispersal", {
     ncol = 7,
     byrow = TRUE
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 1,
       carrying_capacity,
       segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
   # Set abundance N cutoff as array
   dispersal_function <- disease_dispersal(
@@ -739,13 +744,14 @@ test_that("density dependent dispersal", {
     compartments = 2,
     simulator = simulator
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 1,
       carrying_capacity,
       segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
   # Target abundance N threshold > cutoff (seeks company)
   dispersal_function <- disease_dispersal(
@@ -766,13 +772,14 @@ test_that("density dependent dispersal", {
     compartments = 2,
     simulator = simulator
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 1,
       carrying_capacity,
       segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
   # Source abundance divide by carrying capacity N/K threshold > cutoff
   # (leaves over-exploited cells)
@@ -789,13 +796,14 @@ test_that("density dependent dispersal", {
     compartments = 2,
     simulator = simulator
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 1,
       carrying_capacity,
       segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
   # Target abundance divide by carrying capacity N/K threshold < cutoff
   # (avoids over-exploited cells)
@@ -812,12 +820,13 @@ test_that("density dependent dispersal", {
     compartments = 2,
     simulator = simulator
   )
-  expect_silent(
+  expect_equal(
     dispersal_function(
       r = 2,
       tm = 1,
       carrying_capacity,
       segment_abundance
-    )
+    ) |> sum(),
+    segment_abundance |> sum()
   )
 })
