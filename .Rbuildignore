@@ -5,4 +5,5 @@
 ^LICENSE\.md$
 ^\.github$
 ^README\.Rmd$
-^codecov\.yml$
+^rebuild-long-running-vignette\.R$
+^.*\.Rmd\.orig$

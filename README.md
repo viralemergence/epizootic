@@ -6,8 +6,11 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml)
-[![Codecov test
-coverage](https://codecov.io/gh/viralemergence/epizootic/branch/main/graph/badge.svg)](https://app.codecov.io/gh/viralemergence/epizootic?branch=main)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/paleopop)](https://CRAN.R-project.org/package=paleopop)
+[![Download_count](https://cranlogs.r-pkg.org/badges/grand-total/paleopop)](https://CRAN.R-project.org/package=paleopop)
+[![Last
+commit](https://img.shields.io/github/last-commit/GlobalEcologyLab/paleopop.svg)](https://github.com/GlobalEcologyLab/paleopop/commits/master)
 <!-- badges: end -->
 
 `epizootic` is an extension to `poems`, a spatially-explicit,
@@ -23,12 +26,12 @@ You can install the latest version of epizootic from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("GlobalEcologyLab/poems")
+install.packages("poems")
 devtools::install_github("viralemergence/epizootic")
 ```
 
 Because `epizootic` is an extension to `poems`, it is necessary to
-install `poems` first using `devtools::install_github()`.
+install `poems` first.
 
 ## About R6 classes
 

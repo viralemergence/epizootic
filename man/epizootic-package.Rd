@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: July Pilowsky \email{pilowskyj@caryinstitute.org} (\href{https://orcid.org/0000-0002-6376-2585}{ORCID})
 
+Other contributors:
+\itemize{
+  \item National Science Foundation Biology Integration Institute 2213854 [funder]
+}
+
 }
 \keyword{internal}
