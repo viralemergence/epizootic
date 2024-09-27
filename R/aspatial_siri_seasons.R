@@ -58,7 +58,7 @@
 #'     stage-compartment combo (rows) and population (columns) at time step.}
 #'     \item{\code{occupied_indices}}{Array of indices for populations occupied
 #'     at (current) time step.}
-#'     \item{\code{simulator}}{\code{\link{SimulatorReference}} object with
+#'     \item{\code{simulator}}{[`poems::SimulatorReference`] object with
 #'     dynamically accessible \emph{attached} and \emph{results} lists.}
 #'     \item{\code{additional attributes}}{Additional attributes when the
 #'     transformation is optionally nested in a list.}
@@ -186,7 +186,7 @@ siri_model_summer <- function(inputs) {
 #'     stage-compartment combo (rows) and population (columns) at time step.}
 #'     \item{\code{occupied_indices}}{Array of indices for populations occupied
 #'     at (current) time step.}
-#'     \item{\code{simulator}}{\code{\link{SimulatorReference}} object with
+#'     \item{\code{simulator}}{[`poems::SimulatorReference`] object with
 #'     dynamically accessible \emph{attached} and \emph{results} lists.}
 #'     \item{\code{additional attributes}}{Additional attributes when the
 #'     transformation is optionally nested in a list.}

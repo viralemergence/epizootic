@@ -53,7 +53,7 @@ days for each population at time step.}
 stage-compartment combo (rows) and population (columns) at time step.}
 \item{\code{occupied_indices}}{Array of indices for populations occupied
 at (current) time step.}
-\item{\code{simulator}}{\code{\link{SimulatorReference}} object with
+\item{\code{simulator}}{\code{\link[poems:SimulatorReference]{poems::SimulatorReference}} object with
 dynamically accessible \emph{attached} and \emph{results} lists.}
 \item{\code{additional attributes}}{Additional attributes when the
 transformation is optionally nested in a list.}

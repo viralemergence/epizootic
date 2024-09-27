@@ -53,7 +53,7 @@ subject to recovery (i.e., infected classes that can recover.)}
 \item{\code{transformation}}{A user-defined function (optionally nested in a list
 with additional attributes) for performing transformation using \code{params} as
 arguments.}
-\item{\code{simulator}}{\code{\link{SimulatorReference}} object with
+\item{\code{simulator}}{\code{\link[poems:SimulatorReference]{poems::SimulatorReference}} object with
 dynamically accessible \emph{attached} and \emph{results} lists.}
 \item{\code{name}}{Optional name for the transformation function.}
 \item{\code{additional attributes}}{Additional attributes when the

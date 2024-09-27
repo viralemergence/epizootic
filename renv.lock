@@ -90,20 +90,20 @@
     },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.0.12",
+      "Version": "1.0.13",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "methods",
         "utils"
       ],
-      "Hash": "5ea2700d21e038ace58269ecdbeb9ec0"
+      "Hash": "f27411eb6d9c3dada5edd444b8416675"
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "0.12.8.2.1",
+      "Version": "14.0.2-1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
@@ -111,7 +111,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "d5448fb24fb114c4da1275a37a571f37"
+      "Hash": "edff747eebfb8f2e18eed194e000caa1"
     },
     "RcppParallel": {
       "Package": "RcppParallel",
@@ -164,14 +164,14 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "3.6.2",
+      "Version": "3.6.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "1216ac65ac55ec0058a6f75d7ca0fd52"
+      "Hash": "b21916dd77a27642b447374a5d30ecf3"
     },
     "codetools": {
       "Package": "codetools",
@@ -266,6 +266,31 @@
       ],
       "Hash": "618609b42c9406731ead03adf5379850"
     },
+    "foreign": {
+      "Package": "foreign",
+      "Version": "0.8-86",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "550170303dbb19d07b2bcc288068e7dc"
+    },
+    "fossil": {
+      "Package": "fossil",
+      "Version": "0.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "maps",
+        "shapefiles",
+        "sp"
+      ],
+      "Hash": "40516c0ab0d9da3e1415618e5c95ed3a"
+    },
     "gdistance": {
       "Package": "gdistance",
       "Version": "1.6.4",
@@ -293,18 +318,6 @@
         "methods"
       ],
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
-    },
-    "geosphere": {
-      "Package": "geosphere",
-      "Version": "1.5-18",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "sp"
-      ],
-      "Hash": "45aa4def70a402e7d20efde490c13ecb"
     },
     "glue": {
       "Package": "glue",
@@ -411,6 +424,18 @@
       ],
       "Hash": "7ce2733a9826b3aeb1775d56fd305472"
     },
+    "maps": {
+      "Package": "maps",
+      "Version": "3.4.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "utils"
+      ],
+      "Hash": "5f7886e53a3b39d4a110c7bd7fce9164"
+    },
     "metRology": {
       "Package": "metRology",
       "Version": "0.9-28-1",
@@ -478,22 +503,17 @@
     },
     "poems": {
       "Package": "poems",
-      "Version": "1.3.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "poems",
-      "RemoteUsername": "GlobalEcologyLab",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "cd526ea0c8175a128ed4a78cdde67c2e7927ee2a",
+      "Version": "1.3.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
         "abc",
         "doParallel",
         "foreach",
+        "fossil",
         "gdistance",
-        "geosphere",
         "lhs",
         "metRology",
         "qs",
@@ -501,7 +521,7 @@
         "trend",
         "truncnorm"
       ],
-      "Hash": "e983ff91d3c68f95baa485df18f5aa87"
+      "Hash": "7dc9c97431910488809ffc8d68615323"
     },
     "purrr": {
       "Package": "purrr",
@@ -520,7 +540,7 @@
     },
     "qs": {
       "Package": "qs",
-      "Version": "0.26.1",
+      "Version": "0.26.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -530,7 +550,7 @@
         "Rcpp",
         "stringfish"
       ],
-      "Hash": "c0626a04f3021a24f05ab211280209ab"
+      "Hash": "e372cf3f70e3c7a768ec5ea14f0f3edd"
     },
     "quantreg": {
       "Package": "quantreg",
@@ -599,6 +619,17 @@
         "utils"
       ],
       "Hash": "bae2e53c94459ff147aef478eac6ee94"
+    },
+    "shapefiles": {
+      "Package": "shapefiles",
+      "Version": "0.7.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "foreign"
+      ],
+      "Hash": "3dd518413caef24b6d865a1a18477390"
     },
     "sp": {
       "Package": "sp",

@@ -5,13 +5,13 @@
 \alias{habitat_suitability}
 \title{House finch habitat suitability}
 \format{
-A \linkS4class{RasterStack} with 17066 cells and 23 layers.
+A RasterStack with 17066 cells and 23 layers.
 }
 \usage{
 habitat_suitability
 }
 \description{
-This is a \linkS4class{RasterStack} containing data on habitat suitability for
+This is a RasterStack containing data on habitat suitability for
 the house finch in North America from 1994 to 2016. This habitat suitability
 stack was generated using a species distribution model. The predictors for
 the SDM were the 12 bioclimatic variables, plus an urbanization index

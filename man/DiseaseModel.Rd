@@ -5,9 +5,9 @@
 \title{R6 class representing a disease model of the \emph{Mycoplasma gallisepticum}
 outbreak in \emph{Haemorhous mexicanus}}
 \description{
-\code{\link[R6:R6Class]{R6}} class representing fixed settings
+A \code{\link[R6:R6Class]{R6::R6Class}} class representing fixed settings
 for a spatially-explicit demographic-based SIRI model of disease dynamics. It
-extends the \code{\link{SimulationModel}} class with parameters for the
+extends the \code{\link[poems:SimulationModel]{poems::SimulationModel}} class with parameters for the
 \code{\link{disease_simulator}} function. It inherits functionality for
 creating a nested model, whereby a nested template model with fixed
 parameters is maintained when a model is cloned for various sampled
@@ -20,22 +20,30 @@ consistency and completeness of model parameters.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{attached}}{A list of dynamically attached attributes (name-value pairs).}
+\item{\code{attached}}{A list of dynamically attached attributes (name-value
+pairs).}
 }
 \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{simulation_function}}{Name (character string) or source path of the default simulation function, which takes a model as an input and returns the simulation results.}
+\item{\code{simulation_function}}{Name (character string) or source path of the
+default simulation function, which takes a model as an input and
+returns the simulation results.}
 
 \item{\code{model_attributes}}{A vector of model attribute names.}
 
-\item{\code{region}}{A \code{\link{Region}} (or inherited class) object specifying the study region.}
+\item{\code{region}}{A \code{\link[poems:Region]{poems::Region}} (or inherited class) object specifying
+the study region.}
 
-\item{\code{coordinates}}{Data frame (or matrix) of X-Y population (WGS84) coordinates in longitude (degrees West) and latitude (degrees North) (get and set), or distance-based coordinates dynamically returned by region raster (get only).}
+\item{\code{coordinates}}{Data frame (or matrix) of X-Y population (WGS84)
+coordinates in longitude (degrees West) and latitude (degrees North)
+(get and set), or distance-based coordinates dynamically returned by
+region raster (get only).}
 
-\item{\code{random_seed}}{Number to seed the random number generation for stochasticity.}
+\item{\code{random_seed}}{Number to seed the random number generation for
+stochasticity.}
 
 \item{\code{replicates}}{Number of replicate simulation runs.}
 
@@ -45,13 +53,19 @@ consistency and completeness of model parameters.
 
 \item{\code{populations}}{Number of population cells.}
 
-\item{\code{initial_abundance}}{Array (matrix) or raster (stack) of initial abundance values at each population cell (for each age/stage).}
+\item{\code{initial_abundance}}{Array (matrix) or raster (stack) of initial
+abundance values at each population cell (for each age/stage).}
 
-\item{\code{demographic_stochasticity}}{Boolean for choosing demographic stochasticity for transition, dispersal, harvest and/or other processes.}
+\item{\code{demographic_stochasticity}}{Boolean for choosing demographic
+stochasticity for transition, dispersal, harvest and/or other processes.}
 
-\item{\code{standard_deviation}}{Standard deviation matrix (or single value) for applying environmental stochasticity to transition rates.}
+\item{\code{standard_deviation}}{Standard deviation matrix (or single value) for
+applying environmental stochasticity to transition rates.}
 
-\item{\code{correlation}}{Simulator-dependent attribute or list of attributes for describing/parameterizing the correlation strategy utilized when applying environmental stochasticity and/or other processes (see \code{\link{population_simulator}}).}
+\item{\code{correlation}}{Simulator-dependent attribute or list of attributes
+for describing/parameterizing the correlation strategy utilized when
+applying environmental stochasticity and/or other processes (see
+\code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
 \item{\code{stages}}{Number of life cycle stages (default 1).}
 
@@ -63,57 +77,96 @@ segment (stage x compartment combination.) "compartments" returns results for
 each disease compartment. "stages" returns results for each life cycle stage.
 "pooled" returns results that are not broken down by stage or compartment.}
 
-\item{\code{carrying_capacity}}{Array (matrix), or raster (stack) of carrying capacity values at each population cell (across time).}
+\item{\code{carrying_capacity}}{Array (matrix), or raster (stack) of carrying
+capacity values at each population cell (across time).}
 
-\item{\code{density_dependence}}{Simulator-dependent function, attribute or list of attributes for describing/parameterizing the density dependence strategy utilized (see \code{\link{population_simulator}}).}
+\item{\code{density_dependence}}{Simulator-dependent function, attribute or list
+of attributes for describing/parameterizing the density dependence
+strategy utilized (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{growth_rate_max}}{Maximum growth rate (utilized by density dependence processes).}
+\item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
+dependence processes).}
 
-\item{\code{fecundity}}{A vector of fecundity rates, one for each
-combination of stages and compartments for which fecundity applies (see
-\code{fecundity_mask} below). If fecundity varies among seasons, a list of
-fecundity vectors with the same length as \code{seasons} may be provided.
-Required input.}
+\item{\code{fecundity}}{A vector of fecundity rates, one for each combination of
+stages and compartments for which fecundity applies (see
+\code{fecundity_mask} below). If fecundity varies among seasons, a list
+of fecundity vectors with the same length as \code{seasons} may be
+provided. Required input.}
 
-\item{\code{density_stages}}{Array of booleans or numeric (0-1) for each stage to indicate (the degree to) which stages are affected by density (default is 1 for all stages).}
+\item{\code{density_stages}}{Array of booleans or numeric (0-1) for each stage
+to indicate (the degree to) which stages are affected by density
+(default is 1 for all stages).}
 
-\item{\code{translocation}}{Simulator-dependent function, attribute or list of attributes for describing/parameterizing translocation (management) strategies utilized (see \code{\link{population_simulator}}).}
+\item{\code{translocation}}{Simulator-dependent function, attribute or list of
+attributes for describing/parameterizing translocation (management)
+strategies utilized (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{harvest}}{Simulator-dependent function, attribute or list of attributes for describing/parameterizing a harvest (organism removal/hunting) strategy (see \code{\link{population_simulator}}).}
+\item{\code{harvest}}{Simulator-dependent function, attribute or list of
+attributes for describing/parameterizing a harvest (organism
+removal/hunting) strategy (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{mortality}}{Simulator-dependent function, attribute or list of attributes to describe/parameterize a spatio-temporal mortality strategy (see \code{\link{population_simulator}}).}
+\item{\code{mortality}}{Simulator-dependent function, attribute or list of
+attributes to describe/parameterize a spatio-temporal mortality
+strategy (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{dispersal}}{Simulator-dependent function, attribute or list of attributes for describing/parameterizing the dispersal (migration) strategy utilized (see \code{\link{population_simulator}}).}
+\item{\code{dispersal}}{Simulator-dependent function, attribute or list of
+attributes for describing/parameterizing the dispersal (migration)
+strategy utilized (see \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_stages}}{Array of relative dispersal (0-1) for each stage to indicate the degree to which each stage participates in dispersal (default is 1 for all stages).}
+\item{\code{dispersal_stages}}{Array of relative dispersal (0-1) for each stage
+to indicate the degree to which each stage participates in dispersal
+(default is 1 for all stages).}
 
-\item{\code{dispersal_source_n_k}}{Simulator-dependent attribute for describing/parameterizing dispersal dependent on source population abundance divided by carrying capacity (see \code{\link{population_simulator}}).}
+\item{\code{dispersal_source_n_k}}{Simulator-dependent attribute for
+describing/parameterizing dispersal dependent on source population
+abundance divided by carrying capacity (see
+\code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_target_k}}{Simulator-dependent attribute for describing/parameterizing dispersal dependent on target population carrying capacity (see \code{\link{population_simulator}}).}
+\item{\code{dispersal_target_k}}{Simulator-dependent attribute for
+describing/parameterizing dispersal dependent on target population
+carrying capacity (see \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_target_n}}{Simulator-dependent attribute (default is list with \emph{threshold} and \emph{cutoff}) of attributes for describing/parameterizing dispersal dependent on target population abundance (see \code{\link{population_simulator}}).}
+\item{\code{dispersal_target_n}}{Simulator-dependent attribute (default is list
+with \emph{threshold} and \emph{cutoff}) of attributes for
+describing/parameterizing dispersal dependent on target population
+abundance (see \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_target_n_k}}{Simulator-dependent attribute (default is list with \emph{threshold} and \emph{cutoff}) of attributes for describing/parameterizing dispersal dependent on target population abundance/capacity (see \code{\link{population_simulator}}).}
+\item{\code{dispersal_target_n_k}}{Simulator-dependent attribute (default is
+list with \emph{threshold} and \emph{cutoff}) of attributes for
+describing/parameterizing dispersal dependent on target population
+abundance/capacity (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{abundance_threshold}}{Abundance threshold (that needs to be exceeded) for each population to persist.}
+\item{\code{abundance_threshold}}{Abundance threshold (that needs to be
+exceeded) for each population to persist.}
 
-\item{\code{seasons}}{Number of seasons in a year (default 1.) The first one is always treated as the breeding season.}
+\item{\code{seasons}}{Number of seasons in a year (default 1.) The first one is
+always treated as the breeding season.}
 
-\item{\code{simulation_order}}{A vector of simulation process names in configured order of execution.}
+\item{\code{simulation_order}}{A vector of simulation process names in
+configured order of execution.}
 
-\item{\code{results_selection}}{List of attributes to be included in the returned results of each simulation run, selected from: "abundance", "ema", "extirpation", "extinction_location", "harvested", "occupancy"; "summarize" or "replicate".}
+\item{\code{results_selection}}{List of attributes to be included in the
+returned results of each simulation run, selected from: "abundance",
+"ema", "extirpation", "extinction_location", "harvested", "occupancy";
+"summarize" or "replicate".}
 
-\item{\code{attribute_aliases}}{A list of alternative alias names for model attributes (form: \code{alias = "attribute"}) to be used with the set and get attributes methods.}
+\item{\code{attribute_aliases}}{A list of alternative alias names for model
+attributes (form: \code{alias = "attribute"}) to be used with the set
+and get attributes methods.}
 
-\item{\code{template_model}}{Nested template model for fixed (non-sampled) attributes for shallow cloning.}
+\item{\code{template_model}}{Nested template model for fixed (non-sampled)
+attributes for shallow cloning.}
 
 \item{\code{sample_attributes}}{Vector of sample attribute names (only).}
 
-\item{\code{required_attributes}}{Vector of required attribute names (only), i.e. those needed to run a simulation.}
+\item{\code{required_attributes}}{Vector of required attribute names (only),
+i.e. those needed to run a simulation.}
 
-\item{\code{error_messages}}{A vector of error messages encountered when setting model attributes.}
+\item{\code{error_messages}}{A vector of error messages encountered when setting
+model attributes.}
 
-\item{\code{warning_messages}}{A vector of warning messages encountered when setting model attributes.}
+\item{\code{warning_messages}}{A vector of warning messages encountered when
+setting model attributes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -169,7 +222,9 @@ get attributes methods.}
 \if{html}{\out{<a id="method-DiseaseModel-set_sample_attributes"></a>}}
 \if{latex}{\out{\hypertarget{method-DiseaseModel-set_sample_attributes}{}}}
 \subsection{Method \code{set_sample_attributes()}}{
-Sets the names (only - when \emph{params} is a vector) and values (when \emph{params} is a list and/or when name-value pairs are provided) of the sample attributes for the model.
+Sets the names (only - when \emph{params} is a vector) and values (when
+\emph{params} is a list and/or when name-value pairs are provided) of the
+sample attributes for the model.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$set_sample_attributes(params = list(), ...)}\if{html}{\out{</div>}}
 }
@@ -177,7 +232,8 @@ Sets the names (only - when \emph{params} is a vector) and values (when \emph{pa
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{List of parameters/attributes (names and values) or array of names only.}
+\item{\code{params}}{List of parameters/attributes (names and values) or array
+of names only.}
 
 \item{\code{...}}{Parameters/attributes passed individually.}
 }

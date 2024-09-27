@@ -5,13 +5,13 @@
 \alias{bsl_raster}
 \title{Raster of breeding season length for the house finch}
 \format{
-A \linkS4class{RasterBrick} with 17066 cells and 23 layers.
+A RasterBrick with 17066 cells and 23 layers.
 }
 \usage{
 bsl_raster
 }
 \description{
-This is a \linkS4class{RasterBrick} object containing data on the breeding season
+This is a RasterBrick object containing data on the breeding season
 length in days of the house finch in North America from 1994 to 2016. I
 created this dataset using a machine learning algorithm on season length data
 from the eastern bluebird, which is noted to have a very similar breeding

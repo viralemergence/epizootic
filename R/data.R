@@ -13,13 +13,13 @@
 
 #' Raster of breeding season length for the house finch
 #'
-#' This is a \linkS4class{RasterBrick} object containing data on the breeding season
+#' This is a RasterBrick object containing data on the breeding season
 #' length in days of the house finch in North America from 1994 to 2016. I
 #' created this dataset using a machine learning algorithm on season length data
 #' from the eastern bluebird, which is noted to have a very similar breeding
 #' season to the house finch. The raster has the same resolution as the
 #' \code{\link{finch_region}}.
-#' @format A \linkS4class{RasterBrick} with 17066 cells and 23 layers.
+#' @format A RasterBrick with 17066 cells and 23 layers.
 "bsl_raster"
 
 #' Initial house finch abundance
@@ -40,7 +40,7 @@
 
 #' House finch habitat suitability
 #'
-#' This is a \linkS4class{RasterStack} containing data on habitat suitability for
+#' This is a RasterStack containing data on habitat suitability for
 #' the house finch in North America from 1994 to 2016. This habitat suitability
 #' stack was generated using a species distribution model. The predictors for
 #' the SDM were the 12 bioclimatic variables, plus an urbanization index
@@ -49,5 +49,5 @@
 #'
 #' The raster has the same resolution and projection as the [finch_region].
 #' Habitat suitability ranges from 0 to 1, with 1 being the most suitable.
-#' @format A \linkS4class{RasterStack} with 17066 cells and 23 layers.
+#' @format A RasterStack with 17066 cells and 23 layers.
 "habitat_suitability"

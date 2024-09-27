@@ -21,7 +21,7 @@ coordinates.}
 \item{\code{stages}}{Number of life cycle stages. Default: 1.}
 \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
 SIR model). Default: 1.}
-\item{\code{region}}{A \code{\link[poems:Region]{Region}} object
+\item{\code{region}}{A \code{\link[poems:Region]{poems::Region}} object
 defining the study region.}
 \item{\code{initial_abundance}}{Array (or matrix) of initial abundances.
 There must be one column per population and one row per compartment/stage
@@ -49,7 +49,7 @@ correlation matrix (correlation_matrix), a pre-calculated transposed
 (Cholesky) decomposition matrix (t_decomposition_matrix), or a compact
 transposed (Cholesky) decomposition matrix (t_decomposition_compact_matrix)
 and a corresponding map of population indices (t_decomposition_compact_map),
-as per \code{\link{SpatialCorrelation}} class attributes.}
+as per \code{\link[poems:SpatialCorrelation]{poems::SpatialCorrelation}} class attributes.}
 \item{\code{mortality}}{A vector of mortality rates, one for each
 combination of stages and compartments. Assumed by default to be daily
 mortality rates unless indicated otherwise (see below). If mortality varies
@@ -110,7 +110,7 @@ all stages. Within each element of the list, there should be either a function,
 a matrix of dispersal rates between populations (source columns to target
 rows) or a list of data frames of non-zero dispersal rates and indices for
 constructing a compact dispersal matrix, and optional changing rates over
-time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data}
+time (as per class \code{\link[poems:DispersalGenerator]{poems::DispersalGenerator}} \emph{dispersal_data}
 attribute).}
 \item{\code{dispersal_source_n_k}}{Dispersal proportion (p) density
 dependence via source population abundance divided by carrying capacity
@@ -195,7 +195,7 @@ combination of stage and compartment (rows) and population (columns)
 at time step.}
 \item{\code{occupied_indices}}{Array of indices for populations
 occupied at time step.}
-\item{\code{simulator}}{\code{\link{SimulatorReference}} object
+\item{\code{simulator}}{\code{\link[poems:SimulatorReference]{poems::SimulatorReference}} object
 with dynamically accessible \emph{attached} and \emph{results}
 lists.}
 \item{\code{additional attributes}}{Additional attributes when the
@@ -279,4 +279,35 @@ time-step include:
 }
 Note that the breeding season is
 always treated as the first season.
+}
+\examples{
+inputs <- list(
+ time_steps = 5,
+ seasons = 2,
+ populations = 25,
+ stages = 2,
+ compartments = 4,
+ coordinates = data.frame(x = rep(seq(177.01, 177.05, 0.01), 5),
+                          y = rep(seq(-18.01, -18.05, -0.01), each = 5)),
+ initial_abundance = c(c(5000, 5000, 0, 1, 0, 0, 0, 0),
+                       rep(c(5000, 5000, 0, 0, 0, 0, 0, 0), 24)) |>
+   matrix(nrow = 8),
+ carrying_capacity = matrix(100000, nrow = 25, ncol = 5),
+ breeding_season_length = rep(100, 25),
+ mortality = c(0.4, 0, 0.505, 0.105, 0.4, 0, 0.45, 0.05),
+ mortality_unit = 1,
+ fecundity = 15,
+ fecundity_unit = 1,
+ fecundity_mask = c(0, 1, 0, 1, 0, 1, 0, 1),
+ transmission = c(0.00002, 0.00001, 7.84e-06, 3.92e-06),
+ transmission_unit = 0,
+ transmission_mask = c(1, 1, 0, 0, 1, 1, 0, 0),
+ recovery = c(0.05714286, 0.05714286, 0.1, 0.1),
+ recovery_unit = rep(0, 8),
+ recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
+ season_functions = list(siri_model_summer, siri_model_winter),
+ simulation_order = c("transition", "season_functions", "results")
+)
+disease_simulator(inputs)
+
 }

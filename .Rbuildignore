@@ -7,3 +7,6 @@
 ^README\.Rmd$
 ^rebuild-long-running-vignette\.R$
 ^.*\.Rmd\.orig$
+^cran-comments\.md$
+^CRAN-RELEASE$
+^CRAN-SUBMISSION$

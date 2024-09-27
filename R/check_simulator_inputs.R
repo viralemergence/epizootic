@@ -22,7 +22,7 @@
 #'  \item{\code{stages}}{Number of life cycle stages. Default: 1.}
 #'  \item{\code{compartments}}{Number of disease compartments (e.g., 3 for a
 #'  SIR model). Default: 1.}
-#'  \item{\code{region}}{A \code{\link[poems:Region]{Region}} object
+#'  \item{\code{region}}{A [`poems::Region`] object
 #'  defining the study region.}
 #'  \item{\code{initial_abundance}}{Array (or matrix) of initial abundances.
 #'  There must be one column per population and one row per compartment/stage
@@ -50,11 +50,11 @@
 #'  (Cholesky) decomposition matrix (t_decomposition_matrix), or a compact
 #'  transposed (Cholesky) decomposition matrix (t_decomposition_compact_matrix)
 #'  and a corresponding map of population indices (t_decomposition_compact_map),
-#'  as per \code{\link{SpatialCorrelation}} class attributes.}
+#'  as per [`poems::SpatialCorrelation`] class attributes.}
 #'  \item{\code{mortality}}{A vector of mortality rates, one for each
 #'  combination of stages and compartments. Assumed by default to be daily
 #'  mortality rates unless indicated otherwise (see below). If mortality varies
-#'  by season, a list of mortality vectors with the same length as `seasons`
+#'  by season, a list of mortality vectors with the same length as \code{seasons}
 #'  may be provided instead. Required input.}
 #'  \item{\code{mortality_unit}}{A vector indicating whether mortality rates are
 #'  daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all 0.
@@ -79,8 +79,8 @@
 #'  TRUE).}
 #'  \item{\code{transmission}}{A vector of transmission rates, one for each
 #'  combination of stages and compartment for which transmission applies (see
-#'  \code{transmission_mask} below. If transmission varies by season, a list of
-#'  transmission vectors with the same length as `seasons` may be provided
+#'  \code{transmission_mask} below). If transmission varies by season, a list of
+#'  transmission vectors with the same length as \code{seasons} may be provided
 #'  instead. Required input.}
 #'  \item{\code{transmission_unit}}{A vector indicating whether transmission
 #'  is daily or seasonal. 1 indicates seasonal, 0 indicates daily. Default: all
@@ -111,7 +111,7 @@
 #'  a matrix of dispersal rates between populations (source columns to target
 #'  rows) or a list of data frames of non-zero dispersal rates and indices for
 #'  constructing a compact dispersal matrix, and optional changing rates over
-#'  time (as per class \code{\link{DispersalGenerator}} \emph{dispersal_data}
+#'  time (as per class [`poems::DispersalGenerator`] \emph{dispersal_data}
 #'  attribute).}
 #'  \item{\code{dispersal_source_n_k}}{Dispersal proportion (p) density
 #'  dependence via source population abundance divided by carrying capacity
@@ -187,8 +187,8 @@
 #'          \item{\code{recovery_mask}}{A vector indicating which compartments
 #'          are subject to recovery (i.e., infected classes that can recover.)
 #'          Must be the same length as \code{compartments}.}
-#'          \item{\code{r}}{Simulation replicate.} \item{\code{tm}}{Simulation
-#'          time step.}
+#'          \item{\code{r}}{Simulation replicate.}
+#'          \item{\code{tm}}{Simulation time step.}
 #'          \item{\code{carrying_capacity}}{Array of carrying capacity values
 #'          for each population at time step.}
 #'          \item{\code{segment_abundance}}{Matrix of abundance for each
@@ -196,30 +196,25 @@
 #'           at time step.}
 #'          \item{\code{occupied_indices}}{Array of indices for populations
 #'          occupied at time step.}
-#'          \item{\code{simulator}}{\code{\link{SimulatorReference}} object
+#'          \item{\code{simulator}}{[`poems::SimulatorReference`] object
 #'          with dynamically accessible \emph{attached} and \emph{results}
 #'          lists.}
 #'          \item{\code{additional attributes}}{Additional attributes when the
 #'          transformation is optionally nested in a list.}
 #'          }
-#'       and returns a transformed stage abundance matrix.
-#'  }
+#'       and returns a transformed stage abundance matrix.}
 #'  \item{\code{simulation_order}}{A list the same length as \code{seasons}.
 #'  Each element in the list is a vector of named simulation processes in the
 #'  desired order. Processes must be one of "transition", "dispersal",
-#'  "season_functions", or "results."
-#'  "season_functions" will be matched to the appropriate season (i.e., if
-#'  "season_functions" appears in element 1 of the list, `season_functions[[1]]`
-#'  will be called.) If the simulation processes are the same across seasons,
-#'  then a single character vector may be provided. Required input.}
+#'  "season_functions", or "results."}
 #'  \item{\code{dispersal_type}}{A character vector that may contain "pooled"
 #'  (if all individuals disperse the same), "stages", "compartments", or
 #'  "segments", if different stages, compartments, or stage-compartment
-#'  combinations disperse differently. If "pooled" is chosen, 
-#'  \code{dispersal} must be a list of length 1. If "stages" is chosen, it 
+#'  combinations disperse differently. If "pooled" is chosen,
+#'  \code{dispersal} must be a list of length 1. If "stages" is chosen, it
 #'  must be the same length as \code{stages}, if "compartments" is chosen,
 #'  it must be the same length as \code{compartments}, and if "segments" is
-#'  chosen, it must be the same length as stages*compartments. The default 
+#'  chosen, it must be the same length as stages*compartments. The default
 #' value is "pooled".}
 #'  \item{\code{results_selection}}{List of results selection from: "abundance"
 #'  (default), "ema", "extirpation", "extinction_location",

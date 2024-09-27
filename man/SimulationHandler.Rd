@@ -4,9 +4,9 @@
 \alias{SimulationHandler}
 \title{R6 class representing a simulation handler.}
 \description{
-\code{\link[R6:R6Class]{R6}} class to represent a handler for running multiple model
-simulations and saving results. This simulation manager bears some resemblance to
-the \code{\link[poems:SimulationManager]{SimulationManager}} in \code{poems}, but differs
+\code{\link[R6:R6Class]{R6::R6Class}} class to represent a handler for running multiple model
+simulations and saving results. This simulation manager bears some
+resemblance to the \code{\link[poems:SimulationManager]{poems::SimulationManager}} in \code{poems}, but differs
 in that it can handle multiple dispersal generators, uses a different engine
 for parallelization, handles errors differently, and has a different default
 data format (\code{.qs}).
@@ -18,7 +18,8 @@ data format (\code{.qs}).
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{attached}}{A list of dynamically attached attributes (name-value pairs).}
+\item{\code{attached}}{A list of dynamically attached attributes (name-value
+pairs).}
 }
 \if{html}{\out{</div>}}
 }
@@ -27,25 +28,35 @@ data format (\code{.qs}).
 \describe{
 \item{\code{sample_data}}{A data frame of sampled parameters for each simulation/result.}
 
-\item{\code{model_template}}{A \code{\link{SimulationModel}} (or inherited class) object with parameters common to all simulations.}
+\item{\code{model_template}}{A \code{\link[poems:SimulationModel]{poems::SimulationModel}} (or inherited class)
+object with parameters common to all simulations.}
 
-\item{\code{nested_model}}{A \code{\link{SimulationModel}} (or inherited class) object with empty sample parameters and a nested model template common to all simulations.}
+\item{\code{nested_model}}{A \code{\link[poems:SimulationModel]{poems::SimulationModel}} (or inherited class)
+object with empty sample parameters and a nested model template common to
+all simulations.}
 
-\item{\code{generators}}{A list of generators (\code{\link{Generator}} or inherited class) objects for generating simulation model values.}
+\item{\code{generators}}{A list of generators (\code{\link[poems:Generator]{poems::Generator}} or inherited
+class) objects for generating simulation model values.}
 
-\item{\code{model_simulator}}{A \code{\link{ModelSimulator}} (or inherited class) object for running the simulations.}
+\item{\code{model_simulator}}{A \code{\link[poems:ModelSimulator]{poems::ModelSimulator}} (or inherited class)
+object for running the simulations.}
 
-\item{\code{parallel_cores}}{Number of cores for running the simulations in parallel.}
+\item{\code{parallel_cores}}{Number of cores for running the simulations in
+parallel.}
 
 \item{\code{results_dir}}{Results directory path.}
 
 \item{\code{results_ext}}{Result file extension (default is .RData).}
 
-\item{\code{results_filename_attributes}}{A vector of: prefix (optional); attribute names (from the sample data frame); postfix (optional); utilized to construct results filenames.}
+\item{\code{results_filename_attributes}}{A vector of: prefix (optional);
+attribute names (from the sample data frame); postfix (optional);
+utilized to construct results filenames.}
 
-\item{\code{error_messages}}{A vector of error messages encountered when setting model attributes.}
+\item{\code{error_messages}}{A vector of error messages encountered when setting
+model attributes.}
 
-\item{\code{warning_messages}}{A vector of warning messages encountered when setting model attributes.}
+\item{\code{warning_messages}}{A vector of warning messages encountered when
+setting model attributes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -73,7 +84,11 @@ data format (\code{.qs}).
 \if{html}{\out{<a id="method-SimulationHandler-new"></a>}}
 \if{latex}{\out{\hypertarget{method-SimulationHandler-new}{}}}
 \subsection{Method \code{new()}}{
-Initialization method sets any included attributes (\emph{sample_data}, \emph{model_template}, \emph{generators}, \emph{model_simulator}, \emph{parallel_cores}, \emph{results_dir}, \emph{results_filename_attributes}) and attaches other attributes individually listed.
+Initialization method sets any included attributes (\emph{sample_data},
+\emph{model_template}, \emph{generators}, \emph{model_simulator},
+\emph{parallel_cores}, \emph{results_dir},
+\emph{results_filename_attributes}) and attaches other attributes
+individually listed.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimulationHandler$new(model_template = NULL, ...)}\if{html}{\out{</div>}}
 }
@@ -81,7 +96,8 @@ Initialization method sets any included attributes (\emph{sample_data}, \emph{mo
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model_template}}{A SimulationModel (or inherited class) object with parameters common to all simulations.}
+\item{\code{model_template}}{A SimulationModel (or inherited class) object with
+parameters common to all simulations.}
 
 \item{\code{...}}{Parameters listed individually.}
 }
@@ -94,7 +110,10 @@ Initialization method sets any included attributes (\emph{sample_data}, \emph{mo
 \subsection{Method \code{log_simulation()}}{
 Summarizes the simulation log and writes it to a text file.
 
-This method takes a nested list of simulation log entries generated by the \code{run} method and summarizes the log. It determines which simulations were successful, collects any warnings, and writes the summary to a text file in the results directory.
+This method takes a nested list of simulation log entries generated by
+the \code{run} method and summarizes the log. It determines which simulations
+were successful, collects any warnings, and writes the summary to a text
+file in the results directory.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimulationHandler$log_simulation(simulation_log)}\if{html}{\out{</div>}}
 }
@@ -107,17 +126,20 @@ This method takes a nested list of simulation log entries generated by the \code
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list containing the summary, indices of failed simulations, indices of simulations with warnings, and the full log.
+A list containing the summary, indices of failed simulations,
+indices of simulations with warnings, and the full log.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SimulationHandler-set_model_sample"></a>}}
 \if{latex}{\out{\hypertarget{method-SimulationHandler-set_model_sample}{}}}
 \subsection{Method \code{set_model_sample()}}{
-Sets the model sample attributes via the sample data frame and the generators.
+Sets the model sample attributes via the sample data frame and the
+generators.
 
-This method sets the sample attributes of a SimulationModel object based on the specified sample index.
-It uses the sample data frame and the generators to determine the attribute values.
+This method sets the sample attributes of a SimulationModel object based
+on the specified sample index. It uses the sample data frame and the
+generators to determine the attribute values.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimulationHandler$set_model_sample(model, sample_index)}\if{html}{\out{</div>}}
 }
@@ -125,7 +147,8 @@ It uses the sample data frame and the generators to determine the attribute valu
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model}}{\code{\link{SimulationModel}} (or inherited class) object (clone) to receive sample attributes.}
+\item{\code{model}}{\code{\link[poems:SimulationModel]{poems::SimulationModel}} (or inherited class) object
+(clone) to receive sample attributes.}
 
 \item{\code{sample_index}}{Index of sample from data frame.}
 }
@@ -136,9 +159,14 @@ It uses the sample data frame and the generators to determine the attribute valu
 \if{html}{\out{<a id="method-SimulationHandler-run"></a>}}
 \if{latex}{\out{\hypertarget{method-SimulationHandler-run}{}}}
 \subsection{Method \code{run()}}{
-Runs the multiple population simulations, stores the results, and creates a simulation log.
+Runs the multiple population simulations, stores the
+results, and creates a simulation log.
 
-This method runs multiple population simulations using the specified model template and sample data. It stores the simulation results in the specified results directory and creates a simulation log. The simulation log contains information about the success or failure of each simulation run.
+This method runs multiple population simulations using the specified
+model template and sample data. It stores the simulation results in the
+specified results directory and creates a simulation log. The simulation
+log contains information about the success or failure of each simulation
+run.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimulationHandler$run(results_dir = NULL)}\if{html}{\out{</div>}}
 }
@@ -146,12 +174,17 @@ This method runs multiple population simulations using the specified model templ
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{results_dir}}{Results directory path where the simulation results will be stored. If not provided, the results directory must be set within the manager class object.}
+\item{\code{results_dir}}{Results directory path where the simulation results
+will be stored. If not provided, the results directory must be set
+within the manager class object.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list representing the simulation log. Each element of the list corresponds to a simulation run and contains information about the success or failure of the run, any error messages, and the path to the saved results file (if applicable).
+A list representing the simulation log. Each element of the list
+corresponds to a simulation run and contains information about the
+success or failure of the run, any error messages, and the path to the
+saved results file (if applicable).
 }
 }
 \if{html}{\out{<hr>}}
