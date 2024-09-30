@@ -7,10 +7,10 @@
 
 [![R-CMD-check](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/viralemergence/epizootic/actions/workflows/R-CMD-check.yaml)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/paleopop)](https://CRAN.R-project.org/package=paleopop)
-[![Download_count](https://cranlogs.r-pkg.org/badges/grand-total/paleopop)](https://CRAN.R-project.org/package=paleopop)
+status](https://www.r-pkg.org/badges/version/epizootic)](https://CRAN.R-project.org/package=epizootic)
+[![Download_count](https://cranlogs.r-pkg.org/badges/grand-total/epizootic)](https://CRAN.R-project.org/package=epizootic)
 [![Last
-commit](https://img.shields.io/github/last-commit/GlobalEcologyLab/paleopop.svg)](https://github.com/GlobalEcologyLab/paleopop/commits/master)
+commit](https://img.shields.io/github/last-commit/GlobalEcologyLab/epizootic.svg)](https://github.com/viralemergence/epizootic/commits/master)
 <!-- badges: end -->
 
 `epizootic` is an extension to `poems`, a spatially-explicit,
@@ -20,6 +20,12 @@ dynamics in wildlife. It also adds capability for seasonality and for
 unique dispersal dynamics for each life cycle stage.
 
 ## Installation
+
+You can install the latest release on CRAN with:
+
+``` r
+install.packages("epizootic")
+```
 
 You can install the latest version of epizootic from
 [GitHub](https://github.com/) with:

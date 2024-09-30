@@ -6,7 +6,7 @@
 \alias{epizootic-package}
 \title{epizootic: Spatially Explicit Population Models of Disease Transmission in Wildlife}
 \description{
-This extension of the pattern-oriented modeling framework of the poems package provides a collection of modules and functions customized for modeling disease transmission on a population scale in a spatiotemporally explicit manner. This includes seasonal time steps, dispersal functions that track disease state of dispersers, results objects that store disease states, and a population simulator that includes disease dynamics.
+This extension of the pattern-oriented modeling framework of the 'poems' package provides a collection of modules and functions customized for modeling disease transmission on a population scale in a spatiotemporally explicit manner. This includes seasonal time steps, dispersal functions that track disease state of dispersers, results objects that store disease states, and a population simulator that includes disease dynamics.
 }
 \seealso{
 Useful links:
