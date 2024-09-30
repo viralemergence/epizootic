@@ -10,7 +10,7 @@
 status](https://www.r-pkg.org/badges/version/epizootic)](https://CRAN.R-project.org/package=epizootic)
 [![Download_count](https://cranlogs.r-pkg.org/badges/grand-total/epizootic)](https://CRAN.R-project.org/package=epizootic)
 [![Last
-commit](https://img.shields.io/github/last-commit/GlobalEcologyLab/epizootic.svg)](https://github.com/viralemergence/epizootic/commits/master)
+commit](https://img.shields.io/github/last-commit/viralemergence/epizootic.svg)](https://github.com/viralemergence/epizootic/commits/master)
 <!-- badges: end -->
 
 `epizootic` is an extension to `poems`, a spatially-explicit,
