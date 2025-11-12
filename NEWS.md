@@ -1,3 +1,12 @@
+# v 2.0.0 (12 Nov 2025)
+
+## Major Changes
+- The default file format written by `SimulationHandler` has been changed from `.qs` to `.qs2` due to the `qs` package being deprecated. This change may require users to update their workflows if they have been relying on the default file format.
+
+## Enhancements
+- Improvements to code style (`seq_along` instead of `1:length(n)`, `||` instead of `|`)
+- Test coverage increased from 25% to 40%
+
 # v 1.0.0 (27 Sep 2024)
 
 ## Enhancements
@@ -19,7 +28,7 @@
 
 # v 0.2.1 (2 Apr 2024)
 
-- Important bug fix: the number of occupied indices now updates more frequently within the 
+- Important bug fix: the number of occupied indices now updates more frequently within the
 `disease_simulator` function, which allows species range to expand properly.
 - Documentation update: all references to features in development that are not yet
 implemented have been removed.

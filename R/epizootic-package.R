@@ -3,6 +3,8 @@
 
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
+#' @importFrom cli cli_abort cli_warn cli_inform
+#' @importFrom purrr map map2 map_lgl map_if flatten flatten_dbl list_c is_null
 #' @useDynLib epizootic, .registration = TRUE
 ## usethis namespace: end
 utils::globalVariables(
@@ -60,6 +62,7 @@ utils::globalVariables(
     "name",
     "occupied_dispersal_indices",
     "season_lengths",
-    "segment_abundance"
+    "segment_abundance",
+    "SimulatorReference"
   )
 )

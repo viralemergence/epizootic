@@ -59,7 +59,7 @@ DiseaseModel <- R6Class(
           c(attribute_aliases, list(dispersal_data = "dispersal"))
       }
       if (!"dispersal_source_n_k" %in%
-          names(c(list(...), list(...)[["params"]]))) {
+        names(c(list(...), list(...)[["params"]]))) {
         # set default aliases for source n/k
         attribute_aliases <- c(
           attribute_aliases,
@@ -70,13 +70,15 @@ DiseaseModel <- R6Class(
         )
       }
       if (!"dispersal_target_k" %in%
-          names(c(list(...), list(...)[["params"]]))) {
+        names(c(list(...), list(...)[["params"]]))) {
         # set default alias for target k
-        attribute_aliases <- c(attribute_aliases,
-                               list(dispersal_k_threshold = "dispersal_target_k"))
+        attribute_aliases <- c(
+          attribute_aliases,
+          list(dispersal_k_threshold = "dispersal_target_k")
+        )
       }
       if (!"dispersal_target_n" %in%
-          names(c(list(...), list(...)[["params"]]))) {
+        names(c(list(...), list(...)[["params"]]))) {
         # set default aliases for target n
         attribute_aliases <- c(
           attribute_aliases,
@@ -87,7 +89,7 @@ DiseaseModel <- R6Class(
         )
       }
       if (!"dispersal_target_n_k" %in%
-          names(c(list(...), list(...)[["params"]]))) {
+        names(c(list(...), list(...)[["params"]]))) {
         # set default aliases for target n/k
         attribute_aliases <- c(
           attribute_aliases,
@@ -119,7 +121,7 @@ DiseaseModel <- R6Class(
         params <- unique(c(names(param_list), params))
         self$sample_attributes <- NULL # redefine
       }
-      for (i in 1:length(params)) {
+      for (i in seq_along(params)) {
         # substitute aliases
         if (params[i] %in% names(self$attribute_aliases)) {
           param_alias <- params[i]
@@ -127,15 +129,15 @@ DiseaseModel <- R6Class(
           params[i] <- split_names[1] # list root only
           self$sample_attributes <- unique(c(self$sample_attributes, params[i]))
           if (length(split_names) > 1 &&
-              !is.null(self$template_model) &&
-              length(self$get_attributes(params[i])) == 0) {
+            !is.null(self$template_model) &&
+            length(self$get_attributes(params[i])) == 0) {
             # copy template values
             self$set_attributes(self$template_model$get_attributes(params[i]))
           }
         } else {
           self$sample_attributes <- unique(c(self$sample_attributes, params[i]))
           if (!(params[i] %in% self$get_attribute_names() ||
-                params[i] %in% names(self$attached))) {
+            params[i] %in% names(self$attached))) {
             self$attached[[params[i]]] <- NA # attach any attributes not present
           }
         }
@@ -221,12 +223,11 @@ DiseaseModel <- R6Class(
                 return(FALSE)
               }
             }
-            consistent_list[[param]] <- switch(
-              param,
+            consistent_list[[param]] <- switch(param,
               populations = (is.numeric(param_value) &&
-                               param_value > 0) &&
+                param_value > 0) &&
                 if (!is.null(self$region) &&
-                    is.numeric(self$region$region_cells)) {
+                  is.numeric(self$region$region_cells)) {
                   (param_value == self$region$region_cells)
                 } else {
                   TRUE
@@ -278,10 +279,10 @@ DiseaseModel <- R6Class(
               season_lengths = length(param_value) == self$seasons &&
                 sum(param_value) == 365,
               initial_abundance = if (is.numeric(self$populations) &&
-                                      is.numeric(self$compartments) && is.numeric(self$stages)) {
+                is.numeric(self$compartments) && is.numeric(self$stages)) {
                 if (any(class(param_value) %in% c("RasterLayer", "RasterStack", "RasterBrick"))) {
                   if (!is.null(self$region) &&
-                      self$region$use_raster && !is.null(self$region$region_raster)) {
+                    self$region$use_raster && !is.null(self$region$region_raster)) {
                     (
                       self$region$raster_is_consistent(param_value) &&
                         self$region$region_cells == self$populations &&
@@ -311,10 +312,10 @@ DiseaseModel <- R6Class(
                 nrow(param_value) == self$populations,
               region = param_value[["region_cells"]] == self$populations,
               carrying_capacity = if (is.numeric(self$populations) &&
-                                      is.numeric(self$time_steps)) {
+                is.numeric(self$time_steps)) {
                 if (any(class(param_value) %in% c("RasterLayer", "RasterStack", "RasterBrick"))) {
                   if (!is.null(self$region) &&
-                      self$region$use_raster && !is.null(self$region$region_raster)) {
+                    self$region$use_raster && !is.null(self$region$region_raster)) {
                     (
                       self$region$raster_is_consistent(param_value) &&
                         self$region$region_cells == self$populations &&
@@ -334,10 +335,10 @@ DiseaseModel <- R6Class(
                 NA
               },
               breeding_season_length = if (is.numeric(self$populations) &&
-                                           is.numeric(self$time_steps)) {
+                is.numeric(self$time_steps)) {
                 if (any(class(param_value) %in% c("RasterLayer", "RasterStack", "RasterBrick"))) {
                   if (!is.null(self$region) &&
-                      self$region$use_raster && !is.null(self$region$region_raster)) {
+                    self$region$use_raster && !is.null(self$region$region_raster)) {
                     (
                       self$region$raster_is_consistent(param_value) &&
                         self$region$region_cells == self$populations &&
@@ -359,13 +360,13 @@ DiseaseModel <- R6Class(
               density_dependence = NA,
               growth_rate_max = NA,
               dispersal_source_n_k = if (is.list(param_value) &&
-                                         all(c("cutoff", "threshold") %in% names(param_value))) {
+                all(c("cutoff", "threshold") %in% names(param_value))) {
                 consistent <- list(cutoff = NA, threshold = NA)
                 for (name in c("cutoff", "threshold")) {
                   if (length(param_value[[name]]) == 1) {
                     consistent[[name]] <- TRUE
                   } else if (length(param_value[[name]]) > 1 &&
-                             is.numeric(self$populations)) {
+                    is.numeric(self$populations)) {
                     consistent[[name]] <- is.numeric(param_value[[name]]) &&
                       length(param_value[[name]]) == self$populations
                   }
@@ -384,15 +385,15 @@ DiseaseModel <- R6Class(
                 }
               },
               dispersal_target_n = if (is.list(param_value) &&
-                                       all(c("threshold", "cutoff") %in% names(param_value))) {
+                all(c("threshold", "cutoff") %in% names(param_value))) {
                 consistent <- list(threshold = NA, cutoff = NA)
                 for (name in c("threshold", "cutoff")) {
                   if (length(param_value[[name]]) == 1) {
                     consistent[[name]] <- TRUE
                   } else if (length(param_value[[name]]) > 1 &&
-                             is.numeric(self$populations)) {
+                    is.numeric(self$populations)) {
                     consistent[[name]] <- (is.numeric(param_value[[name]]) &&
-                                             length(param_value[[name]]) == self$populations)
+                      length(param_value[[name]]) == self$populations)
                   }
                 }
                 all(unlist(consistent))
@@ -400,15 +401,15 @@ DiseaseModel <- R6Class(
                 NA
               },
               dispersal_target_n_k = if (is.list(param_value) &&
-                                         all(c("threshold", "cutoff") %in% names(param_value))) {
+                all(c("threshold", "cutoff") %in% names(param_value))) {
                 consistent <- list(threshold = NA, cutoff = NA)
                 for (name in c("threshold", "cutoff")) {
                   if (length(param_value[[name]]) == 1) {
                     consistent[[name]] <- TRUE
                   } else if (length(param_value[[name]]) > 1 &&
-                             is.numeric(self$populations)) {
+                    is.numeric(self$populations)) {
                     consistent[[name]] <- (is.numeric(param_value[[name]]) &&
-                                             length(param_value[[name]]) == self$populations)
+                      length(param_value[[name]]) == self$populations)
                   }
                 }
                 all(unlist(consistent))
@@ -695,7 +696,7 @@ DiseaseModel <- R6Class(
           value <- self$region$region_cells
         } else {
           if (is.null(self$template_model) ||
-              "populations" %in% self$sample_attributes) {
+            "populations" %in% self$sample_attributes) {
             value <- private$.populations
           } else {
             value <- self$template_model$populations
@@ -707,7 +708,7 @@ DiseaseModel <- R6Class(
         value
       } else {
         if (is.null(self$template_model) ||
-            "populations" %in% self$sample_attributes) {
+          "populations" %in% self$sample_attributes) {
           private$.populations <- value
         } else {
           self$template_model$populations <- value
@@ -720,14 +721,14 @@ DiseaseModel <- R6Class(
     initial_abundance = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "initial_abundance" %in% self$sample_attributes) {
+          "initial_abundance" %in% self$sample_attributes) {
           private$.initial_abundance
         } else {
           self$template_model$initial_abundance
         }
       } else {
         if (is.null(self$template_model) ||
-            "initial_abundance" %in% self$sample_attributes) {
+          "initial_abundance" %in% self$sample_attributes) {
           private$.initial_abundance <- value
         } else {
           self$template_model$initial_abundance <- value
@@ -740,14 +741,14 @@ DiseaseModel <- R6Class(
     demographic_stochasticity = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "demographic_stochasticity" %in% self$sample_attributes) {
+          "demographic_stochasticity" %in% self$sample_attributes) {
           private$.demographic_stochasticity
         } else {
           self$template_model$demographic_stochasticity
         }
       } else {
         if (is.null(self$template_model) ||
-            "demographic_stochasticity" %in% self$sample_attributes) {
+          "demographic_stochasticity" %in% self$sample_attributes) {
           private$.demographic_stochasticity <- value
         } else {
           self$template_model$demographic_stochasticity <- value
@@ -760,14 +761,14 @@ DiseaseModel <- R6Class(
     standard_deviation = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "standard_deviation" %in% self$sample_attributes) {
+          "standard_deviation" %in% self$sample_attributes) {
           private$.standard_deviation
         } else {
           self$template_model$standard_deviation
         }
       } else {
         if (is.null(self$template_model) ||
-            "standard_deviation" %in% self$sample_attributes) {
+          "standard_deviation" %in% self$sample_attributes) {
           private$.standard_deviation <- value
         } else {
           self$template_model$standard_deviation <- value
@@ -782,14 +783,14 @@ DiseaseModel <- R6Class(
     correlation = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "correlation" %in% self$sample_attributes) {
+          "correlation" %in% self$sample_attributes) {
           private$.correlation
         } else {
           self$template_model$correlation
         }
       } else {
         if (is.null(self$template_model) ||
-            "correlation" %in% self$sample_attributes) {
+          "correlation" %in% self$sample_attributes) {
           private$.correlation <- value
         } else {
           self$template_model$correlation <- value
@@ -801,14 +802,14 @@ DiseaseModel <- R6Class(
     stages = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "stages" %in% self$sample_attributes) {
+          "stages" %in% self$sample_attributes) {
           private$.stages
         } else {
           self$template_model$stages
         }
       } else {
         if (is.null(self$template_model) ||
-            "stages" %in% self$sample_attributes) {
+          "stages" %in% self$sample_attributes) {
           private$.stages <- value
         } else {
           self$template_model$stages <- value
@@ -820,14 +821,14 @@ DiseaseModel <- R6Class(
     compartments = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "compartments" %in% self$sample_attributes) {
+          "compartments" %in% self$sample_attributes) {
           private$.compartments
         } else {
           self$template_model$compartments
         }
       } else {
         if (is.null(self$template_model) ||
-            "compartments" %in% self$sample_attributes) {
+          "compartments" %in% self$sample_attributes) {
           private$.compartments <- value
         } else {
           self$template_model$compartments <- value
@@ -843,14 +844,14 @@ DiseaseModel <- R6Class(
     results_breakdown = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "results_breakdown" %in% self$sample_attributes) {
+          "results_breakdown" %in% self$sample_attributes) {
           private$.results_breakdown
         } else {
           self$template_model$results_breakdown
         }
       } else {
         if (is.null(self$template_model) ||
-            "results_breakdown" %in% self$sample_attributes) {
+          "results_breakdown" %in% self$sample_attributes) {
           private$.results_breakdown <- value
         } else {
           self$template_model$results_breakdown <- value
@@ -863,14 +864,14 @@ DiseaseModel <- R6Class(
     carrying_capacity = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "carrying_capacity" %in% self$sample_attributes) {
+          "carrying_capacity" %in% self$sample_attributes) {
           private$.carrying_capacity
         } else {
           self$template_model$carrying_capacity
         }
       } else {
         if (is.null(self$template_model) ||
-            "carrying_capacity" %in% self$sample_attributes) {
+          "carrying_capacity" %in% self$sample_attributes) {
           private$.carrying_capacity <- value
         } else {
           self$template_model$carrying_capacity <- value
@@ -884,14 +885,14 @@ DiseaseModel <- R6Class(
     density_dependence = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "density_dependence" %in% self$sample_attributes) {
+          "density_dependence" %in% self$sample_attributes) {
           private$.density_dependence
         } else {
           self$template_model$density_dependence
         }
       } else {
         if (is.null(self$template_model) ||
-            "density_dependence" %in% self$sample_attributes) {
+          "density_dependence" %in% self$sample_attributes) {
           private$.density_dependence <- value
         } else {
           self$template_model$density_dependence <- value
@@ -904,14 +905,14 @@ DiseaseModel <- R6Class(
     growth_rate_max = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "growth_rate_max" %in% self$sample_attributes) {
+          "growth_rate_max" %in% self$sample_attributes) {
           private$.growth_rate_max
         } else {
           self$template_model$growth_rate_max
         }
       } else {
         if (is.null(self$template_model) ||
-            "growth_rate_max" %in% self$sample_attributes) {
+          "growth_rate_max" %in% self$sample_attributes) {
           private$.growth_rate_max <- value
         } else {
           self$template_model$growth_rate_max <- value
@@ -927,14 +928,14 @@ DiseaseModel <- R6Class(
     fecundity = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "fecundity" %in% self$sample_attributes) {
+          "fecundity" %in% self$sample_attributes) {
           private$.fecundity
         } else {
           self$template_model$fecundity
         }
       } else {
         if (is.null(self$template_model) ||
-            "fecundity" %in% self$sample_attributes) {
+          "fecundity" %in% self$sample_attributes) {
           private$.fecundity <- value
         } else {
           self$template_model$fecundity <- value
@@ -948,7 +949,7 @@ DiseaseModel <- R6Class(
     density_stages = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "density_stages" %in% self$sample_attributes) {
+          "density_stages" %in% self$sample_attributes) {
           value <- private$.density_stages
         } else {
           value <- self$template_model$density_stages
@@ -959,7 +960,7 @@ DiseaseModel <- R6Class(
         value
       } else {
         if (is.null(self$template_model) ||
-            "density_stages" %in% self$sample_attributes) {
+          "density_stages" %in% self$sample_attributes) {
           private$.density_stages <- value
         } else {
           self$template_model$density_stages <- value
@@ -973,14 +974,14 @@ DiseaseModel <- R6Class(
     translocation = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "translocation" %in% self$sample_attributes) {
+          "translocation" %in% self$sample_attributes) {
           private$.translocation
         } else {
           self$template_model$translocation
         }
       } else {
         if (is.null(self$template_model) ||
-            "translocation" %in% self$sample_attributes) {
+          "translocation" %in% self$sample_attributes) {
           private$.translocation <- value
         } else {
           self$template_model$translocation <- value
@@ -994,14 +995,14 @@ DiseaseModel <- R6Class(
     harvest = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "harvest" %in% self$sample_attributes) {
+          "harvest" %in% self$sample_attributes) {
           private$.harvest
         } else {
           self$template_model$harvest
         }
       } else {
         if (is.null(self$template_model) ||
-            "harvest" %in% self$sample_attributes) {
+          "harvest" %in% self$sample_attributes) {
           private$.harvest <- value
         } else {
           self$template_model$harvest <- value
@@ -1015,14 +1016,14 @@ DiseaseModel <- R6Class(
     mortality = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "mortality" %in% self$sample_attributes) {
+          "mortality" %in% self$sample_attributes) {
           private$.mortality
         } else {
           self$template_model$mortality
         }
       } else {
         if (is.null(self$template_model) ||
-            "mortality" %in% self$sample_attributes) {
+          "mortality" %in% self$sample_attributes) {
           private$.mortality <- value
         } else {
           self$template_model$mortality <- value
@@ -1036,14 +1037,14 @@ DiseaseModel <- R6Class(
     dispersal = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "dispersal" %in% self$sample_attributes) {
+          "dispersal" %in% self$sample_attributes) {
           private$.dispersal
         } else {
           self$template_model$dispersal
         }
       } else {
         if (is.null(self$template_model) ||
-            "dispersal" %in% self$sample_attributes) {
+          "dispersal" %in% self$sample_attributes) {
           private$.dispersal <- value
         } else {
           self$template_model$dispersal <- value
@@ -1057,7 +1058,7 @@ DiseaseModel <- R6Class(
     dispersal_stages = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "dispersal_stages" %in% self$sample_attributes) {
+          "dispersal_stages" %in% self$sample_attributes) {
           value <- private$.dispersal_stages
         } else {
           value <- self$template_model$dispersal_stages
@@ -1068,7 +1069,7 @@ DiseaseModel <- R6Class(
         value
       } else {
         if (is.null(self$template_model) ||
-            "dispersal_stages" %in% self$sample_attributes) {
+          "dispersal_stages" %in% self$sample_attributes) {
           private$.dispersal_stages <- value
         } else {
           self$template_model$dispersal_stages <- value
@@ -1082,7 +1083,7 @@ DiseaseModel <- R6Class(
     #'   \code{\link{disease_simulator}}).
     dispersal_source_n_k = function(value) {
       if (is.null(self$template_model) ||
-          "dispersal_source_n_k" %in% self$sample_attributes) {
+        "dispersal_source_n_k" %in% self$sample_attributes) {
         if (missing(value)) {
           private$.dispersal_source_n_k
         } else {
@@ -1102,7 +1103,7 @@ DiseaseModel <- R6Class(
     #'   carrying capacity (see \code{\link{disease_simulator}}).
     dispersal_target_k = function(value) {
       if (is.null(self$template_model) ||
-          "dispersal_target_k" %in% self$sample_attributes) {
+        "dispersal_target_k" %in% self$sample_attributes) {
         if (missing(value)) {
           private$.dispersal_target_k
         } else {
@@ -1123,7 +1124,7 @@ DiseaseModel <- R6Class(
     #'   abundance (see \code{\link{disease_simulator}}).
     dispersal_target_n = function(value) {
       if (is.null(self$template_model) ||
-          "dispersal_target_n" %in% self$sample_attributes) {
+        "dispersal_target_n" %in% self$sample_attributes) {
         if (missing(value)) {
           private$.dispersal_target_n
         } else {
@@ -1144,7 +1145,7 @@ DiseaseModel <- R6Class(
     #'   abundance/capacity (see [`poems::population_simulator`]).
     dispersal_target_n_k = function(value) {
       if (is.null(self$template_model) ||
-          "dispersal_target_n_k" %in% self$sample_attributes) {
+        "dispersal_target_n_k" %in% self$sample_attributes) {
         if (missing(value)) {
           private$.dispersal_target_n_k
         } else {
@@ -1164,14 +1165,14 @@ DiseaseModel <- R6Class(
     abundance_threshold = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "abundance_threshold" %in% self$sample_attributes) {
+          "abundance_threshold" %in% self$sample_attributes) {
           private$.abundance_threshold
         } else {
           self$template_model$abundance_threshold
         }
       } else {
         if (is.null(self$template_model) ||
-            "abundance_threshold" %in% self$sample_attributes) {
+          "abundance_threshold" %in% self$sample_attributes) {
           private$.abundance_threshold <- value
         } else {
           self$template_model$abundance_threshold <- value
@@ -1184,14 +1185,14 @@ DiseaseModel <- R6Class(
     seasons = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "seasons" %in% self$sample_attributes) {
+          "seasons" %in% self$sample_attributes) {
           private$.seasons
         } else {
           self$template_model$seasons
         }
       } else {
         if (is.null(self$template_model) ||
-            "seasons" %in% self$sample_attributes) {
+          "seasons" %in% self$sample_attributes) {
           private$.seasons <- value
         } else {
           self$template_model$seasons <- value
@@ -1204,14 +1205,14 @@ DiseaseModel <- R6Class(
     simulation_order = function(value) {
       if (missing(value)) {
         if (is.null(self$template_model) ||
-            "simulation_order" %in% self$sample_attributes) {
+          "simulation_order" %in% self$sample_attributes) {
           private$.simulation_order
         } else {
           self$template_model$simulation_order
         }
       } else {
         if (is.null(self$template_model) ||
-            "simulation_order" %in% self$sample_attributes) {
+          "simulation_order" %in% self$sample_attributes) {
           private$.simulation_order <- value
         } else {
           self$template_model$simulation_order <- value
@@ -1301,6 +1302,5 @@ DiseaseModel <- R6Class(
         super$warning_messages <- value
       }
     }
-
   )
 )

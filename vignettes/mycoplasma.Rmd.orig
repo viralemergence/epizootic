@@ -380,7 +380,7 @@ The simulation log, `sim_log`, can be examined for error messages and failure in
 Let's take a look at the results of the simulation.
 
 ```{r results}
-results <- qs::qread(file.path(tempdir(), "sample_1_results.qs"))
+results <- qs2::qs_read(file.path(tempdir(), "sample_1_results.qs2"))
 str(results)
 ```
 

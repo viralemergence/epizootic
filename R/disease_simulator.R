@@ -1,8 +1,8 @@
-#'Stage-based seasonal spatially explicit population-level disease model.
+#' Stage-based seasonal spatially explicit population-level disease model.
 #'
-#'Simulates a stage-based demographic population model and returns simulation
-#'results across multiple replicate runs. Processes run at each simulation
-#'time-step include:
+#' Simulates a stage-based demographic population model and returns simulation
+#' results across multiple replicate runs. Processes run at each simulation
+#' time-step include:
 #' \enumerate{
 #'   \item Stage transition (stochastic) calculations
 #'   \item Population growth/decline calculations
@@ -10,11 +10,11 @@
 #'   \item Dispersal calculations (default or user-defined)
 #'   \item Results collection
 #' }
-#'Note that the breeding season is
-#'always treated as the first season.
+#' Note that the breeding season is
+#' always treated as the first season.
 #'
-#'@param inputs Nested list/object with named elements:
-#'\describe{
+#' @param inputs Nested list/object with named elements:
+#' \describe{
 #'  \item{\code{random_seed}}{Number to seed the random number generation for
 #'  stochasticity.}
 #'  \item{\code{replicates}}{Number of replicate simulation runs (default is
@@ -237,8 +237,8 @@
 #' "pooled" returns results that are not broken down by stage or compartment.}
 #' \item{\code{verbose}}{TRUE or FALSE, indicating if the user wants informative
 #' messages throughout the simulation process.}
-#'}
-#'@return Selected simulation results as a nested list summarized (mean, sd,
+#' }
+#' @return Selected simulation results as a nested list summarized (mean, sd,
 #'  min, max) across multiple replicates (default), or 2-3D arrays including
 #'  results for each replicate:
 #' \describe{
@@ -272,31 +272,35 @@
 #'
 #' @examples
 #' inputs <- list(
-#'  time_steps = 5,
-#'  seasons = 2,
-#'  populations = 25,
-#'  stages = 2,
-#'  compartments = 4,
-#'  coordinates = data.frame(x = rep(seq(177.01, 177.05, 0.01), 5),
-#'                           y = rep(seq(-18.01, -18.05, -0.01), each = 5)),
-#'  initial_abundance = c(c(5000, 5000, 0, 1, 0, 0, 0, 0),
-#'                        rep(c(5000, 5000, 0, 0, 0, 0, 0, 0), 24)) |>
-#'    matrix(nrow = 8),
-#'  carrying_capacity = matrix(100000, nrow = 25, ncol = 5),
-#'  breeding_season_length = rep(100, 25),
-#'  mortality = c(0.4, 0, 0.505, 0.105, 0.4, 0, 0.45, 0.05),
-#'  mortality_unit = 1,
-#'  fecundity = 15,
-#'  fecundity_unit = 1,
-#'  fecundity_mask = c(0, 1, 0, 1, 0, 1, 0, 1),
-#'  transmission = c(0.00002, 0.00001, 7.84e-06, 3.92e-06),
-#'  transmission_unit = 0,
-#'  transmission_mask = c(1, 1, 0, 0, 1, 1, 0, 0),
-#'  recovery = c(0.05714286, 0.05714286, 0.1, 0.1),
-#'  recovery_unit = rep(0, 8),
-#'  recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
-#'  season_functions = list(siri_model_summer, siri_model_winter),
-#'  simulation_order = c("transition", "season_functions", "results")
+#'   time_steps = 5,
+#'   seasons = 2,
+#'   populations = 25,
+#'   stages = 2,
+#'   compartments = 4,
+#'   coordinates = data.frame(
+#'     x = rep(seq(177.01, 177.05, 0.01), 5),
+#'     y = rep(seq(-18.01, -18.05, -0.01), each = 5)
+#'   ),
+#'   initial_abundance = c(
+#'     c(5000, 5000, 0, 1, 0, 0, 0, 0),
+#'     rep(c(5000, 5000, 0, 0, 0, 0, 0, 0), 24)
+#'   ) |>
+#'     matrix(nrow = 8),
+#'   carrying_capacity = matrix(100000, nrow = 25, ncol = 5),
+#'   breeding_season_length = rep(100, 25),
+#'   mortality = c(0.4, 0, 0.505, 0.105, 0.4, 0, 0.45, 0.05),
+#'   mortality_unit = 1,
+#'   fecundity = 15,
+#'   fecundity_unit = 1,
+#'   fecundity_mask = c(0, 1, 0, 1, 0, 1, 0, 1),
+#'   transmission = c(0.00002, 0.00001, 7.84e-06, 3.92e-06),
+#'   transmission_unit = 0,
+#'   transmission_mask = c(1, 1, 0, 0, 1, 1, 0, 0),
+#'   recovery = c(0.05714286, 0.05714286, 0.1, 0.1),
+#'   recovery_unit = rep(0, 8),
+#'   recovery_mask = c(0, 0, 1, 1, 0, 0, 1, 1),
+#'   season_functions = list(siri_model_summer, siri_model_winter),
+#'   simulation_order = c("transition", "season_functions", "results")
 #' )
 #' disease_simulator(inputs)
 #'
@@ -306,7 +310,6 @@
 #' @export disease_simulator
 
 disease_simulator <- function(inputs) {
-
   # Check that all inputs are valid
   inputs <- check_simulator_inputs(inputs)
   list2env(inputs, envir = environment())
@@ -340,7 +343,7 @@ disease_simulator <- function(inputs) {
 
   if (exists("season_functions")) {
     season_function_list <- list()
-    for (i in 1:length(season_functions)) {
+    for (i in seq_along(season_functions)) {
       season_function_list[[i]] <- disease_transformation(
         list(
           "replicates" = replicates,
@@ -385,11 +388,11 @@ disease_simulator <- function(inputs) {
 
   ### Replicates ###
   for (r in 1:replicates) {
-
     # Initialize populations
     segment_abundance <- initial_abundance
     population_abundance <- .colSums(initial_abundance,
-                                     m = segments, n = populations)
+      m = segments, n = populations
+    )
     occupied_indices <- which(as.logical(population_abundance))
     occupied_populations <- length(occupied_indices)
 
@@ -398,7 +401,6 @@ disease_simulator <- function(inputs) {
 
     ### Simulation time steps ###
     for (tm in 1:time_steps) {
-
       # Load carrying capacity for each population for time if there is a
       # temporal trend in K
       if (exists("carrying_capacity_t_max") && carrying_capacity_t_max > 1) {
@@ -413,7 +415,6 @@ disease_simulator <- function(inputs) {
 
       ## Run simulation processes in configured order ##
       for (season in 1:seasons) {
-
         # Check if we're using season_length and set values accordingly
         if (exists("season_lengths") && !is.null(season_lengths)) {
           season_length <- rep(season_lengths[season], populations)
@@ -422,21 +423,23 @@ disease_simulator <- function(inputs) {
         sim_order <- simulation_order[[season]]
 
         for (process in sim_order) {
-
           if (process == "transition") {
-
             if (occupied_populations) {
               # Perform stage-based transitions
-              segment_abundance <- transition_function(segment_abundance,
-                                                       occupied_indices)
+              segment_abundance <- transition_function(
+                segment_abundance,
+                occupied_indices
+              )
             }
           }
 
           ## Dispersal calculations ##
           if (occupied_populations && process == "dispersal") {
             if (exists("dispersal_function") && !is.null(dispersal_function)) {
-              segment_abundance <- dispersal_function(r, tm, carrying_capacity,
-                                                      segment_abundance)
+              segment_abundance <- dispersal_function(
+                r, tm, carrying_capacity,
+                segment_abundance
+              )
               occupied_indices <- which(as.logical(colSums(segment_abundance)))
             }
           }
@@ -444,10 +447,10 @@ disease_simulator <- function(inputs) {
           ## Season functions ##
           if (occupied_populations && process == "season_functions" && is.list(season_function_list)) {
             transformed <- season_function_list[[season]](r, tm,
-                                                          carrying_capacity,
-                                                          segment_abundance,
-                                                          season_length,
-                                                          occupied_indices)
+              carrying_capacity,
+              segment_abundance,
+              season_length,
+              occupied_indices)
             segment_abundance <- transformed$segment_abundance
             occupied_indices <- which(as.logical(colSums(segment_abundance)))
             if ("carrying_capacity" %in% names(transformed)) {
@@ -456,24 +459,26 @@ disease_simulator <- function(inputs) {
           }
 
           if (process == "results") {
-            results_list <- result_functions$calculate_at_season(r, tm, season,
-                                                                 segment_abundance,
-                                                                 NULL,
-                                                                 results_list)
+            results_list <- result_functions$calculate_at_season(
+              r, tm, season,
+              segment_abundance,
+              NULL,
+              results_list
+            )
           }
         } # End simulation order loop
       } # End season loop
     } # End time step loop
 
-    results_list <- result_functions$calculate_at_replicate(r,
-                                                            segment_abundance,
-                                                            results_list)
-
+    results_list <- result_functions$calculate_at_replicate(
+      r,
+      segment_abundance,
+      results_list
+    )
   } # End replicate loop
 
   ## Finalize results calculation and collation ##
   results_list <- result_functions$finalize_attributes(results_list)
 
   return(c(results_list, simulator$results))
-
 }

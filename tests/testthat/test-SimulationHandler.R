@@ -12,7 +12,8 @@ test_that("Runs successfully with valid inputs", {
     initial_abundance = c(
       c(5000, 5000, 0, 1, 0, 0, 0, 0),
       rep(c(5000, 5000, 0, 0, 0, 0, 0, 0), 24)
-    ) |> matrix(nrow = 8),
+    ) |>
+      matrix(nrow = 8),
     breeding_season_length = rep(100, 25),
     mortality = c(0.4, 0, 0.505, 0.105, 0.4, 0, 0.45, 0.05),
     mortality_unit = 1,
@@ -28,13 +29,17 @@ test_that("Runs successfully with valid inputs", {
     results_selection = "abundance",
     results_breakdown = "stages",
     dispersal_type = "stages",
-    attribute_aliases = list(dispersal1 = "dispersal$a",
-                             dispersal2 = "dispersal$b"),
+    attribute_aliases = list(
+      dispersal1 = "dispersal$a",
+      dispersal2 = "dispersal$b"
+    ),
     verbose = FALSE
   )
 
-  model_simulator <- ModelSimulator$new(simulation_model = model_template,
-                                        simulation_function = disease_simulator)
+  model_simulator <- ModelSimulator$new(
+    simulation_model = model_template,
+    simulation_function = disease_simulator
+  )
 
   results_dir <- tempdir()
 
@@ -55,60 +60,119 @@ test_that("Runs successfully with valid inputs", {
     call_params = c("seed_number")
   )
 
-  distance_matrix <- geosphere::distm(model_template$coordinates,
-                                       model_template$coordinates,
-                                       fun = geosphere::distGeo)/1000
-  dispersal_gen1 <- DispersalGenerator$new(coordinates = model_template$coordinates,
-                                           distance_classes = seq(100, 600, 20))
+  distance_matrix <- geosphere::distm(
+    model_template$coordinates,
+    model_template$coordinates,
+    fun = geosphere::distGeo
+  ) /
+    1000
+  dispersal_gen1 <- DispersalGenerator$new(
+    coordinates = model_template$coordinates,
+    distance_classes = seq(100, 600, 20)
+  )
   dispersal_gen1$calculate_distance_data(distance_matrix = distance_matrix)
-  dispersal_gen1$set_attributes(proportion = 0.4, breadth = 110, max_distance = 300)
-  dispersal_gen2 <- DispersalGenerator$new(coordinates = model_template$coordinates,
-                                           distance_classes = seq(100, 600, 20))
+  dispersal_gen1$set_attributes(
+    proportion = 0.4,
+    breadth = 110,
+    max_distance = 300
+  )
+  dispersal_gen2 <- DispersalGenerator$new(
+    coordinates = model_template$coordinates,
+    distance_classes = seq(100, 600, 20)
+  )
   dispersal_gen2$calculate_distance_data(distance_matrix = distance_matrix)
-  dispersal_gen2$set_attributes(proportion = 0.2, breadth = 110, max_distance = 500)
+  dispersal_gen2$set_attributes(
+    proportion = 0.2,
+    breadth = 110,
+    max_distance = 500
+  )
 
-  sample_data <- data.frame(seed_number = 100000, fecundity = 15, fecundity_unit = 1)
+  sample_data <- data.frame(
+    seed_number = 100000,
+    fecundity = 15,
+    fecundity_unit = 1
+  )
 
   # Check with valid inputs
-  expect_silent(SimulationHandler$new(sample_data = sample_data,
-                model_template = model_template,
-                model_simulator = model_simulator,
-                generators = list(dispersal_gen1, dispersal_gen2, generator3),
-                parallel_cores = 1, results_dir = test_path("test_results")))
-  handler <- SimulationHandler$new(sample_data = sample_data,
-                model_template = model_template,
-                model_simulator = model_simulator,
-                generators = list(dispersal_gen1, dispersal_gen2, generator3),
-                parallel_cores = 1, results_dir = test_path("test_results"))
+  expect_silent(SimulationHandler$new(
+    sample_data = sample_data,
+    model_template = model_template,
+    model_simulator = model_simulator,
+    generators = list(dispersal_gen1, dispersal_gen2, generator3),
+    parallel_cores = 1,
+    results_dir = test_path("test_results")
+  ))
+  handler <- SimulationHandler$new(
+    sample_data = sample_data,
+    model_template = model_template,
+    model_simulator = model_simulator,
+    generators = list(dispersal_gen1, dispersal_gen2, generator3),
+    parallel_cores = 1,
+    results_dir = test_path("test_results")
+  )
   run_output <- handler$run()
-  expect_named(run_output, c("summary", "failed_indices", "warning_indices", "full_log"))
-  expect_equal(run_output$summary, "1 of 1 sample models ran and saved results successfully")
+  expect_named(
+    run_output,
+    c("summary", "failed_indices", "warning_indices", "full_log")
+  )
+  expect_equal(
+    run_output$summary,
+    "1 of 1 sample models ran and saved results successfully"
+  )
   expect_length(run_output$failed_indices, 0)
-  expect_equal(run_output$full_log, list(list(successful = TRUE,
-                                              message = "Model sample 1 simulation ran successfully and the results were saved")))
-  expect_true(all(c("sample_1_results.qs", "simulation_log.txt") %in% list.files(handler$results_dir)))
+  expect_equal(
+    run_output$full_log,
+    list(list(
+      successful = TRUE,
+      message = "Model sample 1 simulation ran successfully and the results were saved"
+    ))
+  )
+  expect_true(all(
+    c("sample_1_results.qs2", "simulation_log.txt") %in%
+      list.files(handler$results_dir)
+  ))
 
   # Check if it works when the generator input is in the model template
   sample_data <- data.frame(fecundity = 15, fecundity_unit = 1)
   model_template$set_attributes(seed_number = 100000)
-  expect_silent(SimulationHandler$new(sample_data = sample_data,
-                model_template = model_template,
-                model_simulator = model_simulator,
-                generators = list(dispersal_gen1, dispersal_gen2, generator3),
-                parallel_cores = 1, results_dir = test_path("test_results")))
-  handler <- SimulationHandler$new(sample_data = sample_data,
-                model_template = model_template,
-                model_simulator = model_simulator,
-                generators = list(dispersal_gen1, dispersal_gen2, generator3),
-                parallel_cores = 1, results_dir = test_path("test_results"))
+  expect_silent(SimulationHandler$new(
+    sample_data = sample_data,
+    model_template = model_template,
+    model_simulator = model_simulator,
+    generators = list(dispersal_gen1, dispersal_gen2, generator3),
+    parallel_cores = 1,
+    results_dir = test_path("test_results")
+  ))
+  handler <- SimulationHandler$new(
+    sample_data = sample_data,
+    model_template = model_template,
+    model_simulator = model_simulator,
+    generators = list(dispersal_gen1, dispersal_gen2, generator3),
+    parallel_cores = 1,
+    results_dir = test_path("test_results")
+  )
   expect_silent(handler$run())
   run_output <- handler$run()
-  expect_named(run_output, c("summary", "failed_indices", "warning_indices", "full_log"))
-  expect_equal(run_output$summary, "1 of 1 sample models ran and saved results successfully")
+  expect_named(
+    run_output,
+    c("summary", "failed_indices", "warning_indices", "full_log")
+  )
+  expect_equal(
+    run_output$summary,
+    "1 of 1 sample models ran and saved results successfully"
+  )
   expect_length(run_output$failed_indices, 0)
-  expect_equal(run_output$full_log, list(list(successful = TRUE,
-                                              message = "Model sample 1 simulation ran successfully and the results were saved")))
-  expect_true(all(c("sample_1_results.qs", "simulation_log.txt") %in% list.files(handler$results_dir)))
+  expect_equal(
+    run_output$full_log,
+    list(list(
+      successful = TRUE,
+      message = "Model sample 1 simulation ran successfully and the results were saved"
+    ))
+  )
+  expect_true(all(
+    c("sample_1_results.qs2", "simulation_log.txt") %in%
+      list.files(handler$results_dir)
+  ))
 })
 
 test_that("initialization and parameter setting", {
@@ -135,7 +199,9 @@ test_that("attempt run with incomplete attributes", {
   # No model template and samples
   sim_manager$model_simulator <- NULL
   expect_error(sim_manager$run())
-  sim_manager$model_template <- SimulationModel$new(model_attributes = c("time_steps", "attr1", "attr2"))
+  sim_manager$model_template <- SimulationModel$new(
+    model_attributes = c("time_steps", "attr1", "attr2")
+  )
   sim_manager$sample_data <- data.frame() # empty
   expect_error(sim_manager$run())
   sim_manager$sample_data <- data.frame(attr1 = 3:4, attr2 = 5:6)
@@ -143,27 +209,53 @@ test_that("attempt run with incomplete attributes", {
   expect_error(sim_manager$run(), "The model simulator has not been set")
   sim_manager$model_simulator <- ModelSimulator$new()
   sim_manager$model_simulator$simulation_function <- NULL
-  expect_error(sim_manager$run(), "The model simulator function has not been set")
+  expect_error(
+    sim_manager$run(),
+    "The model simulator function has not been set"
+  )
   sim_manager$model_simulator$simulation_function <- "max"
   # No results output directory
   expect_error(sim_manager$run(), "No output directory set for results")
   sim_manager$results_dir <- "invalid_dir"
-  expect_error(sim_manager$run(), "Could not find results directory invalid_dir")
+  expect_error(
+    sim_manager$run(),
+    "Could not find results directory invalid_dir"
+  )
   sim_manager$results_dir <- TEST_DIRECTORY
   # With incomplete model
   expect_null(sim_manager$nested_model)
-  generator <- Generator$new(generative_requirements = list(attr3 = "function"),
-                             inputs = c("attr2"), outputs = c("attr3"))
-  generator$function_templates <- list(attr3 = list(function_def = function(params) return(params$a + 2),
-                                                    call_params = c("attr2")))
+  generator <- Generator$new(
+    generative_requirements = list(attr3 = "function"),
+    inputs = c("attr2"),
+    outputs = c("attr3")
+  )
+  generator$function_templates <- list(
+    attr3 = list(
+      function_def = function(params) return(params$a + 2),
+      call_params = c("attr2")
+    )
+  )
   sim_manager$generators <- list(gen3 = generator)
   expect_error(sim_manager$run(), "Model attributes are incomplete: time_steps")
   expect_true("SimulationModel" %in% class(sim_manager$nested_model))
-  expect_equal(sim_manager$nested_model$attached, list(sample_model_names = c("attr1", "attr2"),
-                                                       sample_generative_names = list("attr3")))
+  expect_equal(
+    sim_manager$nested_model$attached,
+    list(
+      sample_model_names = c("attr1", "attr2"),
+      sample_generative_names = list("attr3")
+    )
+  )
   # Set model sample
   model_clone <- sim_manager$nested_model$clone()
   sim_manager$set_model_sample(model_clone, 1)
-  expect_equal(model_clone$get_attributes(), list(attr1 = 3, attr2 = 5, sample_model_names = c("attr1", "attr2"),
-                                                  sample_generative_names = list("attr3"), attr3 = 7))
+  expect_equal(
+    model_clone$get_attributes(),
+    list(
+      attr1 = 3,
+      attr2 = 5,
+      sample_model_names = c("attr1", "attr2"),
+      sample_generative_names = list("attr3"),
+      attr3 = 7
+    )
+  )
 })

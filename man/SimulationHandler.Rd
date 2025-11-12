@@ -9,7 +9,7 @@ simulations and saving results. This simulation manager bears some
 resemblance to the \code{\link[poems:SimulationManager]{poems::SimulationManager}} in \code{poems}, but differs
 in that it can handle multiple dispersal generators, uses a different engine
 for parallelization, handles errors differently, and has a different default
-data format (\code{.qs}).
+data format (\code{.qs2}).
 }
 \keyword{internal}
 \section{Super classes}{
