@@ -1,13 +1,11 @@
 # Test environments
-- Local R 4.4.1 install, macOS 15, Intel chip
-- Local R 4.3.2 install, Windows 11
-- M1 mac, R 4.4.0, macOS 13.5 (via mac-builder)
-- Debian, R 4.4.1 (via rocker/geospatial docker image)
-- Microsoft Windows Server 2022, R-devel (via win-builder)
+* macOS 15.6.1, Apple Silicon, R 4.5.2 (local install)
+* Windows, R-devel (via win-builder)
+* macOS, Apple Silicon chip, R 4.5.2 (via mac-builder)
 
 # Check results
 
-0 errors ✔ | 0 warnings ✔ | 1 note
+0 errors ✔ | 0 warnings ✔ | 0 notes
 
 ## Comment on check results
 
