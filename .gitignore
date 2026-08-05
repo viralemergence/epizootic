@@ -5,3 +5,4 @@
 .DS_Store
 .vscode
 inst/doc
+tests/testthat/test_results/

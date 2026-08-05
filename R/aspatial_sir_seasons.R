@@ -131,7 +131,7 @@ sir_model_summer <- function(inputs) {
                               season = "breeding"), aspatial_sir)
 
   # Assign populations to occupied indices in segment_abundance
-  for(i in 1:length(occupied_indices)) {
+  for(i in seq_along(occupied_indices)) {
     segment_abundance[, occupied_indices[i]] <- population_new[[i]]
   }
 
@@ -267,7 +267,7 @@ sir_model_winter <- function(inputs) {
                               season = "non-breeding"), aspatial_sir)
 
   # Assign populations to occupied indices in segment_abundance
-  for(i in 1:length(occupied_indices)) {
+  for(i in seq_along(occupied_indices)) {
     segment_abundance[, occupied_indices[i]] <- population_new[[i]]
   }
 

@@ -6,8 +6,3 @@
 # Check results
 
 0 errors ✔ | 0 warnings ✔ | 0 notes
-
-## Comment on check results
-
-The "possibly misspelled words" in the 1 note are "spatiotemporally" and "dispersers", 
-both of which are commonly used words in the field of ecology and are not misspelled.

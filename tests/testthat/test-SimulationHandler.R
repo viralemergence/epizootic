@@ -1,3 +1,8 @@
+# Create a scratch results directory for the tests in this file and remove it
+# once they have all finished.
+dir.create(test_path("test_results"), showWarnings = FALSE, recursive = TRUE)
+withr::defer(unlink(test_path("test_results"), recursive = TRUE), teardown_env())
+
 test_that("Runs successfully with valid inputs", {
   model_template <- DiseaseModel$new(
     time_steps = 5,
