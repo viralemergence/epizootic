@@ -1,8 +1,10 @@
 # Test environments
 * macOS Tahoe 26.5.1, Apple Silicon, R 4.6.0 (local install)
-* ubuntu-release R-4.6.1 Ubuntu 24.04.4 LTS (via Rhub)
-* ubuntu-gcc12   R-devel Ubuntu 22.04.5 LTS (via Rhub)
-* 
+* Ubuntu 24.04.4 LTS, R-4.6.1 (via Rhub)
+* Ubuntu 22.04.5 LTS R-devel (via Rhub)
+* Microsoft Windows Server 2025 R-devel (via Rhub)
+* macOS 15.7.7 R-devel (via Rhub)
+* Microsoft Windows Server 22 R-devel (via win-builder)
 
 # Check results
 
