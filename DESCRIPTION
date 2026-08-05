@@ -1,7 +1,6 @@
 Package: epizootic
 Title: Spatially Explicit Population Models of Disease Transmission in Wildlife
-Version: 2.0.0
-Authors@R: c(
+Version: 2.1.0
     person("July", "Pilowsky", email = "pilowskyj@caryinstitute.org", 
            role = c("aut", "cre"), 
            comment = c(ORCID = "https://orcid.org/0000-0002-6376-2585")),
@@ -43,7 +42,9 @@ Collate:
     'DiseaseModel.R'
     'RcppExports.R'
     'SimulationHandler.R'
+    'aspatial_sir_seasons.R'
     'aspatial_siri_seasons.R'
+    'check_aspatial_sir_inputs.R'
     'check_aspatial_siri_inputs.R'
     'check_simulator_inputs.R'
     'data.R'

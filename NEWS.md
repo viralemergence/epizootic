@@ -1,3 +1,11 @@
+# v 2.1.0 (5 Aug 2026)
+
+## Enhancements
+- New season functions `sir_model_summer` and `sir_model_winter`, plus the C++
+  helper `aspatial_sir`, provide a ready-made SIR model for the common scenario
+  of two life stages (juvenile and adult) with adult fecundity in the breeding
+  season. Pass them to `disease_simulator` via `season_functions`.
+
 # v 2.0.0 (12 Nov 2025)
 
 ## Major Changes
