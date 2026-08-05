@@ -16,7 +16,7 @@ sir_model_winter(inputs)
 adult).}
 \item{\code{compartments}}{Number of disease compartments. Must be 3
 (susceptible, infected, recovered).}
-\item{\code{abundance_threshold}}{A quasi-extinction threshold at
+\item{\code{abundance_threshold}}{A quasi-extinction threshold below
 which a population becomes extinct.}
 \item{\code{mortality}}{A vector of mortality rates, one for each
 combination of stages and compartments.}
@@ -31,7 +31,7 @@ compartments reproduce.}
 \item{\code{transmission}}{A vector of transmission rates, one for each
 combination of stages and compartment for which transmission applies (see
 \code{transmission_mask} below.}
-\item{\code{transmission_unit}}{A vector indicating whether mortality
+\item{\code{transmission_unit}}{A vector indicating whether transmission
 rates are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
 \item{\code{transmission_mask}}{A vector indicating which stages and
 compartments are subject to transmission (i.e., classes susceptible to
@@ -39,7 +39,7 @@ infection.)}
 \item{\code{recovery}}{A vector of recovery rates, one for each
 combination of stages and compartment for which recovery applies (see
 \code{recovery_mask} below.)}
-\item{\code{recovery_unit}}{A vector indicating whether mortality rates
+\item{\code{recovery_unit}}{A vector indicating whether recovery rates
 are daily or seasonal. 1 indicates seasonal, 0 indicates daily.}
 \item{\code{recovery_mask}}{A vector indicating which compartments are
 subject to recovery (i.e., infected classes that can recover.)}

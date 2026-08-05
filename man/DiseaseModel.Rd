@@ -18,265 +18,269 @@ consistency and completeness of model parameters.
 \code{\link[poems:GenericClass]{poems::GenericClass}} -> \code{\link[poems:GenericModel]{poems::GenericModel}} -> \code{\link[poems:SpatialModel]{poems::SpatialModel}} -> \code{\link[poems:SimulationModel]{poems::SimulationModel}} -> \code{DiseaseModel}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{attached}}{A list of dynamically attached attributes (name-value
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{attached}}{A list of dynamically attached attributes (name-value
 pairs).}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{simulation_function}}{Name (character string) or source path of the
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{simulation_function}}{Name (character string) or source path of the
 default simulation function, which takes a model as an input and
 returns the simulation results.}
 
-\item{\code{model_attributes}}{A vector of model attribute names.}
+    \item{\code{model_attributes}}{A vector of model attribute names.}
 
-\item{\code{region}}{A \code{\link[poems:Region]{poems::Region}} (or inherited class) object specifying
+    \item{\code{region}}{A \code{\link[poems:Region]{poems::Region}} (or inherited class) object specifying
 the study region.}
 
-\item{\code{coordinates}}{Data frame (or matrix) of X-Y population (WGS84)
+    \item{\code{coordinates}}{Data frame (or matrix) of X-Y population (WGS84)
 coordinates in longitude (degrees West) and latitude (degrees North)
 (get and set), or distance-based coordinates dynamically returned by
 region raster (get only).}
 
-\item{\code{random_seed}}{Number to seed the random number generation for
+    \item{\code{random_seed}}{Number to seed the random number generation for
 stochasticity.}
 
-\item{\code{replicates}}{Number of replicate simulation runs.}
+    \item{\code{replicates}}{Number of replicate simulation runs.}
 
-\item{\code{time_steps}}{Number of simulation time steps.}
+    \item{\code{time_steps}}{Number of simulation time steps.}
 
-\item{\code{years_per_step}}{Number of years per time step.}
+    \item{\code{years_per_step}}{Number of years per time step.}
 
-\item{\code{populations}}{Number of population cells.}
+    \item{\code{populations}}{Number of population cells.}
 
-\item{\code{initial_abundance}}{Array (matrix) or raster (stack) of initial
+    \item{\code{initial_abundance}}{Array (matrix) or raster (stack) of initial
 abundance values at each population cell (for each age/stage).}
 
-\item{\code{demographic_stochasticity}}{Boolean for choosing demographic
+    \item{\code{demographic_stochasticity}}{Boolean for choosing demographic
 stochasticity for transition, dispersal, harvest and/or other processes.}
 
-\item{\code{standard_deviation}}{Standard deviation matrix (or single value) for
+    \item{\code{standard_deviation}}{Standard deviation matrix (or single value) for
 applying environmental stochasticity to transition rates.}
 
-\item{\code{correlation}}{Simulator-dependent attribute or list of attributes
+    \item{\code{correlation}}{Simulator-dependent attribute or list of attributes
 for describing/parameterizing the correlation strategy utilized when
 applying environmental stochasticity and/or other processes (see
 \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{stages}}{Number of life cycle stages (default 1).}
+    \item{\code{stages}}{Number of life cycle stages (default 1).}
 
-\item{\code{compartments}}{Number of disease compartments (default 1).}
+    \item{\code{compartments}}{Number of disease compartments (default 1).}
 
-\item{\code{results_breakdown}}{A string with one of these values: "segments" (default),
+    \item{\code{results_breakdown}}{A string with one of these values: "segments" (default),
 "compartments", "stages" or "pooled." "segments" returns results for each
 segment (stage x compartment combination.) "compartments" returns results for
 each disease compartment. "stages" returns results for each life cycle stage.
 "pooled" returns results that are not broken down by stage or compartment.}
 
-\item{\code{carrying_capacity}}{Array (matrix), or raster (stack) of carrying
+    \item{\code{carrying_capacity}}{Array (matrix), or raster (stack) of carrying
 capacity values at each population cell (across time).}
 
-\item{\code{density_dependence}}{Simulator-dependent function, attribute or list
+    \item{\code{density_dependence}}{Simulator-dependent function, attribute or list
 of attributes for describing/parameterizing the density dependence
 strategy utilized (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
+    \item{\code{growth_rate_max}}{Maximum growth rate (utilized by density
 dependence processes).}
 
-\item{\code{fecundity}}{A vector of fecundity rates, one for each combination of
+    \item{\code{fecundity}}{A vector of fecundity rates, one for each combination of
 stages and compartments for which fecundity applies (see
 \code{fecundity_mask} below). If fecundity varies among seasons, a list
 of fecundity vectors with the same length as \code{seasons} may be
 provided. Required input.}
 
-\item{\code{density_stages}}{Array of booleans or numeric (0-1) for each stage
+    \item{\code{density_stages}}{Array of booleans or numeric (0-1) for each stage
 to indicate (the degree to) which stages are affected by density
 (default is 1 for all stages).}
 
-\item{\code{translocation}}{Simulator-dependent function, attribute or list of
+    \item{\code{translocation}}{Simulator-dependent function, attribute or list of
 attributes for describing/parameterizing translocation (management)
 strategies utilized (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{harvest}}{Simulator-dependent function, attribute or list of
+    \item{\code{harvest}}{Simulator-dependent function, attribute or list of
 attributes for describing/parameterizing a harvest (organism
 removal/hunting) strategy (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{mortality}}{Simulator-dependent function, attribute or list of
+    \item{\code{mortality}}{Simulator-dependent function, attribute or list of
 attributes to describe/parameterize a spatio-temporal mortality
 strategy (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{dispersal}}{Simulator-dependent function, attribute or list of
+    \item{\code{dispersal}}{Simulator-dependent function, attribute or list of
 attributes for describing/parameterizing the dispersal (migration)
 strategy utilized (see \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_stages}}{Array of relative dispersal (0-1) for each stage
+    \item{\code{dispersal_stages}}{Array of relative dispersal (0-1) for each stage
 to indicate the degree to which each stage participates in dispersal
 (default is 1 for all stages).}
 
-\item{\code{dispersal_source_n_k}}{Simulator-dependent attribute for
+    \item{\code{dispersal_source_n_k}}{Simulator-dependent attribute for
 describing/parameterizing dispersal dependent on source population
 abundance divided by carrying capacity (see
 \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_target_k}}{Simulator-dependent attribute for
+    \item{\code{dispersal_target_k}}{Simulator-dependent attribute for
 describing/parameterizing dispersal dependent on target population
 carrying capacity (see \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_target_n}}{Simulator-dependent attribute (default is list
+    \item{\code{dispersal_target_n}}{Simulator-dependent attribute (default is list
 with \emph{threshold} and \emph{cutoff}) of attributes for
 describing/parameterizing dispersal dependent on target population
 abundance (see \code{\link{disease_simulator}}).}
 
-\item{\code{dispersal_target_n_k}}{Simulator-dependent attribute (default is
+    \item{\code{dispersal_target_n_k}}{Simulator-dependent attribute (default is
 list with \emph{threshold} and \emph{cutoff}) of attributes for
 describing/parameterizing dispersal dependent on target population
 abundance/capacity (see \code{\link[poems:population_simulator]{poems::population_simulator}}).}
 
-\item{\code{abundance_threshold}}{Abundance threshold (that needs to be
+    \item{\code{abundance_threshold}}{Abundance threshold (that needs to be
 exceeded) for each population to persist.}
 
-\item{\code{seasons}}{Number of seasons in a year (default 1.) The first one is
+    \item{\code{seasons}}{Number of seasons in a year (default 1.) The first one is
 always treated as the breeding season.}
 
-\item{\code{simulation_order}}{A vector of simulation process names in
+    \item{\code{simulation_order}}{A vector of simulation process names in
 configured order of execution.}
 
-\item{\code{results_selection}}{List of attributes to be included in the
+    \item{\code{results_selection}}{List of attributes to be included in the
 returned results of each simulation run, selected from: "abundance",
 "ema", "extirpation", "extinction_location", "harvested", "occupancy";
 "summarize" or "replicate".}
 
-\item{\code{attribute_aliases}}{A list of alternative alias names for model
+    \item{\code{attribute_aliases}}{A list of alternative alias names for model
 attributes (form: \code{alias = "attribute"}) to be used with the set
 and get attributes methods.}
 
-\item{\code{template_model}}{Nested template model for fixed (non-sampled)
+    \item{\code{template_model}}{Nested template model for fixed (non-sampled)
 attributes for shallow cloning.}
 
-\item{\code{sample_attributes}}{Vector of sample attribute names (only).}
+    \item{\code{sample_attributes}}{Vector of sample attribute names (only).}
 
-\item{\code{required_attributes}}{Vector of required attribute names (only),
+    \item{\code{required_attributes}}{Vector of required attribute names (only),
 i.e. those needed to run a simulation.}
 
-\item{\code{error_messages}}{A vector of error messages encountered when setting
+    \item{\code{error_messages}}{A vector of error messages encountered when setting
 model attributes.}
 
-\item{\code{warning_messages}}{A vector of warning messages encountered when
+    \item{\code{warning_messages}}{A vector of warning messages encountered when
 setting model attributes.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DiseaseModel-new}{\code{DiseaseModel$new()}}
-\item \href{#method-DiseaseModel-set_sample_attributes}{\code{DiseaseModel$set_sample_attributes()}}
-\item \href{#method-DiseaseModel-list_consistency}{\code{DiseaseModel$list_consistency()}}
-\item \href{#method-DiseaseModel-clone}{\code{DiseaseModel$clone()}}
+  \itemize{
+    \item \href{#method-DiseaseModel-initialize}{\code{DiseaseModel$new()}}
+    \item \href{#method-DiseaseModel-set_sample_attributes}{\code{DiseaseModel$set_sample_attributes()}}
+    \item \href{#method-DiseaseModel-list_consistency}{\code{DiseaseModel$list_consistency()}}
+    \item \href{#method-DiseaseModel-clone}{\code{DiseaseModel$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="poems" data-topic="GenericModel" data-id="get_attribute"><a href='../../poems/html/GenericModel.html#method-GenericModel-get_attribute'><code>poems::GenericModel$get_attribute()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="GenericModel" data-id="get_attribute_aliases"><a href='../../poems/html/GenericModel.html#method-GenericModel-get_attribute_aliases'><code>poems::GenericModel$get_attribute_aliases()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="get_attribute_names"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-get_attribute_names'><code>poems::SimulationModel$get_attribute_names()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="get_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-get_attributes'><code>poems::SimulationModel$get_attributes()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="incomplete_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-incomplete_attributes'><code>poems::SimulationModel$incomplete_attributes()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="inconsistent_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-inconsistent_attributes'><code>poems::SimulationModel$inconsistent_attributes()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="is_complete"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-is_complete'><code>poems::SimulationModel$is_complete()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="is_consistent"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-is_consistent'><code>poems::SimulationModel$is_consistent()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="list_completeness"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-list_completeness'><code>poems::SimulationModel$list_completeness()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="new_clone"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-new_clone'><code>poems::SimulationModel$new_clone()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="set_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-set_attributes'><code>poems::SimulationModel$set_attributes()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="GenericModel" data-id="get_attribute"><a href='../../poems/html/GenericModel.html#method-GenericModel-get_attribute'><code>poems::GenericModel$get_attribute()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="GenericModel" data-id="get_attribute_aliases"><a href='../../poems/html/GenericModel.html#method-GenericModel-get_attribute_aliases'><code>poems::GenericModel$get_attribute_aliases()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="get_attribute_names"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-get_attribute_names'><code>poems::SimulationModel$get_attribute_names()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="get_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-get_attributes'><code>poems::SimulationModel$get_attributes()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="incomplete_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-incomplete_attributes'><code>poems::SimulationModel$incomplete_attributes()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="inconsistent_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-inconsistent_attributes'><code>poems::SimulationModel$inconsistent_attributes()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="is_complete"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-is_complete'><code>poems::SimulationModel$is_complete()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="is_consistent"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-is_consistent'><code>poems::SimulationModel$is_consistent()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="list_completeness"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-list_completeness'><code>poems::SimulationModel$list_completeness()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="new_clone"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-new_clone'><code>poems::SimulationModel$new_clone()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="poems" data-topic="SimulationModel" data-id="set_attributes"><a href='../../poems/html/SimulationModel.html#method-SimulationModel-set_attributes'><code>poems::SimulationModel$set_attributes()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DiseaseModel-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DiseaseModel-new}{}}}
-\subsection{Method \code{new()}}{
-Initialization method sets default aliases and given attributes
+\if{html}{\out{<a id="method-DiseaseModel-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DiseaseModel-initialize}{}}}
+\subsection{\code{DiseaseModel$new()}}{
+  Initialization method sets default aliases and given attributes
 individually and/or from a list.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$new(attribute_aliases = NULL, ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{attribute_aliases}}{A list of alternative alias names for model
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DiseaseModel$new(attribute_aliases = NULL, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{attribute_aliases}}{A list of alternative alias names for model
 attributes (form: \code{alias = "attribute"}) to be used with the set and
 get attributes methods.}
+      \item{\code{...}}{Parameters passed via a \emph{params} list or individually.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{...}}{Parameters passed via a \emph{params} list or individually.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DiseaseModel-set_sample_attributes"></a>}}
 \if{latex}{\out{\hypertarget{method-DiseaseModel-set_sample_attributes}{}}}
-\subsection{Method \code{set_sample_attributes()}}{
-Sets the names (only - when \emph{params} is a vector) and values (when
+\subsection{\code{DiseaseModel$set_sample_attributes()}}{
+  Sets the names (only - when \emph{params} is a vector) and values (when
 \emph{params} is a list and/or when name-value pairs are provided) of the
 sample attributes for the model.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$set_sample_attributes(params = list(), ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{params}}{List of parameters/attributes (names and values) or array
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DiseaseModel$set_sample_attributes(params = list(), ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{params}}{List of parameters/attributes (names and values) or array
 of names only.}
+      \item{\code{...}}{Parameters/attributes passed individually.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{...}}{Parameters/attributes passed individually.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DiseaseModel-list_consistency"></a>}}
 \if{latex}{\out{\hypertarget{method-DiseaseModel-list_consistency}{}}}
-\subsection{Method \code{list_consistency()}}{
-Returns a boolean to indicate if (optionally selected or all) model
+\subsection{\code{DiseaseModel$list_consistency()}}{
+  Returns a boolean to indicate if (optionally selected or all) model
 attributes (such as dimensions) are consistent.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$list_consistency(params = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DiseaseModel$list_consistency(params = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{params}}{Optional array of parameter/attribute names.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    List of booleans (or NAs) to indicate consistency of selected/all
+attributes.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{params}}{Optional array of parameter/attribute names.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-List of booleans (or NAs) to indicate consistency of selected/all
-attributes.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DiseaseModel-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DiseaseModel-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DiseaseModel$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DiseaseModel$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DiseaseModel$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

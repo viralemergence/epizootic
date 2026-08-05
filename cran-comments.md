@@ -1,7 +1,8 @@
 # Test environments
-* macOS 15.6.1, Apple Silicon, R 4.5.2 (local install)
-* Windows, R-devel (via win-builder)
-* macOS, Apple Silicon chip, R 4.5.2 (via mac-builder)
+* macOS Tahoe 26.5.1, Apple Silicon, R 4.6.0 (local install)
+* ubuntu-release R-4.6.1 Ubuntu 24.04.4 LTS (via Rhub)
+* ubuntu-gcc12   R-devel Ubuntu 22.04.5 LTS (via Rhub)
+* 
 
 # Check results
 
